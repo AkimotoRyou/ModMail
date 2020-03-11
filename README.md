@@ -1,7 +1,7 @@
 # ModMail - Discord Bot
 
 Simple ModMail Discord bot designed for a small server and people that want to maintain their own ModMail bot in discord. 
-ModMail is a bot that create a private space between support staff and user to address an issue. 
+ModMail is a bot that create a private space between support staff and user to address an issue by creating a new channel. 
 This bot only support one server per bot and the ticket will be made in the same server.
 Please note that i'm not an expert programmer therefore there might be some issues on resources efficiency.
 
@@ -22,6 +22,13 @@ Graphical guide is still in progress.
 12. Keep the `Monitoring Interval *` to 5 minutes or lower (if you have premium plan) and click `Create Monitor`.
 
 That's it! The bot should be online 24/7 as long as Glitch and UptimeRobot didn't have any problem.
+
+## Requirements
+
+To operate functionally the bot need the following :
+* Administrator Permission : Somehow `Manage Roles` permission isn't enough to create a new channel that inherit a category channel permissions.
+* Dedicated Category Channel : Instead of setting a new permission everytime the bot create new channel, it used the same permission from this category channel. You can read [here](https://support.discordapp.com/hc/en-us/articles/115001580171-Channel-Categories-101) if you don't know what category channel is. 
+* Dedicated Text Channel : To log a new ticket and closed ticket, please add this below (inside) the dedicated category for modmail that was created before.
 
 ## Commands
 
