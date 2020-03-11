@@ -821,26 +821,20 @@ async function leaveServer(msg, server_ID) {
 async function configSync() {
   client.user.setActivity("Syncing...", { type: "WATCHING" });
   let configKeys = Object.keys(config);
-  var syncPromise = new Promise(resolve => {
-    configKeys.forEach(async aKey => {
-      try {
-        let getConfig = await ConfigDB.findOne({ where: { name: aKey } }).catch(
-          console.error
-        );
-        config[aKey] = getConfig.input || "empty";
-        resolve();
-      } catch (e) {
-        if (e.message == "Cannot read property 'input' of null") {
-          await resetConfig();
-          resolve();
-        }
-        return console.log(e);
+  configKeys.forEach(async aKey => {
+    try {
+      let getConfig = await ConfigDB.findOne({ where: { name: aKey } }).catch(
+        console.error
+      );
+      config[aKey] = getConfig.input || "empty";
+    } catch (e) {
+      if (e.message == "Cannot read property 'input' of null") {
+        await resetConfig();
       }
-    });
+      return console.log(e);
+    }
   });
-  syncPromise.then(() => {
-    console.log("Sync done.");
-  });
+  console.log("Sync done.");
 }
 
 //==============================================================================
