@@ -1,0 +1,2 @@
+# ModMail
+Discord ModMail Bot
