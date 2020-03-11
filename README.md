@@ -23,6 +23,35 @@ Graphical guide is still in progress.
 
 That's it! The bot should be online 24/7 as long as Glitch and UptimeRobot didn't have any problem.
 
+## Commands
+
+#### Owner Level 
+  * **leave** : Make the bot leave a specified server.
+#### Admin Level
+  * **restart** : Restart the bot.
+  * **reset** : Reset config values to default.
+  * **setup** : Setup config values.
+  * **configlist** : Show current config setting.
+  * **serverlist** : Show a list of servers that have this bot.
+#### Mod Level
+  * **reply** : Reply to a user thread.
+  * **close** : Close a thread.
+  * **block** : Block a user.
+  * **blocklist** : Show list of blocked user.
+  * **unblock** : Remove a user from blocked list.
+#### User Level
+  * **new** : Create a new thread.
+  * **help** : Show instruction about how to use the bot.
+  * **helpde** : Anleitung zur Verwendung des Bots anzeigen.
+  * **helptr** : Bot kullanımı hakkında talimat göster.
+  * **helpko** : 봇 사용 방법에 대한 지시 사항 표시.
+  * **helppt** : Mostrar instruções sobre como usar o bot.
+  * **helpfr** : Afficher les instructions sur l'utilisation du bot.
+  * **helpru** : Показать инструкцию о том, как использовать бот.
+  * **helpchs** : 显示如何使用操作这个系统的说明.
+  * **helpcht** : 顯示如何使用操作這個系統的說明.
+  * **helpes** : Mostrar instrucciones sobre cómo usar el bot.
+
 ## Testing
 
 I made Discord server to test the bot feel free to join at https://discord.gg/GGRWNgJ.
