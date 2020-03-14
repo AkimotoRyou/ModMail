@@ -284,7 +284,7 @@ async function newThread(msg, args) {
       .get(config.serverID)
       .members.get(msg.author.id)
       .roles.filter(r => r.name !== "@everyone")
-      .map(role => role.name)
+      .map(role => `<@&${role.id}>`)
       .join(", ");
     let description = `**Nickname** : \`${user.tag}\`\n**ID** : \`${
       user.id
@@ -480,19 +480,30 @@ async function reply(msg, arg) {
       .slice(1)
       .join(" ");
     let channelName = await msg.channel.name;
-    let user = await client.guilds.get(config.serverID).members.get(channelName)
-      .user;
-    let moderator = msg.author;
-
-    if (!user) {
-      msg.channel.send(
+    let user
+    try{
+      user = await client.guilds.get(config.serverID).members.get(channelName).user;
+    }catch(e){
+      if(e.message == "Cannot read property 'user' of undefined"){
+        return msg.channel.send(
         getEmbed(
           config.warning_color,
           "User Not Found!",
           `Can\'t find <@${channelName}>.`
         )
       );
-    } else {
+      } else {
+        return msg.channel.send(
+        getEmbed(
+          config.warning_color,
+          "Error",
+          e.message
+        )
+      );
+      }
+    }
+    let moderator = msg.author;
+    
       let mainServer = client.guilds.get(config.serverID);
       let chatGuildEmbed = new Discord.RichEmbed()
         .setColor(config.sent_color)
@@ -507,20 +518,38 @@ async function reply(msg, arg) {
         .setDescription(text)
         .setFooter(mainServer.name, mainServer.iconURL)
         .setTimestamp();
+    let disabledDM = getEmbed(config.error_color, "Failed!", "User disabled Direct Message.")
       if (msg.attachments.size == 0) {
+        try{
+        await user.send(chatDMEmbed);
+        } catch (e){
+          if(e.message == "Cannot send messages to this user"){
+            return msg.channel.send(disabledDM);
+          } else {
+            return msg.channel.send(getEmbed(config.error_color, "Error!", e.message))
+          }
+        }
         msg.channel.send(chatGuildEmbed);
-        user.send(chatDMEmbed);
         msg.delete();
       } else {
+        try {
+        await user.send(chatDMEmbed);
+        } catch (e){
+          if(e.message == "Cannot send messages to this user"){
+            return msg.channel.send(disabledDM);
+          } else {
+            return msg.channel.send(getEmbed(config.error_color, "Error!", e.message))
+          }
+        }
+        msg.channel.send(chatGuildEmbed);
         await msg.attachments.forEach(a => {
           let attachment = new Attachment(a.url);
-          msg.channel.send(attachment).then(user.send(attachment));
+          user.send(attachment).then(msg.channel.send(attachment));
+          
         });
-        msg.channel.send(chatGuildEmbed);
-        user.send(chatDMEmbed);
         msg.delete();
       }
-    }
+    
   }
 }
 
@@ -554,11 +583,11 @@ async function close(msg, arg) {
     let embed = getEmbed(
       config.warning_color,
       "Missing Argument",
-      `**Usage** : \`close [reason], [note]\``
+      `**Usage** : \`close [reason] - [note]\``
     );
     return msg.channel.send(embed);
   } else {
-    let temp = arg.split(/,+/);
+    let temp = arg.split(/-+/);
     let reason = temp[0];
     let note = temp[1] || "Empty";
     let logChannel = await client.guilds
@@ -588,7 +617,7 @@ async function close(msg, arg) {
       .setTimestamp();
     msg.channel.delete().catch(console.error);
     logChannel.send(logEmbed);
-    user.send(dmEmbed);
+    user.send(dmEmbed).catch(console.error.message);
   }
 }
 
@@ -691,12 +720,11 @@ async function setup(msg, configName, configValue) {
       configValue = "0";
     }
   } else if (
-    configName ==
-    ("info_color" ||
-      "warning_color" ||
-      "error_color" ||
-      "received_color" ||
-      "sent_color")
+    configName == "info_color" ||
+    configName == "warning_color" ||
+    configName == "error_color" ||
+    configName == "received_color" ||
+    configName == "sent_color"
   ) {
     var colorTest = /^#[0-9A-F]{6}$/i; //check if input is a hex color code. Search "JavaScript how to check hex code" for explanation.
     if (colorTest.test(configValue) == false) {
@@ -704,7 +732,7 @@ async function setup(msg, configName, configValue) {
         getEmbed(
           config.warning_color,
           "Invalid Input",
-          `Use hex code for input.\n\nExample : \`#ffffff\`, \`#000000\`\n\nColor picker site will be helpful https://html-color.codes/`
+          "Use hex code for input.\n\nExample : `#ffffff`, `#000000`\n\nColor picker site will be helpful https://html-color.codes/"
         )
       );
     }
@@ -821,20 +849,26 @@ async function leaveServer(msg, server_ID) {
 async function configSync() {
   client.user.setActivity("Syncing...", { type: "WATCHING" });
   let configKeys = Object.keys(config);
-  configKeys.forEach(async aKey => {
-    try {
-      let getConfig = await ConfigDB.findOne({ where: { name: aKey } }).catch(
-        console.error
-      );
-      config[aKey] = getConfig.input || "empty";
-    } catch (e) {
-      if (e.message == "Cannot read property 'input' of null") {
-        await resetConfig();
+  var syncPromise = new Promise(resolve => {
+    configKeys.forEach(async aKey => {
+      try {
+        let getConfig = await ConfigDB.findOne({ where: { name: aKey } }).catch(
+          console.error
+        );
+        config[aKey] = getConfig.input || "empty";
+        resolve();
+      } catch (e) {
+        if (e.message == "Cannot read property 'input' of null") {
+          await resetConfig();
+          resolve();
+        }
+        return console.log(e);
       }
-      return console.log(e);
-    }
+    });
   });
-  console.log("Sync done.");
+  syncPromise.then(() => {
+    console.log("Sync done.");
+  });
 }
 
 //==============================================================================
@@ -848,7 +882,9 @@ client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setActivity("Ready.", { type: "WATCHING" });
   //when i use local variable (config.maintenance), the configSync() is still in process.
-  let getMT = await ConfigDB.findOne({ where: { name: "maintenance"} }).catch(console.error);
+  let getMT = await ConfigDB.findOne({ where: { name: "maintenance" } }).catch(
+    console.error
+  );
   if (getMT.input == "0") {
     let index = 0;
     setInterval(() => {
