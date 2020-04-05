@@ -7,12 +7,11 @@ Please note that i'm not an expert programmer therefore there might be some issu
 
 ## Installation
 
-Graphical guide is still in progress.
 1. Set up bot application in [Discord](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token).
 2. Create [Glitch](https://glitch.com/) account.
 3. Create new `Hello-Express` project.
 4. Import files from this repository. (Tools -> Git, Import, and Export -> Import from GitHub -> Copy AkimotoRyou/ModMail -> click ok)
-5. Edit `.env` file (the one with key icon) replace all text with the one on `[Example].env.txt` and copy your bot code right after the `=` character.
+5. Edit `.env` file (the one with key icon) replace all text with the one on `[Example].env.txt` and copy your bot token right after the `=` character.
 6. (Optional) edit the botOwnerID value with your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).
 7. Create [UptimeRobot](https://uptimerobot.com/) account and login.
 8. On Dashboard, click `+ Add New Monitor`.
