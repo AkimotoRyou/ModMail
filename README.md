@@ -31,32 +31,41 @@ To operate functionally the bot need the following :
 
 ## Commands
 
-#### Owner Level 
-  * **leave** : Make the bot leave a specified server.
-#### Admin Level
-  * **restart** : Restart the bot.
-  * **reset** : Reset config values to default.
-  * **setup** : Setup config values.
-  * **configlist** : Show current config setting.
-  * **serverlist** : Show a list of servers that have this bot.
-#### Mod Level
-  * **reply** : Reply to a user thread.
-  * **close** : Close a thread.
-  * **block** : Block a user.
-  * **blocklist** : Show list of blocked user.
-  * **unblock** : Remove a user from blocked list.
-#### User Level
-  * **new** : Create a new thread.
-  * **help** : Show instruction about how to use the bot.
-  * **helpde** : Anleitung zur Verwendung des Bots anzeigen.
-  * **helptr** : Bot kullanımı hakkında talimat göster.
-  * **helpko** : 봇 사용 방법에 대한 지시 사항 표시.
-  * **helppt** : Mostrar instruções sobre como usar o bot.
-  * **helpfr** : Afficher les instructions sur l'utilisation du bot.
-  * **helpru** : Показать инструкцию о том, как использовать бот.
-  * **helpchs** : 显示如何使用操作这个系统的说明.
-  * **helpcht** : 顯示如何使用操作這個系統的說明.
-  * **helpes** : Mostrar instrucciones sobre cómo usar el bot.
+#### ~ Owner Level ~
+* **leave** : Leave a guild (server).
+* **reload** : Reload a command.
+#### ~ Admin Level ~
+* **bind** : Bind user thread to a channel.
+* **configinfo** : Show a configuration information.
+* **configuration** : Bot configuration.
+* **guilds** : List of guilds (servers) that have this bot.
+* **reset** : Reset all configuration values.
+* **restart** : Restart the bot.
+* **set** : Set specific configuration value.
+#### ~ Moderator Level ~
+* **aclose** : Anonymously close a user thread.
+* **areply** : Anonymously reply to a user thread.
+* **block** : Block a user from creating new thread and replying to a thread.
+* **blockinfo** : Information about a user's block.
+* **blocklist** : List of blocked users.
+* **close** : Close a user thread.
+* **reply** : Reply to a user thread.
+* **threadinfo** : Show a user thread information.
+* **unblock** : Unblock user from creating new thread.
+#### ~ User level ~
+* **commands** : List of all available commands according to your permission level.
+* **help** : Short instruction on how to create a new thread or info on a specific command.
+* **helpchs** : 显示如何使用操作这个系统的说明.
+* **helpcht** : 顯示如何使用操作這個系統的說明.
+* **helpde** : Anleitung zur Verwendung des Bots anzeigen.
+* **helpes** : Mostrar instrucciones sobre cómo usar el bot.
+* **helpfr** : Afficher les instructions sur l'utilisation du bot.
+* **helpkr** : 봇 사용 방법에 대한 지시 사항 표시.
+* **helppt** : Mostrar instruções sobre como usar o bot.
+* **helpru** : Показать инструкцию о том, как использовать бот.
+* **helptr** : Bot kullanımı hakkında talimat göster.
+* **new** : Create new thread.
+* **ping** : Calculate bot latency.
 
 ## Testing
 
