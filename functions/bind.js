@@ -13,16 +13,25 @@ module.exports = {
     const mainServer = await client.guilds.get(mainServerID);
     const threadServerID = config.threadServerID;
     const threadServer = await client.guilds.get(threadServerID);
+    const categoryID = config.categoryID;
+    const logChannelID = config.logChannelID;
 
     const userID = args.shift();
     const channelID = args.shift();
     const isThread = await ThreadDB.findOne({where: {userID: userID}});
     const isSame = await ThreadDB.findOne({where: {channelID: channelID}});
+    const getChannel = await threadServer.channels.get(channelID);
 
     const successEmbed = getEmbed.execute(param, config.info_color, "Success", `Binded <@${userID}> (\`${userID}\`) thread to <#${channelID}>.`);
     const sameChannelEmbed = getEmbed.execute(param, config.error_color, "Failed", `Channel <#${channelID}> binded with a thread already.`);
+    const noChannelEmbed = getEmbed.execute(param, config.error_color, "Not Found", `Couldn\'t find that channel.`);
+    const notChannelEmbed = getEmbed.execute(param, config.error_color, "Invalid Channel", `That isn\'t thread channel.`);
 
-    if (isSame) {
+    if(!getChannel){
+      return message.channel.send(noChannelEmbed);
+    } else if(getChannel.parentID != categoryID || channelID == categoryID || channelID == logChannelID){
+      return message.channel.send(notChannelEmbed);
+    } else if (isSame) {
       return message.channel.send(sameChannelEmbed);
     } else if(!isThread){
       const newThread = await ThreadDB.create({
