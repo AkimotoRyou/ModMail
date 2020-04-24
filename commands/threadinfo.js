@@ -14,7 +14,6 @@ module.exports = {
 
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don\'t have permission to run this command.");
     const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`mainServerID\` and/or \`threadServerID\` value is empty.");
-    const noChannelEmbed = getEmbed.execute(param, config.error_color, "Configuration Needed", "\`categoryID\` and/or \`logChannelID\` value is empty.");
     const noAdminEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`adminRoleID\` and/or \`modRoleID\` value is empty.");
     const notChannelEmbed = getEmbed.execute(param, config.error_color, "Invalid Channel", `This isn\'t thread channel.`);
 

@@ -14,6 +14,7 @@ module.exports = {
 
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don\'t have permission to run this command.");
     const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`mainServerID\` and/or \`threadServerID\` value is empty.");
+    const noChannelEmbed = getEmbed.execute(param, config.error_color, "Configuration Needed", "\`categoryID\` and/or \`logChannelID\` value is empty.");
     const noAdminEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`adminRoleID\` value is empty.");
 
     if (message.author.id === config.botOwnerID) {
@@ -21,8 +22,13 @@ module.exports = {
 			return bind.execute(param, message, args);
 		} else if (config.mainServerID == "empty" && config.threadServerID == "empty" && message.member.hasPermission("ADMINISTRATOR")) {
       //mainServerID and threadServerID empty and user has ADMINISTRATOR permission
-      message.channel.send(noServerEmbed);
-			return bind.execute(param, message, args);
+      if(config.mainServerID == "empty" || config.threadServerID == "empty"){
+        return message.channel.send(noServerEmbed);
+      } else if(config.categoryID == "empty" || config.logChannelID == "empty"){
+        return message.channel.send(noChannelEmbed);
+      } else {
+        return bind.execute(param, message, args);
+      }
 		} else {
 			if(message.guild.id == config.mainServerID || message.guild.id == config.threadServerID){
         //inside main server or thread server
@@ -32,7 +38,11 @@ module.exports = {
 				}
 				if (message.member.hasPermission("ADMINISTRATOR") || await param.roleCheck.execute(message, config.adminRoleID)){
           //user has ADMINISTRATOR permission or has admin role
-					return bind.execute(param, message, args);
+          if(config.categoryID == "empty" || config.logChannelID == "empty"){
+            return message.channel.send(noChannelEmbed);
+          } else {
+            return bind.execute(param, message, args);
+          }
 				} else {
           //user didn't have ADMINISTRATOR permission nor has admin role
           if (config.botChannelID != "empty" && message.channel.id != config.botChannelID) {
