@@ -1,8 +1,8 @@
 {
 	"prefix" : "=",
-	"botOwnerID" : "384304943516876801",
-  "mainServerID" : "",
-  "threadServerID" : "",
+	"botOwnerID" : "",
+  	"mainServerID" : "",
+  	"threadServerID" : "",
 	"categoryID" : "",
 	"logChannelID" : "",
 	"adminRoleID" : "",
