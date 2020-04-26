@@ -222,6 +222,7 @@ client.on('message', async message => {
 
       const authorID = message.author.id;
       const botOwnerID = config.botOwnerID;
+      const botChannelID = config.botChannelID;
       const maintenanceEmbed = param.getEmbed.execute(param, config.error_color, "Maintenance", "All commands are disabled.");
 
       if(message.guild == null && authorID != botOwnerID){
@@ -237,7 +238,9 @@ client.on('message', async message => {
         //mainServerID and threadServerID isn't empty
         if(message.guild.id == config.mainServerID || message.guild.id == config.threadServerID){
           //inside mainServerID or threadServerID
-          if(authorID != botOwnerID && !message.member.hasPermission('ADMINISTRATOR') && !param.roleCheck.execute(message, config.adminRoleID)){
+          if(botChannelID != "empty" && message.channel.id != botChannelID){
+            return;
+          } else if(authorID != botOwnerID && !message.member.hasPermission('ADMINISTRATOR') && !param.roleCheck.execute(message, config.adminRoleID)){
             //not bot owner and user doesn't have ADMINISTRATOR permission nor have Admin role
             return message.channel.send(maintenanceEmbed);
           }
