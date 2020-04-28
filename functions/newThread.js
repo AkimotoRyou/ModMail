@@ -83,7 +83,7 @@ module.exports = {
           .setThumbnail(author.avatarURL)
           .setFooter(`${author.tag} | ${author.id}`, author.avatarURL)
           .setTimestamp();
-        newChannel.send(newThreadEmbed);
+        newChannel.send(mentionedRole, newThreadEmbed);
 
         if (message.attachments.size > 0) {
           await message.attachments.forEach(async atch => {
