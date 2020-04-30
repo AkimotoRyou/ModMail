@@ -276,6 +276,10 @@ client.on('message', async message => {
   	} else if (botMentionIndex === 0){
   		args = message.content.slice(("<@"+client.user.id+">").length).split(/ +/);
   		commandName = args.shift().toLowerCase();
+      if (commandName == ''){
+        //in case user do @botMention[space][command name]
+        commandName = args.shift().toLowerCase();
+      }
   	}
 
     //finding command that was triggered
