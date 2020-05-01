@@ -50,6 +50,12 @@ To operate functionally the bot need the following :
 * **blocklist** : List of blocked users.
 * **close** : Close a user thread.
 * **reply** : Reply to a user thread.
+* **tag** : Send a saved response.
+* **tagadd** : Add a saved response.
+* **tagdelete** : Delete a saved response.
+* **tagedit** : Edit a saved response.
+* **taginfo** : Show a saved response information.
+* **taglist** : Show a all tag names.
 * **threadinfo** : Show a user thread information.
 * **unblock** : Unblock user from creating new thread.
 #### ~ User level ~
