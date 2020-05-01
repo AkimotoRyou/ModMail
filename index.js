@@ -71,7 +71,7 @@ const BlockedDB = blockedDB.define("blocked", {
   reason: Sequelize.STRING
 });
 
-//#snippetDB
+//#tagDB
 const tagDB = new Sequelize("database", "user", "password", {
   host: "localhost",
   dialect: "sqlite",
@@ -83,9 +83,7 @@ const TagDB = tagDB.define("tag", {
     type: Sequelize.STRING,
     unique: true
   },
-  modCreateID: Sequelize.STRING,
-  modUpdateID: Sequelize.STRING,
-  description: Sequelize.STRING
+  content: Sequelize.STRING
 });
 
 //#threadDB
@@ -155,7 +153,12 @@ const param = {
   block: client.functions.get("block"),
   unblock: client.functions.get("unblock"),
   blockinfo: client.functions.get("blockinfo"),
-  blocklist: client.functions.get("blocklist")
+  blocklist: client.functions.get("blocklist"),
+  tag: client.functions.get("tag"),
+  tagadd: client.functions.get("tagadd"),
+  tagedit: client.functions.get("tagedit"),
+  tagdelete: client.functions.get("tagdelete"),
+  taginfo: client.functions.get("taginfo"),
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
