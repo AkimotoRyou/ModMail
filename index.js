@@ -71,6 +71,23 @@ const BlockedDB = blockedDB.define("blocked", {
   reason: Sequelize.STRING
 });
 
+//#snippetDB
+const tagDB = new Sequelize("database", "user", "password", {
+  host: "localhost",
+  dialect: "sqlite",
+  logging: false,
+  storage: "tag.sqlite"
+});
+const TagDB = tagDB.define("tag", {
+  name: {
+    type: Sequelize.STRING,
+    unique: true
+  },
+  modCreateID: Sequelize.STRING,
+  modUpdateID: Sequelize.STRING,
+  description: Sequelize.STRING
+});
+
 //#threadDB
 const threadDB = new Sequelize("database", "user", "password", {
   host: "localhost",
@@ -114,6 +131,7 @@ const param = {
   client,
   ConfigDB,
   ThreadDB,
+  TagDB,
   BlockedDB,
   config,
   defConfig,
@@ -147,6 +165,7 @@ client.on('ready', async () => {
   console.log("[Syncing Database]");
   await BlockedDB.sync();
   await ConfigDB.sync();
+  await TagDB.sync();
   await ThreadDB.sync();
   await param.configSync.execute(param); //cant make the bot waiting this guy to finish pfft
 
@@ -159,7 +178,7 @@ client.on('ready', async () => {
     error => {console.log(error)}
   );
 
-  let isMaintenance
+  let isMaintenance;
   if(!getMaintenance){
     isMaintenance = "0";
   } else {
@@ -167,7 +186,7 @@ client.on('ready', async () => {
   }
 
   //#activities
-  let activities = []
+  let activities = [];
   if(getPrefix){
     activities.push(`Glitch.com | ${getPrefix.input}commands`);
     activities.push(`DM to contact Staff | ${getPrefix.input }help`);
@@ -217,42 +236,8 @@ client.on('guildCreate', async guild => {
 client.on('message', async message => {
 	if(message.author.bot) return;
   try {
-    //maintenance mode
-    if(config.maintenance == "1"){
-
-      const authorID = message.author.id;
-      const botOwnerID = config.botOwnerID;
-      const botChannelID = config.botChannelID;
-      const maintenanceEmbed = param.getEmbed.execute(param, config.error_color, "Maintenance", "All commands are disabled.");
-
-      if(message.guild == null && authorID != botOwnerID){
-        //in Direct Message and not bot owner
-        return message.channel.send(maintenanceEmbed);
-      } else if(config.mainServerID == "empty" && config.threadServerID == "empty") {
-        //the mainServerID and threadServerID empty
-        if(authorID != botOwnerID && !message.member.hasPermission('ADMINISTRATOR')){
-          //not bot owner and doesn't have ADMINISTRATOR permission
-          return message.channel.send(maintenanceEmbed);
-        };
-      } else if(config.mainServerID != "empty" && config.threadServerID != "empty"){
-        //mainServerID and threadServerID isn't empty
-        if(message.guild.id == config.mainServerID || message.guild.id == config.threadServerID){
-          //inside mainServerID or threadServerID
-          if(botChannelID != "empty" && message.channel.id != botChannelID){
-            return;
-          } else if(authorID != botOwnerID && !message.member.hasPermission('ADMINISTRATOR') && !param.roleCheck.execute(message, config.adminRoleID)){
-            //not bot owner and user doesn't have ADMINISTRATOR permission nor have Admin role
-            return message.channel.send(maintenanceEmbed);
-          }
-        } else {
-          //outside mainServerID and threadServerID
-          if(authorID != botOwnerID){
-            //not bot owner
-            return message.channel.send(maintenanceEmbed);
-          };
-        };
-      }
-    };
+    const authorID = message.author.id;
+    const maintenanceEmbed = param.getEmbed.execute(param, config.error_color, "Maintenance", "All functions are disabled.");
 
   	let args, commandName = "";
 
@@ -266,6 +251,8 @@ client.on('message', async message => {
         const isThread = await ThreadDB.findOne({where: {userID: message.author.id}});
         if(!isThread){
           return;
+        } else if(config.maintenance == "1" && authorID != config.botOwnerID){
+          return message.channel.send(maintenanceEmbed);
         } else {
           return param.userReply.execute(param, message, isThread);
         }
@@ -281,6 +268,39 @@ client.on('message', async message => {
         commandName = args.shift().toLowerCase();
       }
   	}
+
+    //maintenance mode
+    if(config.maintenance == "1"){
+      if(message.guild == null && authorID != config.botOwnerID){
+        //in Direct Message and not bot owner
+        return message.channel.send(maintenanceEmbed);
+      } else if(config.mainServerID == "empty" && config.threadServerID == "empty") {
+        //the mainServerID and threadServerID empty
+        if(authorID != config.botOwnerID && !message.member.hasPermission('ADMINISTRATOR')){
+          //not bot owner and doesn't have ADMINISTRATOR permission
+          return message.channel.send(maintenanceEmbed);
+        };
+      } else if(config.mainServerID != "empty" && config.threadServerID != "empty"){
+        //mainServerID and threadServerID isn't empty
+        if(message.guild.id == config.mainServerID || message.guild.id == config.threadServerID){
+          //inside mainServerID or threadServerID
+          if(authorID != config.botOwnerID && !message.member.hasPermission('ADMINISTRATOR') && !(await param.roleCheck.execute(message, config.adminRoleID))){
+            //not bot owner and user doesn't have ADMINISTRATOR permission nor have Admin role
+            if(config.botChannelID != "empty" && message.channel.id != config.botChannelID){
+              return;
+            } else {
+              return message.channel.send(maintenanceEmbed);
+            }
+          }
+        } else {
+          //outside mainServerID and threadServerID
+          if(authorID != config.botOwnerID){
+            //not bot owner
+            return message.channel.send(maintenanceEmbed);
+          };
+        };
+      }
+    };
 
     //finding command that was triggered
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
