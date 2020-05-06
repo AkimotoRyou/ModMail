@@ -1,6 +1,8 @@
 {
 	"prefix" : "=",
 	"botOwnerID" : "",
+	"cooldown" : "0",
+	"maintenance" : "0",
   	"mainServerID" : "",
   	"threadServerID" : "",
 	"categoryID" : "",
@@ -9,7 +11,6 @@
 	"modRoleID" : "",
 	"mentionedRoleID" : "here",
 	"botChannelID" : "",
-	"maintenance" : "0",
 	"info_color" : "#add8e6",
 	"warning_color" : "#ffff00",
 	"error_color" : "#ff0000",
