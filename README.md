@@ -57,6 +57,7 @@ To operate functionally the bot need the following :
 * **taginfo** : Show a saved response information.
 * **taglist** : Show a all tag names.
 * **threadinfo** : Show a user thread information.
+* **threadlist** : Show all open threads.
 * **unblock** : Unblock user from creating new thread.
 #### ~ User level ~
 * **commands** : List of all available commands according to your permission level.
