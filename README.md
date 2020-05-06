@@ -13,12 +13,13 @@ Please note that i'm not an expert programmer therefore there might be some issu
 4. Import files from this repository. (Tools -> Git, Import, and Export -> Import from GitHub -> Copy AkimotoRyou/ModMail -> click ok)
 5. Edit `.env` file (the one with key icon) replace all text with the one on `[Example].env.txt` and copy your bot token right after the `=` character.
 6. (Optional) edit the botOwnerID value with your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).
-7. Create [UptimeRobot](https://uptimerobot.com/) account and login.
-8. On Dashboard, click `+ Add New Monitor`.
-9. Change `Monitor Type *` to `HTTP(s)`.
-10. Fill the name to your own liking.
-11. On your Glitch project, click `show` -> `In a New Window` copy the link to UptimeRobot `URL (or IP)*` part.
-12. Keep the `Monitoring Interval *` to 5 minutes or lower (if you have premium plan) and click `Create Monitor`.
+7. If you have glitch [subscription](https://glitch.com/pricing), your bot will run 24/7 and you don't need follow the instructions below.
+8. Create [UptimeRobot](https://uptimerobot.com/) account and login.
+9. On Dashboard, click `+ Add New Monitor`.
+10. Change `Monitor Type *` to `HTTP(s)`.
+11. Fill the name to your own liking.
+12. On your Glitch project, click `show` -> `In a New Window` copy the link to UptimeRobot `URL (or IP)*` part.
+13. Keep the `Monitoring Interval *` to 5 minutes or lower (if you have [pro plan](https://uptimerobot.com/pricing)) and click `Create Monitor`.
 
 That's it! The bot should be online 24/7 as long as Glitch and UptimeRobot didn't have any problem.
 
