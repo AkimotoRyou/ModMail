@@ -21,6 +21,8 @@ console.log("[Loading Variables]");
 var config = {
   prefix: "",
   botOwnerID: "",
+  cooldown: "",
+  maintenance: "",
   mainServerID: "",
   threadServerID: "",
   categoryID: "",
@@ -29,7 +31,6 @@ var config = {
   adminRoleID: "",
   modRoleID: "",
   mentionedRoleID: "",
-  maintenance: "",
   info_color: "",
   warning_color: "",
   error_color: "",
@@ -96,7 +97,8 @@ const threadDB = new Sequelize("database", "user", "password", {
 const ThreadDB = configDB.define("thread", {
   userID: {
     type: Sequelize.STRING,
-    unique: true
+    unique: true,
+    allowNull: false
   },
   channelID: {
     type: Sequelize.STRING,
@@ -120,6 +122,9 @@ for (const file of functionFiles) {
 	const func = require(`./functions/${file}`);
 	client.functions.set(func.name, func);
 }
+
+//#cooldownCollection
+const cooldowns = new Discord.Collection();
 
 //#parameter
 const param = {
@@ -145,6 +150,7 @@ const param = {
   bind: client.functions.get("bind"),
   newThread: client.functions.get("newThread"),
   threadInfo: client.functions.get("threadInfo"),
+  threadlist: client.functions.get("threadlist"),
   reply: client.functions.get("reply"),
   areply: client.functions.get("areply"),
   userReply: client.functions.get("userReply"),
@@ -272,6 +278,12 @@ client.on('message', async message => {
       }
   	}
 
+    //finding command that was triggered
+    const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+    //user using prefix or mention bot, command name is invalid
+    if ((prefixIndex == 0 || botMentionIndex == 0) && !command) return;
+
     //maintenance mode
     if(config.maintenance == "1"){
       if(message.guild == null && authorID != config.botOwnerID){
@@ -305,11 +317,37 @@ client.on('message', async message => {
       }
     };
 
-    //finding command that was triggered
-    const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+    //cooldown more than 0
+    if (config.cooldown > 0) {
+      if (config.botChannelID != "empty" && message.channel.id != config.botChannelID) {
+        return;
+      } else {
+        if (!cooldowns.has(command.name)) {
+      		cooldowns.set(command.name, new Discord.Collection());
+      	}
 
-    //user using prefix or mention bot, command name is invalid
-    if ((prefixIndex == 0 || botMentionIndex == 0) && !command) return;
+      	const now = Date.now();
+      	const timestamps = cooldowns.get(command.name);
+      	const cooldownAmount = config.cooldown * 1000;
+
+      	if (timestamps.has(message.author.id)) {
+      		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+      		if (now < expirationTime) {
+            //Uncomment this if you want the bot send message when the cooldown isn\'t over
+            /*
+            const timeLeft = (expirationTime - now) / 1000;
+            const embed = param.getEmbed.execute(param, config.info_color, "Cooldown", `${timeLeft.toFixed(1)} second(s).`)
+      			return message.reply(embed);
+            */
+            return;
+      		}
+      	}
+
+      	timestamps.set(message.author.id, now);
+      	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+      }
+    }
 
     //command is guildOnly, user trigger it inside Direct Message
     if(command.guildOnly && message.channel.type !== 'text' && message.author.id != config.botOwnerID){

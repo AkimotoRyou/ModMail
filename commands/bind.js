@@ -6,7 +6,7 @@ module.exports = {
 	args: true,
   usage: '<userID> <channelID>',
   description: 'Bind user thread to a channel.',
-	note: 'Only use under these circumtances : \n> There is an open thread from other bot.\n> The channel was accidentally deleted.\n> Category channel was accidentally deleted and changed.',
+	note: 'User presence isn\'t checked to enable binding user thread that are outside the server.\nOnly use under these circumtances : \n> There is an open thread from other bot.\n> The channel was accidentally deleted.\n> Category channel was accidentally deleted and changed.',
   async execute(param, message, args){
     const config = param.config;
     const getEmbed = param.getEmbed;

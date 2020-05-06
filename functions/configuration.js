@@ -8,28 +8,24 @@ module.exports = {
     let botConfig = [];
     let serverConfig = [];
     let embedColorConfig = [];
-    let botOwnerIDIndex = ""; //As separator for server related config and bot config.
-    let maintenanceIndex = ""; //As separator for server related config and embed color config.
+    let maintenanceIndex = ""; //As separator for server related config and bot config.
+    let info_colorIndex = ""; //As separator for server related config and embed color config.
 
     //getting the index first for separator
     for (var i = 0; i < configKeys.length; i++) {
-      if(configKeys[i] == "botOwnerID"){
-        botOwnerIDIndex = i;
-      } else if(configKeys[i] == "maintenance"){
+      if(configKeys[i] == "maintenance"){
         maintenanceIndex = i;
+      } else if(configKeys[i] == "info_color"){
+        info_colorIndex = i;
       }
     };
 
     for (var i = 0; i < configKeys.length; i++) {
-      if(configKeys[i] == "prefix"){
+      if(i <= maintenanceIndex){
         botConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
-      } else if(configKeys[i] == "botOwnerID"){
-        botConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
-      } else if(i > botOwnerIDIndex && i < maintenanceIndex){
+      } else if(i > maintenanceIndex && i < info_colorIndex){
         serverConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
-      } else if(configKeys[i] == "maintenance"){
-        botConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
-      } else if(i > maintenanceIndex && i < configKeys.length){
+      } else if(i >= info_colorIndex && i < configKeys.length){
         embedColorConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
       }
     };

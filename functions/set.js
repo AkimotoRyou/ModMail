@@ -23,6 +23,8 @@ module.exports = {
     const notSetEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", `Please set \`threadServerID\` to change this config.`);
     const emptyValueEmbed = getEmbed.execute(param, config.warning_color, "Invalid Value", "This config value can\'t be empty.");
     const invalidUserEmbed = getEmbed.execute(param, config.warning_color, "Invalid User", `Can\'t find that user.`);
+    const notNumberEmbed = getEmbed.execute(param, config.warning_color, "Invalid Argument", `That isn\'t a number.`);
+    const negativeNumberEmbed = getEmbed.execute(param, config.warning_color, "Invalid Argument", `The value can\'t be negative.`);
     const invalidServerEmbed = getEmbed.execute(param, config.warning_color, "Invalid Server", `Can\'t find that server.\n\`Make sure the bot joined the server already\``);
     const invalidChannelMainEmbed = getEmbed.execute(param, config.warning_color, "Invalid Channel", `Can\'t find that channel.\n\`Make sure the channel is inside Main Server.\``);
     const invalidChannelThreadEmbed = getEmbed.execute(param, config.warning_color, "Invalid Channel", `Can\'t find that channel.\n\`Make sure the channel is inside Thread Server.\``);
@@ -39,6 +41,14 @@ module.exports = {
       } else if(!client.users.get(inputValue)){
         return message.channel.send(invalidUserEmbed);
       };
+
+    } else if(configName == "cooldown"){
+
+      if (isNaN(inputValue)) {
+        return message.channel.send(notNumberEmbed);
+      } else if(inputValue < 0) {
+        return message.channel.send(negativeNumberEmbed);
+      }
 
     } else if(configName == "mainServerID" && inputValue != "empty"){
 

@@ -5,7 +5,7 @@ module.exports = {
   guildOnly: true,
 	args: false,
   usage: false,
-	description: 'Show a all tag names.',
+	description: 'Show all tag names.',
   note: false,
 	async execute(param, message, args){
     const config = param.config;
