@@ -319,8 +319,35 @@ client.on('message', async message => {
 
     //cooldown more than 0
     if (config.cooldown > 0) {
-      if (config.botChannelID != "empty" && message.channel.id != config.botChannelID) {
-        return;
+      if (message.guild != null) {
+        if(config.botChannelID != "empty" && message.channel.id != config.botChannelID && message.guild.id == config.mainServerID && message.guild.id != config.threadServerID){
+          return;
+        } else {
+          if (!cooldowns.has(command.name)) {
+        		cooldowns.set(command.name, new Discord.Collection());
+        	}
+
+        	const now = Date.now();
+        	const timestamps = cooldowns.get(command.name);
+        	const cooldownAmount = config.cooldown * 1000;
+
+        	if (timestamps.has(message.author.id)) {
+        		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+        		if (now < expirationTime) {
+              //Uncomment this if you want the bot send message when the cooldown isn\'t over
+              /*
+              const timeLeft = (expirationTime - now) / 1000;
+              const embed = param.getEmbed.execute(param, config.info_color, "Cooldown", `${timeLeft.toFixed(1)} second(s).`)
+        			return message.reply(embed);
+              */
+              return;
+        		}
+        	}
+
+        	timestamps.set(message.author.id, now);
+        	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+        }
       } else {
         if (!cooldowns.has(command.name)) {
       		cooldowns.set(command.name, new Discord.Collection());
