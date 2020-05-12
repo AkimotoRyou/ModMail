@@ -198,16 +198,16 @@ client.on('ready', async () => {
   let activities = [];
   if(getPrefix){
     activities.push(`Glitch.com | ${getPrefix.input}commands`);
-    activities.push(`DM to contact Staff | ${getPrefix.input }help`);
-    activities.push(`DM, um Mitarbeiter zu kontaktieren | ${getPrefix.input}helpDE`);
-    activities.push(`Personel ile irtibata geçmek için DM | ${getPrefix.input}helpTR`);
-    activities.push(`직원에게 연락하는 DM | ${getPrefix.input}helpKR`);
-    activities.push(`DM para entrar em contato com a equipe | ${getPrefix.input}helpPT`);
-    activities.push(`DM contacte le personnel | ${getPrefix.input}helpFR`);
-    activities.push(`DM связаться с персоналом | ${getPrefix.input}helpRU`);
-    activities.push(`DM 与官方人员联系 | ${getPrefix.input}helpCHS`);
-    activities.push(`DM 與官方人員聯繫 | ${getPrefix.input}helpCHT`);
-    activities.push(`DM para contactar al personal | ${getPrefix.input}helpES`);
+    activities.push(`Send me a message | ${getPrefix.input }help`);
+    activities.push(`Schick mir eine Nachricht | ${getPrefix.input}helpDE`);
+    activities.push(`Bana mesaj gönder | ${getPrefix.input}helpTR`);
+    activities.push(`나에게 메세지를 보내 | ${getPrefix.input}helpKR`);
+    activities.push(`Me mande uma mensagem | ${getPrefix.input}helpPT`);
+    activities.push(`Envoyez-moi un message | ${getPrefix.input}helpFR`);
+    activities.push(`Пришлите мне сообщение | ${getPrefix.input}helpRU`);
+    activities.push(`给我发一条信息 | ${getPrefix.input}helpCHS`);
+    activities.push(`給我發一條信息 | ${getPrefix.input}helpCHT`);
+    activities.push(`Envíeme un mensaje | ${getPrefix.input}helpES`);
   } else {
     activities.push(`- Restart Me -`);
   }
@@ -215,14 +215,14 @@ client.on('ready', async () => {
   if (isMaintenance == "0") {
     let index = 0;
     setInterval(() => {
-      client.user.setActivity(activities[index], { type: "WATCHING" });
+      client.user.setActivity(activities[index]);
       index++;
       if (index == activities.length) index = 0;
     }, 7000);
   } else {
     //using timeout since i can't make the bot wait for configSync() function to finish :(
     setTimeout(()=> {
-      client.user.setActivity("~ Under Maintenance ~", { type: "STREAMING" });
+      client.user.setActivity("~ Under Maintenance ~");
     }, 10000);
   }
 });

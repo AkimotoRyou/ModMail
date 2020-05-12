@@ -6,7 +6,7 @@ module.exports = {
     const user = param.client.user;
 
     console.log("[Syncing Configuration]")
-    user.setActivity("Syncing...", { type: "WATCHING" });
+    user.setActivity("Syncing...");
     let configKeys = Object.keys(config);
     var syncPromise = new Promise(resolve => {
       try {
@@ -32,7 +32,7 @@ module.exports = {
     });
     syncPromise.then(() => {
       console.log("[Synced]");
-      user.setActivity("[Ready]", { type: "WATCHING" });
+      user.setActivity("[Ready]");
     });
   }
 };
