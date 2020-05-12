@@ -15,7 +15,7 @@ module.exports = {
 		const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`mainServerID\` and/or \`threadServerID\` value is empty.");
     const noAdminEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`adminRoleID\`` value is empty.");
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don\'t have permission to run this command.");
-    const guildList = client.guilds.map(guild => `[**${guild.name}**] (\`${guild.id}\`)`).join("\n") || "This bot hasn't joined any guild yet.";
+    const guildList = client.guilds.cache.map(guild => `[**${guild.name}**] (\`${guild.id}\`)`).join("\n") || "This bot hasn't joined any guild yet.";
     const listEmbed = getEmbed.execute(param, config.info_color, "Guilds", guildList);
 
     if (message.author.id === config.botOwnerID) {

@@ -3,7 +3,7 @@
 //#dependencies
 console.log("[Loading Dependencies]");
 const Discord = require("discord.js");
-const { Util, Attachment } = require("discord.js");
+const { Util, MessageAttachment } = require("discord.js");
 const client = new Discord.Client();
 const server = require("./server.js");
 const Sequelize = require("sequelize");
@@ -129,7 +129,7 @@ const cooldowns = new Discord.Collection();
 //#parameter
 const param = {
   Discord,
-  Attachment,
+  MessageAttachment,
   moment,
   client,
   ConfigDB,
@@ -234,7 +234,7 @@ client.on('guildCreate', async guild => {
   const ownerID = config.botOwnerID;
   if(ownerID){
     const newServerEmbed = param.getEmbed.execute(param, config.info_color, "Joined a Guild", `[**${guild.name}**] (\`${guild.id}\`)`);
-    client.users.get(ownerID).send(newServerEmbed);
+    client.users.cache.get(ownerID).send(newServerEmbed);
   }
   console.log(`Joined [${guild.name}] guild.`);
 });

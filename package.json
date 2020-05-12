@@ -1,17 +1,13 @@
 {
-  "//1": "describes your app and its dependencies",
-  "//2": "https://docs.npmjs.com/files/package.json",
-  "//3": "updating this file will download and update your packages",
-  "name": "hello-express",
-  "version": "0.0.1",
-  "description": "A simple Node app built on Express, instantly up and running.",
+  "name": "ModMail",
+  "version": "2.0.0",
+  "description": "A simple ModMail bot for Discord.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "node index.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^11.5.1",
+    "discord.js": "^12.2.0",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "moment": "^2.24.0",
@@ -19,16 +15,19 @@
     "sqlite3": "^4.1.1"
   },
   "engines": {
-    "node": "v11.9.0",
+    "node": "v12.16.3",
     "npm": "6.5.0"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/hello-express"
+    "url": "https://github.com/AkimotoRyou/ModMail"
   },
-  "license": "MIT",
+  "license": "GPL-3.0",
   "keywords": [
     "node",
     "glitch",
-    "express"
+    "express",
+    "discordjs",
+    "discord-bot",
+    "modmail-bot"
   ]
 }

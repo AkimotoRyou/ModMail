@@ -30,14 +30,14 @@ module.exports = {
       }
     };
 
-    const configEmbed = new Discord.RichEmbed()
+    const configEmbed = new Discord.MessageEmbed()
       .setColor(config.info_color)
       .setTitle("Configuration")
       .addField("~ Bot ~", botConfig)
       .addField("~ Server ~", serverConfig)
       .addField("~ Embed Color ~", embedColorConfig)
-      .setThumbnail(client.user.avatarURL)
-      .setFooter(client.user.tag, client.user.avatarURL)
+      .setThumbnail(client.user.avatarURL())
+      .setFooter(client.user.tag, client.user.avatarURL())
       .setTimestamp();
     return configEmbed;
   }

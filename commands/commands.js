@@ -25,7 +25,7 @@ module.exports = {
     const userLevel = userCollection.map(command => `**${command.name}** : ${command.description}`).join('\n');
 
 		//embeds
-    const ownerEmbed = new Discord.RichEmbed()
+    const ownerEmbed = new Discord.MessageEmbed()
       .setColor(config.info_color)
       .setTitle("Commands")
 			.setDescription(`Use \`${config.prefix}help [command name]\` to get information for each command.`)
@@ -34,9 +34,9 @@ module.exports = {
       .addField("~ Moderator Level ~", moderatorLevel || "empty")
       .addField("~ User level ~", userLevel || "empty")
       .setThumbnail(client.user.avatarURL)
-      .setFooter(client.user.tag, client.user.avatarURL)
+      .setFooter(client.user.tag, client.user.avatarURL())
       .setTimestamp();
-    const adminEmbed = new Discord.RichEmbed()
+    const adminEmbed = new Discord.MessageEmbed()
       .setColor(config.info_color)
       .setTitle("Command List")
 			.setDescription(`Use \`${config.prefix}help [command name]\` to get information for each command.`)
@@ -44,24 +44,24 @@ module.exports = {
       .addField("~ Moderator Level ~", moderatorLevel || "empty")
       .addField("~ User level ~", userLevel || "empty")
       .setThumbnail(client.user.avatarURL)
-      .setFooter(client.user.tag, client.user.avatarURL)
+      .setFooter(client.user.tag, client.user.avatarURL())
       .setTimestamp();
-    const moderatorEmbed = new Discord.RichEmbed()
+    const moderatorEmbed = new Discord.MessageEmbed()
       .setColor(config.info_color)
       .setTitle("Command List")
 			.setDescription(`Use \`${config.prefix}help [command name]\` to get information for each command.`)
       .addField("~ Moderator Level ~", moderatorLevel || "empty")
       .addField("~ User level ~", userLevel || "empty")
       .setThumbnail(client.user.avatarURL)
-      .setFooter(client.user.tag, client.user.avatarURL)
+      .setFooter(client.user.tag, client.user.avatarURL())
       .setTimestamp();
-    const userEmbed = new Discord.RichEmbed()
+    const userEmbed = new Discord.MessageEmbed()
       .setColor(config.info_color)
       .setTitle("Command List")
 			.setDescription(`Use \`${config.prefix}help [command name]\` to get information for each command.`)
       .addField("~ User level ~", userLevel || "empty")
       .setThumbnail(client.user.avatarURL)
-      .setFooter(client.user.tag, client.user.avatarURL)
+      .setFooter(client.user.tag, client.user.avatarURL())
       .setTimestamp();
 
 		const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "\`mainServerID\` and/or \`threadServerID\` value is empty.");

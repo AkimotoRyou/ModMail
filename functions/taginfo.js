@@ -20,8 +20,8 @@ module.exports = {
 			var data = [];
 
 			data.push(`**Name** : ${isTag.name}`);
-			data.push(`**Created at** : ${moment(isThread.createdAt).format("D MMMM YYYY, **HH:mm:ss** UTC")}`);
-      data.push(`**Updated at** : ${moment(isThread.updatedAt).format("D MMMM YYYY, **HH:mm:ss** UTC")}`);
+			data.push(`**Created at** : ${moment(isTag.createdAt).format("D MMMM YYYY, **HH:mm:ss** UTC")}`);
+      data.push(`**Updated at** : ${moment(isTag.updatedAt).format("D MMMM YYYY, **HH:mm:ss** UTC")}`);
 			data.push(`**Response** : \`\`\`${isTag.content}\`\`\``);
 
 			const tagInfoEmbed = getEmbed.execute(param, config.info_color, "Tag Information", data.join('\n'));

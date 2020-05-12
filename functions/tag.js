@@ -9,7 +9,7 @@ module.exports = {
 		const getEmbed = param.getEmbed;
 
 		const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
 		const author = message.author;
 		const channel = message.channel;
     const tagName = args.join(' ').toLowerCase();
@@ -44,10 +44,10 @@ module.exports = {
 				return user.id === message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌');
 			}
 
-			const waitingEmbed = new param.Discord.RichEmbed()
+			const waitingEmbed = new param.Discord.MessageEmbed()
 	      .setColor(config.info_color)
 	      .setDescription(isTag.content + `\n\nReact with ✅ to send, ❌ to cancel.\n\`Timeout: 30 seconds.\``)
-	      .setFooter(param.client.user.tag, param.client.user.avatarURL)
+	      .setFooter(param.client.user.tag, param.client.user.avatarURL())
 	      .setTimestamp();
 
 			const botMsg = await message.channel.send(waitingEmbed);
@@ -72,19 +72,19 @@ module.exports = {
 							return message.channel.send(blockedEmbed);
 						} else {
 							//user are member and not blocked
-							const getUser = await mainServer.members.get(userID).user;
-							const userDMEmbed = new Discord.RichEmbed()
+							const getUser = await mainServer.members.cache.get(userID).user;
+							const userDMEmbed = new Discord.MessageEmbed()
 								.setColor(config.sent_color)
 								.setTitle("Message Received")
 								.setDescription(isTag.content)
-								.setFooter(mainServer.name, mainServer.avatarURL)
+								.setFooter(mainServer.name, mainServer.avatarURL())
 								.setTimestamp();
-							const threadChannelEmbed = new Discord.RichEmbed()
+							const threadChannelEmbed = new Discord.MessageEmbed()
 								.setColor(config.sent_color)
-								.setAuthor(`[Anonymous] | ${author.tag}`, author.avatarURL)
+								.setAuthor(`[Anonymous] | ${author.tag}`, author.avatarURL())
 								.setTitle("Message Sent")
 								.setDescription(isTag.content)
-								.setFooter(`${getUser.tag} | ${getUser.id}`, getUser.avatarURL)
+								.setFooter(`${getUser.tag} | ${getUser.id}`, getUser.avatarURL())
 								.setTimestamp();
 
 							try{

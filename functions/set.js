@@ -38,7 +38,7 @@ module.exports = {
         return message.channel.send(notOwnerEmbed);
       } else if(inputValue == "empty"){
         return message.channel.send(emptyValueEmbed);
-      } else if(!client.users.get(inputValue)){
+      } else if(!client.users.cache.get(inputValue)){
         return message.channel.send(invalidUserEmbed);
       };
 
@@ -52,13 +52,13 @@ module.exports = {
 
     } else if(configName == "mainServerID" && inputValue != "empty"){
 
-      if(!client.guilds.get(inputValue)) {
+      if(!client.guilds.cache.get(inputValue)) {
         return message.channel.send(invalidServerEmbed);
       };
 
     } else if(configName == "threadServerID" && inputValue != "empty"){
 
-      if(!client.guilds.get(inputValue)) {
+      if(!client.guilds.cache.get(inputValue)) {
         return message.channel.send(invalidServerEmbed);
       };
 
@@ -66,7 +66,7 @@ module.exports = {
 
       if(config.threadServerID == "empty"){
         return message.channel.send(notSetEmbed);
-      } else if(!client.guilds.get(config.threadServerID).channels.get(inputValue)){
+      } else if(!client.guilds.cache.get(config.threadServerID).channels.cache.get(inputValue)){
         return message.channel.send(invalidChannelThreadEmbed);
       };
 
@@ -74,7 +74,7 @@ module.exports = {
 
       if(config.mainServerID == "empty"){
         return message.channel.send(notSetEmbed);
-      } else if(!client.guilds.get(config.mainServerID).channels.get(inputValue)){
+      } else if(!client.guilds.cache.get(config.mainServerID).channels.cache.get(inputValue)){
         return message.channel.send(invalidChannelMainEmbed);
       };
 
@@ -82,7 +82,7 @@ module.exports = {
 
       if(config.threadServerID == "empty"){
         return message.channel.send(notSetEmbed);
-      } else if(!client.guilds.get(config.threadServerID).roles.get(inputValue)){
+      } else if(!client.guilds.cache.get(config.threadServerID).roles.cache.get(inputValue)){
         return message.channel.send(invalidRoleEmbed);
       };
 
@@ -90,7 +90,7 @@ module.exports = {
 
       if(config.threadServerID == "empty"){
         return message.channel.send(notSetEmbed);
-      } else if(!client.guilds.get(config.threadServerID).roles.get(inputValue)){
+      } else if(!client.guilds.cache.get(config.threadServerID).roles.cache.get(inputValue)){
         return message.channel.send(invalidRoleEmbed);
       }
 

@@ -3,8 +3,8 @@ module.exports = {
   async execute(param, userID){
     const client = param.client;
     const mainServerID = param.config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
-    const isMember = await mainServer.members.get(userID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
+    const isMember = await mainServer.members.cache.get(userID);
 
     if(isMember){
       return true;
