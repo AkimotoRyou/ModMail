@@ -2,7 +2,7 @@ module.exports = {
   name: "newThread",
   async execute(param, message, args){
     const Discord = param.Discord;
-    const Attachment = param.Attachment;
+    const MessageAttachment = param.MessageAttachment;
     const moment = param.moment;
     const client = param.client;
     const getEmbed = param.getEmbed;
@@ -12,13 +12,13 @@ module.exports = {
     const isBlocked = param.isBlocked;
 
     const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
     const threadServerID = config.threadServerID;
-    const threadServer = await client.guilds.get(threadServerID);
+    const threadServer = await client.guilds.cache.get(threadServerID);
     const categoryID = config.categoryID;
-    const categoryChannel = await threadServer.channels.get(categoryID);
+    const categoryChannel = await threadServer.channels.cache.get(categoryID);
     const logChannelID = config.logChannelID;
-    const logChannel = await threadServer.channels.get(logChannelID);
+    const logChannel = await threadServer.channels.cache.get(logChannelID);
     const author = message.author;
     const mentionedRoleID = config.mentionedRoleID;
 
@@ -45,49 +45,48 @@ module.exports = {
       } else if (checkIsBlocked){
         return message.channel.send(blockedEmbed);
       } else {
-        const newChannel = await threadServer.createChannel(author.tag.replace("#", "-"), { type: "text" });
-        await newChannel.setParent(categoryID); //move the channel under category channel
-        await newChannel.lockPermissions(); //inherit category channel permission
+        const newChannel = await threadServer.channels.create(author.tag.replace("#", "-"), { type: "text" });
+        await newChannel.setParent(categoryID).then(chnl => chnl.lockPermissions()) //Set channel parent and then set the permissions
 
-        let logEmbed = new Discord.RichEmbed()
+        let logEmbed = new Discord.MessageEmbed()
           .setColor(config.info_color)
           .setTitle("New Thread")
           .setDescription(`${args.join(' ')}`)
-          .setFooter(`${author.tag} | ${author.id}`, author.avatarURL)
+          .setFooter(`${author.tag} | ${author.id}`, author.avatarURL())
           .setTimestamp();
         logChannel.send(logEmbed);
 
-        let dmEmbed = new Discord.RichEmbed()
+        let dmEmbed = new Discord.MessageEmbed()
           .setColor(config.info_color)
           .setTitle("Thread Created!")
           .setDescription(
             `**Title** : ${args.join(' ')}\n\`Please describe your issue. (No command needed.)\``
           )
-          .setFooter(mainServer.name, mainServer.iconURL)
+          .setFooter(mainServer.name, mainServer.iconURL())
           .setTimestamp();
         author.send(dmEmbed);
 
-        const member = await mainServer.members.get(author.id);
-        const memberRoles = await member.roles.map(role => `${role.name}`).join(', ');
+        const member = await mainServer.members.cache.get(author.id);
+        const memberRoles = await member.roles.cache.filter(role => role.name != '@everyone').map(role => `\`${role.name}\``).join(', ');
         let userData = [];
         userData.push(`**User Tag** : \`${author.tag}\``);
         userData.push(`**User ID** : \`${author.id}\``);
         userData.push(`**Created at** : ${moment(author.createdAt).format("D MMM YYYY, HH:mm")}`);
         userData.push(`**Joined at** : ${moment(member.joinedAt).format("D MMM YYYY, HH:mm")}`);
         userData.push(`**Roles** : ${memberRoles}`);
-        let newThreadEmbed = new Discord.RichEmbed()
+        let newThreadEmbed = new Discord.MessageEmbed()
           .setColor(config.info_color)
           .setTitle("New Thread")
           .setDescription(args.join(' '))
           .addField("User Info", userData.join('\n'))
           .setThumbnail(author.avatarURL)
-          .setFooter(`${author.tag} | ${author.id}`, author.avatarURL)
+          .setFooter(`${author.tag} | ${author.id}`, author.avatarURL())
           .setTimestamp();
         newChannel.send(mentionedRole, newThreadEmbed);
 
         if (message.attachments.size > 0) {
           await message.attachments.forEach(async atch => {
-            let attachment = new Attachment(atch.url);
+            let attachment = new MessageAttachment(atch.url);
             await newChannel.send(attachment);
           });
         }

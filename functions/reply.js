@@ -2,7 +2,7 @@ module.exports = {
   name: "reply",
   async execute(param, message, args){
     const Discord = param.Discord;
-    const Attachment = param.Attachment;
+    const MessageAttachment = param.MessageAttachment;
     const client = param.client;
     const getEmbed = param.getEmbed;
     const config = param.config;
@@ -11,9 +11,9 @@ module.exports = {
     const isBlocked = param.isBlocked;
 
     const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
     const threadServerID = config.threadServerID;
-    const threadServer = await client.guilds.get(threadServerID);
+    const threadServer = await client.guilds.cache.get(threadServerID);
     const categoryID = config.categoryID;
     const author = message.author;
     const channel = message.channel;
@@ -38,26 +38,26 @@ module.exports = {
         return channel.send(blockedEmbed);
       } else {
         const userID = isThread.userID;
-        const member = await mainServer.members.get(userID);
+        const member = await mainServer.members.cache.get(userID);
 
         if (!member) {
           return channel.send(noUserEmbed);
         } else {
           const user = member.user;
           const description = args.join(' ');
-          const userDMEmbed = new Discord.RichEmbed()
+          const userDMEmbed = new Discord.MessageEmbed()
             .setColor(config.sent_color)
-            .setAuthor(author.tag, author.avatarURL)
+            .setAuthor(author.tag, author.avatarURL())
             .setTitle("Message Received")
             .setDescription(description)
-            .setFooter(mainServer.name, mainServer.avatarURL)
+            .setFooter(mainServer.name, mainServer.iconURL())
             .setTimestamp();
-          const threadChannelEmbed = new Discord.RichEmbed()
+          const threadChannelEmbed = new Discord.MessageEmbed()
             .setColor(config.sent_color)
-            .setAuthor(author.tag, author.avatarURL)
+            .setAuthor(author.tag, author.avatarURL())
             .setTitle("Message Sent")
             .setDescription(description)
-            .setFooter(`${user.tag} | ${user.id}`, user.avatarURL)
+            .setFooter(`${user.tag} | ${user.id}`, user.avatarURL())
             .setTimestamp();
 
           try{
@@ -70,7 +70,7 @@ module.exports = {
           await channel.send(threadChannelEmbed);
           if (message.attachments.size > 0) {
             await message.attachments.forEach(async atch => {
-              let attachment = new Attachment(atch.url);
+              let attachment = new MessageAttachment(atch.url);
               await user.send(attachment);
               await channel.send(attachment);
             });

@@ -10,9 +10,9 @@ module.exports = {
     const bind = param.bind;
 
     const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
     const threadServerID = config.threadServerID;
-    const threadServer = await client.guilds.get(threadServerID);
+    const threadServer = await client.guilds.cache.get(threadServerID);
     const categoryID = config.categoryID;
     const logChannelID = config.logChannelID;
 
@@ -20,7 +20,7 @@ module.exports = {
     const channelID = args.shift();
     const isThread = await ThreadDB.findOne({where: {userID: userID}});
     const isSame = await ThreadDB.findOne({where: {channelID: channelID}});
-    const getChannel = await threadServer.channels.get(channelID);
+    const getChannel = await threadServer.channels.cache.get(channelID);
 
     const successEmbed = getEmbed.execute(param, config.info_color, "Success", `Binded <@${userID}> (\`${userID}\`) thread to <#${channelID}>.`);
     const sameChannelEmbed = getEmbed.execute(param, config.error_color, "Failed", `Channel <#${channelID}> binded with a thread already.`);

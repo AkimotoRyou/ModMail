@@ -23,7 +23,7 @@ module.exports = {
     const notDMEmbed = getEmbed.execute(param, config.error_color, "Command Unavailable", "This command can only be used in Direct Message.")
 
 		if (message.guild != null && (message.guild.id == mainServerID || message.guild.id == threadServerID)) {
-      if(botChannelID != "empty" && message.channel.id == botChannelID){
+      if(botChannelID != "empty" && message.channel.id != botChannelID){
         return;
       } else {
 				return message.channel.send(notDMEmbed);

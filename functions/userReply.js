@@ -2,7 +2,7 @@ module.exports = {
   name: "userReply",
   async execute(param, message, thread){
     const Discord = param.Discord;
-    const Attachment = param.Attachment;
+    const MessageAttachment = param.MessageAttachment;
     const client = param.client;
     const getEmbed = param.getEmbed;
     const config = param.config;
@@ -10,9 +10,9 @@ module.exports = {
     const isBlocked = param.isBlocked;
 
     const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
     const threadServerID = config.threadServerID;
-    const threadServer = await client.guilds.get(threadServerID);
+    const threadServer = await client.guilds.cache.get(threadServerID);
     const author = message.author;
 
     const checkIsBlocked = await isBlocked.execute(param, author.id);
@@ -29,7 +29,7 @@ module.exports = {
     } else {
       const checkIsMember = await isMember.execute(param, author.id);
       const notMemberEmbed = getEmbed.execute(param, config.error_color, "Not a Member", `User aren\'t inside [**${mainServer.name}**] guild.`);
-      const threadChannel = await threadServer.channels.get(thread.channelID);
+      const threadChannel = await threadServer.channels.cache.get(thread.channelID);
 
       if(!checkIsMember){
         return message.channel.send(notMemberEmbed);
@@ -38,17 +38,17 @@ module.exports = {
           return message.channel.send(noChannelEmbed);
         } else {
           const sendPromise = new Promise(async resolve => {
-            let userReplyEmbed = new Discord.RichEmbed()
+            let userReplyEmbed = new Discord.MessageEmbed()
               .setColor(config.received_color)
               .setTitle("Message Received")
               .setDescription(message.content)
-              .setFooter(`${author.tag} | ${author.id}`, author.avatarURL)
+              .setFooter(`${author.tag} | ${author.id}`, author.avatarURL())
               .setTimestamp();
             await threadChannel.send(userReplyEmbed);
 
             if (message.attachments.size > 0) {
               await message.attachments.forEach(async atch => {
-                let attachment = new Attachment(atch.url);
+                let attachment = new MessageAttachment(atch.url);
                 await threadChannel.send(attachment);
               });
             }

@@ -42,7 +42,7 @@ module.exports = {
     let pingEmbed = getEmbed.execute(param, config.info_color, "Pong", "Ping?");
 
 		message.channel.send(pingEmbed).then((msg) => {
-			let editEmbed = getEmbed.execute(param, config.info_color, "Pong", `**Response time** : **${msg.createdTimestamp - message.createdTimestamp}** ms\n**API latency** : **${Math.round(param.client.ping)}** ms`);
+			let editEmbed = getEmbed.execute(param, config.info_color, "Pong", `**Response time** : **${msg.createdTimestamp - message.createdTimestamp}** ms\n**API latency** : **${Math.round(param.client.ws.ping)}** ms`);
 			msg.edit(editEmbed);
     });
   }

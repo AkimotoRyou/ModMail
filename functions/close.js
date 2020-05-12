@@ -8,12 +8,12 @@ module.exports = {
     const ThreadDB = param.ThreadDB;
 
     const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
     const threadServerID = config.threadServerID;
-    const threadServer = await client.guilds.get(threadServerID);
+    const threadServer = await client.guilds.cache.get(threadServerID);
     const categoryID = config.categoryID;
     const logChannelID = config.logChannelID;
-    const logChannel = await threadServer.channels.get(logChannelID);
+    const logChannel = await threadServer.channels.cache.get(logChannelID);
     const author = message.author;
     const channel = message.channel;
 
@@ -28,33 +28,33 @@ module.exports = {
     if (!isThread) {
       return channel.send(noThreadEmbed);
     } else {
-      const user = await client.users.get(isThread.userID);
+      const user = await client.users.cache.get(isThread.userID);
       const logDescription = `${isThread.threadTitle}\n**Reason** : ${reason}\n**Note** : ${note}`;
       const userDescription = `${isThread.threadTitle}\n**Reason** : ${reason}`;
 
       var logEmbed;
-      const userDMEmbed = new Discord.RichEmbed()
+      const userDMEmbed = new Discord.MessageEmbed()
         .setColor(config.warning_color)
-        .setAuthor(author.tag, author.avatarURL)
+        .setAuthor(author.tag, author.avatarURL())
         .setTitle("Thread Closed")
         .setDescription(userDescription)
-        .setFooter(mainServer.name, mainServer.avatarURL)
+        .setFooter(mainServer.name, mainServer.iconURL())
         .setTimestamp();
 
       if (user) {
-        logEmbed = new Discord.RichEmbed()
+        logEmbed = new Discord.MessageEmbed()
           .setColor(config.warning_color)
-          .setAuthor(author.tag, author.avatarURL)
+          .setAuthor(author.tag, author.avatarURL())
           .setTitle("Thread Closed")
           .setDescription(logDescription)
-          .setFooter(`${user.tag} | ${user.id}`, user.avatarURL)
+          .setFooter(`${user.tag} | ${user.id}`, user.avatarURL())
           .setTimestamp();
         await user.send(userDMEmbed);
         await logChannel.send(logEmbed);
       } else {
-        logEmbed = new Discord.RichEmbed()
+        logEmbed = new Discord.MessageEmbed()
           .setColor(config.warning_color)
-          .setAuthor(author.tag, author.avatarURL)
+          .setAuthor(author.tag, author.avatarURL())
           .setTitle("Thread Closed")
           .setDescription(logDescription)
           .setFooter(`Can\'t find user | ${isThread.userID}`)

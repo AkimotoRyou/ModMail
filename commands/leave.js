@@ -13,7 +13,7 @@ module.exports = {
     const getEmbed = param.getEmbed;
 
     const serverID = args.shift();
-    const getServer = client.guilds.get(serverID);
+    const getServer = client.guilds.cache.get(serverID);
 
     const notFoundEmbed = getEmbed.execute(param, config.error_color, "Not Found", `Can\'t find guild with ID (\`${serverID}\`) in my collection.`);
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don\'t have permission to run this command.");

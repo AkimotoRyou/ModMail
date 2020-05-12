@@ -9,9 +9,9 @@ module.exports = {
     const ThreadDB = param.ThreadDB;
 
     const mainServerID = config.mainServerID;
-    const mainServer = await client.guilds.get(mainServerID);
+    const mainServer = await client.guilds.cache.get(mainServerID);
     const threadServerID = config.threadServerID;
-    const threadServer = await client.guilds.get(threadServerID);
+    const threadServer = await client.guilds.cache.get(threadServerID);
 
     const input = args.shift();
     const isThreadUser = await ThreadDB.findOne({where: {userID: input}});
@@ -30,7 +30,7 @@ module.exports = {
       return message.channel.send(noThreadEmbed);
     } else {
       let threadData = [];
-      const member = mainServer.members.get(isThread.userID);
+      const member = mainServer.members.cache.get(isThread.userID);
 
       threadData.push(`${isThread.threadTitle}`);
       if (member) {
