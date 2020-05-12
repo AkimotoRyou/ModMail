@@ -52,23 +52,23 @@ module.exports = {
 
 			const botMsg = await message.channel.send(waitingEmbed);
 			await botMsg.react('✅');
-			await botMsg.react('❌')
+			await botMsg.react('❌');
 
-			botMsg.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] })
+			botMsg.awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
 				.then(async collected => {
 					if (collected.first().emoji.name == '❌') {
 						//user react with ❌
-						await botMsg.clearReactions();
+						await botMsg.reactions.removeAll();
 						return message.channel.send(cancelEmbed);
 					} else {
 						//user react with ✅
 						if (!checkIsMember) {
 							//the user that has thread not in main server
-							await botMsg.clearReactions();
+							await botMsg.reactions.removeAll();
 							return message.channel.send(notMemberEmbed);
 						} else if(checkIsBlocked){
 							//the user that has thread are blocked
-							await botMsg.clearReactions();
+							await botMsg.reactions.removeAll();
 							return message.channel.send(blockedEmbed);
 						} else {
 							//user are member and not blocked
@@ -77,7 +77,7 @@ module.exports = {
 								.setColor(config.sent_color)
 								.setTitle("Message Received")
 								.setDescription(isTag.content)
-								.setFooter(mainServer.name, mainServer.avatarURL())
+								.setFooter(mainServer.name, mainServer.iconURL())
 								.setTimestamp();
 							const threadChannelEmbed = new Discord.MessageEmbed()
 								.setColor(config.sent_color)
@@ -91,7 +91,7 @@ module.exports = {
 		            await getUser.send(userDMEmbed);
 		          } catch (error){
 		            if(error.message == "Cannot send messages to this user"){
-									await botMsg.clearReactions();
+									await botMsg.reactions.removeAll();
 		              return channel.send(noDMEmbed);
 		            }
 		          }

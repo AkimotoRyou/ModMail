@@ -21,7 +21,7 @@ module.exports = {
 			const filter = msg => msg.author.id == message.author.id;
 
 			message.channel.send(waitingEmbed).then(() => {
-				message.channel.awaitMessages(filter, { maxMatches: 1, time: 30000, errors: ['time'] })
+				message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'] })
 					.then(async collected => {
 						if (collected.first().content.toLowerCase() == "cancel") {
 							return message.channel.send(cancelEmbed);
