@@ -252,7 +252,7 @@ client.on('message', async message => {
 
   	//checking wheter user use prefix or mention the bot
   	let prefixIndex = message.content.indexOf(config.prefix);
-  	let botMentionIndex = message.content.indexOf("<@"+client.user.id+">");
+  	let botMentionIndex = message.content.indexOf(`<@!${client.user.id}>`);
   	if (prefixIndex !== 0 && botMentionIndex !== 0){
       if(message.guild != null){
         return;
@@ -270,7 +270,7 @@ client.on('message', async message => {
   		args = message.content.slice(config.prefix.length).split(/ +/);
   		commandName = args.shift().toLowerCase();
   	} else if (botMentionIndex === 0){
-  		args = message.content.slice(("<@"+client.user.id+">").length).split(/ +/);
+  		args = message.content.slice((`<@!${client.user.id}>`).length).split(/ +/);
   		commandName = args.shift().toLowerCase();
       if (commandName == ''){
         //in case user do @botMention[space][command name]
