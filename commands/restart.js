@@ -1,6 +1,6 @@
 module.exports = {
 	name: 'restart',
-	aliases: ['reboot'],
+	aliases: ['reboot', 'refresh'],
 	level: 'Admin',
 	guildOnly: true,
 	args: false,

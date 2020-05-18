@@ -1,5 +1,5 @@
 module.exports = {
-	name: "config",
+	name: "configFn",
 	async execute(param) {
 		const Discord = param.Discord;
 		const client = param.client;

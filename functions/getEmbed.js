@@ -1,5 +1,5 @@
 module.exports = {
-	name: "getembedFN",
+	name: "getEmbed",
 	execute(param, color, title, description) {
 		const embed = new param.Discord.MessageEmbed()
 			.setColor(color)

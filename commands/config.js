@@ -10,12 +10,12 @@ module.exports = {
 	async execute(param, message, args) {
 		const config = param.config;
 		const getEmbed = param.getEmbed;
-		const configuration = param.configuration;
+		const configFn = param.configFn;
 
 		const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "`mainServerID` and/or `threadServerID` value is empty.");
 		const noAdminEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "`adminRoleID` value is empty.");
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don't have permission to run this command.");
-		const configEmbed = await configuration.execute(param);
+		const configEmbed = await configFn.execute(param);
 
 		if (message.author.id === config.botOwnerID) {
 			// bot owner

@@ -160,7 +160,7 @@ const param = {
 	defConfig,
 	activities,
 }
-// add every functions to param object
+// add every functions to param
 client.functions.forEach(fn => param[fn.name] = client.functions.get(fn.name));
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

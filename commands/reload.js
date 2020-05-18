@@ -35,10 +35,10 @@ module.exports = {
 
 			if(fn) {
 				console.log(`Deleting ${fnName} cache.`);
-				delete require.cache[require.resolve(`./${fnName}.js`)];
+				delete require.cache[require.resolve(`../functions/${fnName}.js`)];
 
 				console.log(`Loading ${fnName}.`)
-				const newFunction = require(`./${fnName}.js`);
+				const newFunction = require(`../functions/${fnName}.js`);
 				client.functions.set(newFunction.name, newFunction);
 			}
 
