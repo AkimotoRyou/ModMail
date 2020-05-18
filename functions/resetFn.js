@@ -5,23 +5,33 @@ module.exports = {
 		const ConfigDB = param.ConfigDB;
 		const configKeys = Object.keys(param.config);
 
-		configKeys.forEach(async aKey => {
-			try {
-				// Create new row on config.sqlite
-				await ConfigDB.create({
-					name: aKey,
-					input: defConfig[aKey]
-				});
-			} catch (error) {
-				// Edit the value in config.sqlite with the one from config.js
-				if (error.name === "SequelizeUniqueConstraintError") {
-					await ConfigDB.update(
-						{ input: defConfig[aKey] },
-						{ where: { name: aKey } }
-					);
+		const resetPromise = new Promise(resolve => {
+			async function forLoop() {
+				for (let i = 0; i < configKeys.length; i++) {
+					try {
+						// Create new row on config.sqlite
+						console.log(`Trying to add ${configKeys[i]} to Database`);
+						await ConfigDB.create({
+							name: configKeys[i],
+							input: defConfig[configKeys[i]]
+						});
+					} catch (error) {
+						// Edit the value in config.sqlite with the one from config.js
+						if (error.name === "SequelizeUniqueConstraintError") {
+							console.log(`Updating ${configKeys[i]} to ${defConfig[configKeys[i]]}`);
+							await ConfigDB.update(
+								{ input: defConfig[configKeys[i]] },
+								{ where: { name: configKeys[i] } }
+							);
+						}
+					}
 				}
+				resolve();
 			}
+			forLoop();
 		});
-		return param.configSync.execute(param);
+		resetPromise.then(() => {
+			return param.configSync.execute(param);
+		});
 	}
 };

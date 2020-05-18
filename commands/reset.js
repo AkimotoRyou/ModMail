@@ -20,21 +20,13 @@ module.exports = {
 		if (message.author.id === config.botOwnerID) {
 			// bot owner
 			console.log("Resetting bot configuration...");
-			await reset.execute(param).then(()=>{
-				message.channel.send(successEmbed).then(() =>{
-					process.exit(1);
-				});
-			});
+			return reset.execute(param).then(message.channel.send(successEmbed));
 		} else if (config.mainServerID == "empty" && config.threadServerID == "empty" && message.member.hasPermission("ADMINISTRATOR")) {
 			// mainServerID and threadServerID empty and user has ADMINISTRATOR permission
 			message.channel.send(noServerEmbed);
 			// reset and restart the bot
 			console.log("Resetting bot configuration...");
-			await reset.execute(param).then(()=>{
-				message.channel.send(successEmbed).then(() =>{
-					process.exit(1);
-				});
-			});
+			return reset.execute(param).then(message.channel.send(successEmbed));
 		} else if(message.guild.id == config.mainServerID || message.guild.id == config.threadServerID) {
 			// inside main server or thread server
 			if (config.adminRoleID == "empty") {
@@ -44,11 +36,7 @@ module.exports = {
 			if (message.member.hasPermission("ADMINISTRATOR") || await param.roleCheck.execute(message, config.adminRoleID)) {
 				// user has ADMINISTRATOR permission or has admin role
 				console.log("Resetting bot configuration...");
-				await reset.execute(param).then(()=>{
-					message.channel.send(successEmbed).then(() =>{
-						process.exit(1);
-					});
-				});
+				return reset.execute(param).then(message.channel.send(successEmbed));
 			} else if (config.botChannelID != "empty" && message.channel.id != config.botChannelID) {
 				// user didn't have ADMINISTRATOR permission nor has admin role
 				return;
