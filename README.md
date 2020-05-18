@@ -2,8 +2,9 @@
 
 Simple ModMail Discord bot designed for a small server and people that want to maintain their own ModMail bot in discord. 
 ModMail is a bot that create a private space between support staff and user to address an issue by creating a new channel. 
-This bot only support one server per bot and the ticket will be made in the same server.
-Please note that i'm not an expert programmer therefore there might be some issues on resources efficiency.
+
+## Disclaimer
+This bot only support one pair of server per bot. One main server(where users gather and chatting) and one thread server(where all the threads channel made). I'm debugging the bot alone so some bugs might passed when i upload it on GitHub feel free to report those bugs [here](https://github.com/AkimotoRyou/ModMail/issues).
 
 ## Installation
 
@@ -11,8 +12,8 @@ Please note that i'm not an expert programmer therefore there might be some issu
 2. Create [Glitch](https://glitch.com/) account.
 3. Create new `Hello-Express` project.
 4. Import files from this repository. (Tools -> Git, Import, and Export -> Import from GitHub -> Copy AkimotoRyou/ModMail -> click ok)
-5. Edit `.env` file (the one with key icon) replace all text with the one on `[Example].env.txt` and copy your bot token right after the `=` character.
-6. (Optional) edit the botOwnerID value with your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).
+5. At `.env.txt` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=` and then rename the file to `.env`.
+6. At `config.json.txt` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section and rename the file to `config.json`.
 7. If you have glitch [subscription](https://glitch.com/pricing), your bot will run 24/7 and you don't need follow the instructions below.
 8. Create [UptimeRobot](https://uptimerobot.com/) account and login.
 9. On Dashboard, click `+ Add New Monitor`.
@@ -28,7 +29,7 @@ That's it! The bot should be online 24/7 as long as Glitch and UptimeRobot didn'
 To operate functionally the bot need the following :
 * Administrator Permission : Somehow `Manage Roles` permission isn't enough to create a new channel that inherit a category channel permissions.
 * Dedicated Category Channel : Instead of setting a new permission everytime the bot create new channel, it used the same permission from this category channel. You can read [here](https://support.discordapp.com/hc/en-us/articles/115001580171-Channel-Categories-101) if you don't know what category channel is. 
-* Dedicated Text Channel : To log a new ticket and closed ticket, please add this below (inside) the dedicated category for modmail that was created before.
+* Dedicated Text Channel : To log a new thread and closed thread.
 
 ## Commands
 
@@ -77,4 +78,4 @@ To operate functionally the bot need the following :
 
 ## Testing
 
-I made Discord server to test the bot feel free to join at https://discord.gg/GGRWNgJ.
+I made Discord server to test the bot, feel free to join at https://discord.gg/GGRWNgJ.
