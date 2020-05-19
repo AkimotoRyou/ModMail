@@ -11,7 +11,7 @@ This bot only support one pair of server per bot. One main server(where users ga
 1. Set up bot application in [Discord](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token).
 2. Create [Glitch](https://glitch.com/) account.
 3. Create new `Hello-Express` project.
-4. Import files from this repository. (Tools -> Git, Import, and Export -> Import from GitHub -> Copy AkimotoRyou/ModMail -> click ok)
+4. Import files from this repository. [`Tools` -> `Import and Export` -> `Import from GitHub` -> Type `AkimotoRyou/ModMail` -> click `ok`]*
 5. At `.env.txt` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=` and then rename the file to `.env`.
 6. At `config.json.txt` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section and rename the file to `config.json`.
 7. If you have glitch [subscription](https://glitch.com/pricing), your bot will run 24/7 and you don't need follow the instructions below.
@@ -23,6 +23,8 @@ This bot only support one pair of server per bot. One main server(where users ga
 13. Keep the `Monitoring Interval *` to 5 minutes or lower (if you have [pro plan](https://uptimerobot.com/pricing)) and click `Create Monitor`.
 
 That's it! The bot should be online 24/7 as long as Glitch and UptimeRobot didn't have any problem.
+
+`* Only use import for the first time the project created cause import from github will rewrite all your data in Glitch project. You need to manually change the files if you want to sync it with this repository.`
 
 ## Requirements
 
@@ -51,6 +53,7 @@ To operate functionally the bot need the following :
 * **blockinfo** : Information about a user's block.
 * **blocklist** : List of blocked users.
 * **close** : Close a user thread.
+* **queues** : Show information about queued threads and create threads if ModMail category have less than 50 channels.
 * **reply** : Reply to a user thread.
 * **tag** : Send a saved response.
 * **tagadd** : Add a saved response.
