@@ -5,6 +5,7 @@ module.exports = {
 		const getEmbed = param.getEmbed;
 		const config = param.config;
 		const ThreadDB = param.ThreadDB;
+		const updateActivity = param.updateActivity;
 
 		const threadServerID = config.threadServerID;
 		const threadServer = await client.guilds.cache.get(threadServerID);
@@ -34,12 +35,14 @@ module.exports = {
 				channelID: channelID,
 				threadTitle: "empty"
 			});
+			await updateActivity.execute(param);
 			return message.channel.send(successEmbed);
 		} else {
 			await ThreadDB.update(
 				{ channelID: channelID },
 				{ where: { userID: userID } }
 			);
+			await updateActivity.execute(param);
 			return message.channel.send(successEmbed);
 		}
 

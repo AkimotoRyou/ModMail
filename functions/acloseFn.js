@@ -66,7 +66,7 @@ module.exports = {
 			if (rowCount > 0) {
 				console.log(`Closing Thread.`);
 			}
-			updateActivity.execute(param);
+			await updateActivity.execute(param);
 			return channel.delete();
 		}
 
