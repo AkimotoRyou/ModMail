@@ -17,7 +17,6 @@ module.exports = {
 		const fnName = commandName + "Fn";
 		const fn = client.functions.get(fnName);
 
-		const successEmbed = getEmbed.execute(param, config.info_color, "Success", `Command \`${command.name}\` was reloaded.`);
 		const notCmdEmbed = getEmbed.execute(param, config.error_color, "Not a Command", `That's not a valid command name or alias.\nUse \`${config.prefix}commands\` to show available commands.`);
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don't have permission to run this command.");
 
@@ -26,6 +25,7 @@ module.exports = {
 			if(!command) {
 				return message.channel.send(notCmdEmbed);
 			}
+			const successEmbed = getEmbed.execute(param, config.info_color, "Success", `Command \`${command.name}\` was reloaded.`);
 			console.log(`Deleting ${command.name} cache.`);
 			delete require.cache[require.resolve(`./${command.name}.js`)];
 

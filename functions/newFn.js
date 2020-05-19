@@ -74,9 +74,9 @@ module.exports = {
 			channelID: newChannel.id,
 			threadTitle: args.join(' ')
 		});
-		console.log(`${author.tag} created thread.`);
+		console.log(`${author.tag}(${newThread.userID}) created thread.`);
 
-		updateActivity.execute(param);
+		await updateActivity.execute(param);
 
 	}
 };

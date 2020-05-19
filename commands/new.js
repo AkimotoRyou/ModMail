@@ -9,12 +9,14 @@ module.exports = {
 	note: false,
 	async execute(param, message, args) {
 		const client = param.client;
+		const ThreadDB = param.ThreadDB;
+		const QueueDB = param.QueueDB;
 		const config = param.config;
 		const getEmbed = param.getEmbed;
+		const addQueue = param.addQueue;
 		const newThread = param.new;
 		const isMember = param.isMember;
 		const isBlocked = param.isBlocked;
-		const ThreadDB = param.ThreadDB;
 
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.cache.get(mainServerID);
@@ -29,15 +31,18 @@ module.exports = {
 		const isThread = await ThreadDB.findOne({ where: { userID: author.id } });
 		const checkIsMember = await isMember.execute(param, author.id);
 		const checkIsBlocked = await isBlocked.execute(param, author.id);
+		const getQueue = await QueueDB.findAll({ attributes: ["userID"] });
+		const queueList = getQueue.map(que => que.userID);
+		const isQueue = queueList.indexOf(author.id);
 
 		const notMemberEmbed = getEmbed.execute(param, config.error_color, "Not a Member", `You aren't inside [**${mainServer.name}**] guild.`);
 		const blockedEmbed = getEmbed.execute(param, config.error_color, "Blocked", `You are blocked from creating new thread.`);
 		const isThreadEmbed = getEmbed.execute(param, config.error_color, "Thread Detected", `You still have open thread.`);
 		const noCategoryEmbed = getEmbed.execute(param, config.error_color, "Error", "Please contact server admin.\n**Error** : `Couldn't find ModMail category channel.`");
-		const maxChannelEmbed = getEmbed.execute(param, config.error_color, "Failed", "Maximum open thread reached.");
 		const noServerEmbed = getEmbed.execute(param, config.error_color, "Configuration Needed", "`mainServerID` and/or `threadServerID` value is empty.");
 		const noChannelEmbed = getEmbed.execute(param, config.error_color, "Configuration Needed", "`categoryID` and/or `logChannelID` value is empty.");
 		const notDMEmbed = getEmbed.execute(param, config.error_color, "Command Unavailable", "This command can only be used in Direct Message.")
+		const queueEmbed = getEmbed.execute(param, config.error_color, "Already in Queue", `Your thread already in the queue.\n**Queue Number** : ${isQueue + 1}`)
 
 		if (message.guild != null && (message.guild.id == mainServerID || message.guild.id == threadServerID)) {
 			// Inside a main server or thread server
@@ -70,9 +75,13 @@ module.exports = {
 		} else if (!categoryChannel) {
 			// Can't find category
 			return message.channel.send(noCategoryEmbed);
-		} else if (categoryChannel.children.size == 50) {
+		} else if (categoryChannel.children.size == 50 || queueList.length > 0) {
 			// Maximum children for a category reached
-			return message.channel.send(maxChannelEmbed);
+			if (isQueue !== -1) {
+				return message.channel.send(queueEmbed);
+			} else {
+				return addQueue.execute(param, message, args);
+			}
 		} else {
 			// none of above, calling newThread function
 			return newThread.execute(param, message, args);

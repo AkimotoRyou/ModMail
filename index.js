@@ -107,6 +107,22 @@ const ThreadDB = configDB.define("thread", {
 	threadTitle: Sequelize.STRING
 });
 
+// #queueDB
+const queueDB = new Sequelize("database", "user", "password", {
+	host: "localhost",
+	dialect: "sqlite",
+	logging: false,
+	storage: "queue.sqlite"
+});
+const QueueDB = configDB.define("queue", {
+	userID: {
+		type: Sequelize.STRING,
+		unique: true,
+		allowNull: false
+	},
+	messageID: Sequelize.STRING
+});
+
 // #commandsCollection
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -156,6 +172,7 @@ const param = {
 	ThreadDB,
 	TagDB,
 	BlockedDB,
+	QueueDB,
 	config,
 	defConfig,
 	activities,
@@ -172,6 +189,7 @@ client.on('ready', async () => {
 	await ConfigDB.sync();
 	await TagDB.sync();
 	await ThreadDB.sync();
+	await QueueDB.sync();
 	// cant make the bot waiting this guy below to finish pfft
 	await param.configSync.execute(param);
 
