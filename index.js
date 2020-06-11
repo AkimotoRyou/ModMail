@@ -220,7 +220,7 @@ client.on('ready', async () => {
 			client.user.setActivity(activities[index]);
 			index++;
 			if (index == activities.length) index = 0;
-		}, 7000);
+		}, 10000);
 	} else {
 		// using timeout since i can't make the bot wait for configSync() function to finish :(
 		setTimeout(()=> {
