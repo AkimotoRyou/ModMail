@@ -14,15 +14,9 @@ This bot only support one pair of server per bot. One main server(where users ga
 4. Import files from this repository. [`Tools` -> `Import and Export` -> `Import from GitHub` -> Type `AkimotoRyou/ModMail` -> click `ok`]*
 5. At `.env.txt` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=` and then rename the file to `.env`.
 6. At `config.json.txt` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section and rename the file to `config.json`.
-7. If you have glitch [subscription](https://glitch.com/pricing), your bot will run 24/7 and you don't need follow the instructions below.
-8. Create [UptimeRobot](https://uptimerobot.com/) account and login.
-9. On Dashboard, click `+ Add New Monitor`.
-10. Change `Monitor Type *` to `HTTP(s)`.
-11. Fill the name to your own liking.
-12. On your Glitch project, click `show` -> `In a New Window` copy the link to UptimeRobot `URL (or IP)*` part.
-13. Keep the `Monitoring Interval *` to 5 minutes or lower (if you have [pro plan](https://uptimerobot.com/pricing)) and click `Create Monitor`.
+7. If you have glitch [subscription](https://glitch.com/pricing), you can boost your project to make it run 24/7.
 
-That's it! The bot should be online 24/7 as long as Glitch and UptimeRobot didn't have any problem.
+**Note: Glitch banning pinging service like uptimerobot and any others alike read their announcement [here](https://support.glitch.com/t/an-update-on-pinging-services-glitch/27311)**
 
 `* Only use import for the first time the project created cause import from github will rewrite all your data in Glitch project. You need to manually change the files if you want to sync it with this repository.`
 
