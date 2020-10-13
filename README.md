@@ -16,7 +16,9 @@ This bot only support one pair of server per bot. One main server(where users ga
 6. At `config.json.txt` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section and rename the file to `config.json`.
 7. If you have glitch [subscription](https://glitch.com/pricing), you can boost your project to make it run 24/7.
 
-**Note: Glitch banning pinging service like uptimerobot and any others alike read their announcement [here](https://support.glitch.com/t/an-update-on-pinging-services-glitch/27311)**
+#### Notes: 
+1. Glitch banning pinging service like uptimerobot and any others alike read their announcement [here](https://support.glitch.com/t/an-update-on-pinging-services-glitch/27311).
+2. I'm currently testing hosting the bot on [Repl.it](https://repl.it). I'll need to change some codes and instructions if the bot able to run without any problems there.
 
 `* Only use import for the first time the project created cause import from github will rewrite all your data in Glitch project. You need to manually change the files if you want to sync it with this repository.`
 
