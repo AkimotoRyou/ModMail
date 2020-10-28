@@ -5,7 +5,7 @@ console.log("[Loading Dependencies]");
 const Discord = require("discord.js");
 const { Util, MessageAttachment } = require("discord.js");
 const client = new Discord.Client();
-const server = require("./server.js");
+const keepAlive = require("./server.js");
 const Sequelize = require("sequelize");
 const fs = require("fs");
 const moment = require("moment");
@@ -143,24 +143,9 @@ for (const file of functionFiles) {
 const cooldowns = new Discord.Collection();
 
 // #activities
-const activities = [];
-function addActivities(getPrefix, threads) {
-	if(getPrefix) {
-		activities.push(`${threads.length} Threads | ${getPrefix.input}commands`);
-		activities.push(`Send me a message | ${getPrefix.input }help`);
-		activities.push(`Schick mir eine Nachricht | ${getPrefix.input}helpDE`);
-		activities.push(`Bana mesaj gönder | ${getPrefix.input}helpTR`);
-		activities.push(`나에게 메세지를 보내 | ${getPrefix.input}helpKR`);
-		activities.push(`Me mande uma mensagem | ${getPrefix.input}helpPT`);
-		activities.push(`Envoyez-moi un message | ${getPrefix.input}helpFR`);
-		activities.push(`Пришлите мне сообщение | ${getPrefix.input}helpRU`);
-		activities.push(`给我发一条信息 | ${getPrefix.input}helpCHS`);
-		activities.push(`給我發一條信息 | ${getPrefix.input}helpCHT`);
-		activities.push(`Envíeme un mensaje | ${getPrefix.input}helpES`);
-	} else {
-		activities.push(`- Restart Me -`);
-	}
-}
+const activity = {
+	index: 0
+};
 
 // #parameter
 const param = {
@@ -175,7 +160,7 @@ const param = {
 	QueueDB,
 	config,
 	defConfig,
-	activities,
+	activity,
 }
 // add every functions to param
 client.functions.forEach(fn => param[fn.name] = client.functions.get(fn.name));
@@ -195,38 +180,9 @@ client.on('ready', async () => {
 
 	console.log(`Logged in as ${client.user.tag}!`);
 	// when i use local variable (config.maintenance), the configSync() is still in process that's why i use database value for this.
-	const getMaintenance = await ConfigDB.findOne({ where: { name: "maintenance" } }).catch(
-		error => {console.log(error)}
-	);
-	const getPrefix = await ConfigDB.findOne({ where: { name: "prefix" } }).catch(
-		error => {console.log(error)}
-	);
-	const threads = await ThreadDB.findAll({ attributes: ["userID"] }).catch(
-		error => {console.log(error)}
-	);
-
-	let isMaintenance;
-	if(!getMaintenance) {
-		isMaintenance = "0";
-	} else {
-		isMaintenance = await getMaintenance.input;
-	}
-
-	addActivities(getPrefix, threads);
-
-	if (isMaintenance == "0") {
-		let index = 0;
-		setInterval(() => {
-			client.user.setActivity(activities[index]);
-			index++;
-			if (index == activities.length) index = 0;
-		}, 10000);
-	} else {
-		// using timeout since i can't make the bot wait for configSync() function to finish :(
-		setTimeout(()=> {
-			client.user.setActivity("~ Under Maintenance ~");
-		}, 10000);
-	}
+	setTimeout(async ()=> {
+		await param.updateActivity.execute(param);
+	}, 5000);
 });
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -248,6 +204,20 @@ const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 client.on('message', async message => {
 	if(message.author.bot) return;
+
+	//Activity Cooldown
+	if (!cooldowns.has("botActivity")) {
+		cooldowns.set("botActivity", new Discord.Collection());
+	}
+	const now = Date.now();
+	const timestamps = cooldowns.get("botActivity");
+	const cooldownAmount = 7000; //7 Seconds
+	if (!timestamps.has("botActivity")) {
+		await param.updateActivity.execute(param);
+	}
+	timestamps.set("botActivity", now);
+	setTimeout(() => timestamps.delete("botActivity"), cooldownAmount);
+
 	try {
 		const authorID = message.author.id;
 		const maintenanceEmbed = param.getEmbed.execute(param, config.error_color, "Maintenance", "All functions are disabled.");
@@ -413,9 +383,8 @@ client.on('message', async message => {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LOGIN~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+keepAlive();
 client.login(process.env.TOKEN);
-require("https")
-	.createServer()
-	.listen();
+require("https").createServer().listen();
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

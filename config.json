@@ -1,0 +1,19 @@
+{
+	"prefix" : "=",
+	"botOwnerID" : "",
+	"cooldown" : "0",
+	"maintenance" : "0",
+	"mainServerID" : "",
+	"threadServerID" : "",
+	"categoryID" : "",
+	"logChannelID" : "",
+	"botChannelID" : "",
+	"adminRoleID" : "",
+	"modRoleID" : "",
+	"mentionedRoleID" : "",
+	"info_color" : "#add8e6",
+	"warning_color" : "#ffff00",
+	"error_color" : "#ff0000",
+	"received_color" : "#00ffff",
+	"sent_color" : "#00ff00"
+}

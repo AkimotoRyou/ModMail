@@ -3,10 +3,8 @@ module.exports = {
 	async execute(param) {
 		const config = param.config;
 		const ConfigDB = param.ConfigDB;
-		const user = param.client.user;
 
-		console.log("[Syncing Configuration]")
-		user.setActivity("Syncing...");
+		console.log("[Syncing Configuration]");
 		const configKeys = Object.keys(config);
 		const syncPromise = new Promise(resolve => {
 			try {
@@ -30,9 +28,8 @@ module.exports = {
 				return console.log(error);
 			}
 		});
-		syncPromise.then(() => {
+		syncPromise.then(async () => {
 			console.log("[Synced]");
-			user.setActivity("[Ready]");
 		});
 	}
 };
