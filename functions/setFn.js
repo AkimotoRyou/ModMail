@@ -133,10 +133,11 @@ module.exports = {
 		if(affectedRows > 0) {
 			console.log(`[${configName}] value changed to [${inputValue}]`);
 			await message.channel.send(successEmbed).then(async () => {
+				await configSync.execute(param);
 				if(configName == "maintenance" || configName == "prefix") {
-					process.exit(1);
-				} else {
-					return await configSync.execute(param);
+					setTimeout(async ()=> {
+						await param.updateActivity.execute(param);
+					}, 5000);
 				}
 			});
 		} else {
