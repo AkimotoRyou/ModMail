@@ -9,24 +9,25 @@ This bot only support one pair of server per bot. One main server(where users ga
 ## Installation
 
 1. Set up bot application in [Discord](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token).
-2. [Download](https://www.wikihow.com/Download-a-GitHub-Folder) or [clone](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository) files in this repository.
-3. Create [Repl.it](https://repl.it/) account.
-4. Click on `+ New repl`.
-5. Choose `Node.js` as the language.
-6. Rename your project. `*(Optional)`
-7. Click `Create Repl`.
-8. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page. `*(make sure to replace the index.js file)`
-9. At `.env` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=`.
-10. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
-11. Click `Run` button on top center of the page.
-12. If you have repl.it [Hacker subscription](https://repl.it/site/pricing) **when** the `Always-on repls` feature added, you can skip the instructions below.
-13. Create [UptimeRobot](https://uptimerobot.com/) account and login.
-14. On Dashboard, click `+ Add New Monitor`.
-15. Change `Monitor Type *` to `HTTP(s)`.
-16. Fill the name to your own liking.
-17. On your Repl.it project, there should be a window showing a page that says `Bot is running.` copy the url on that window to UptimeRobot `URL (or IP)*` part. `*(The url should be something like: "https://projectName.replUsername.repl.co")`
-18. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
-19. Finally, click `Create Monitor`.
+2. Don't forget to turn on `Server Members Intent` on Discord Developer Portal.
+3. [Download](https://www.wikihow.com/Download-a-GitHub-Folder) or [clone](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository) files in this repository.
+4. Create [Repl.it](https://repl.it/) account.
+5. Click on `+ New repl`.
+6. Choose `Node.js` as the language.
+7. Rename your project. `*(Optional)`
+8. Click `Create Repl`.
+9. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page. `*(make sure to replace the index.js file)`
+10. At `.env` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=`.
+11. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
+12. Click `Run` button on top center of the page.
+13. If you have repl.it [Hacker subscription](https://repl.it/site/pricing) **when** the `Always-on repls` feature added, you can skip the instructions below.
+14. Create [UptimeRobot](https://uptimerobot.com/) account and login.
+15. On Dashboard, click `+ Add New Monitor`.
+16. Change `Monitor Type *` to `HTTP(s)`.
+17. Fill the name to your own liking.
+18. On your Repl.it project, there should be a window showing a page that says `Bot is running.` copy the url on that window to UptimeRobot `URL (or IP)*` part. `*(The url should be something like: "https://projectName.replUsername.repl.co")`
+19. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
+20. Finally, click `Create Monitor`.
 
 
 ## Requirements
