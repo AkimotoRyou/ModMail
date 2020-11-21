@@ -114,7 +114,7 @@ const queueDB = new Sequelize("database", "user", "password", {
 	logging: false,
 	storage: "queue.sqlite"
 });
-const QueueDB = configDB.define("queue", {
+const QueueDB = queueDB.define("queue", {
 	userID: {
 		type: Sequelize.STRING,
 		unique: true,
@@ -204,14 +204,17 @@ const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 client.on('message', async message => {
 	if(message.author.bot) return;
+	let now = Date.now();
+	let timestamps, cooldownAmount;
 
-	//Activity Cooldown
+	// Activity Cooldown
 	if (!cooldowns.has("botActivity")) {
 		cooldowns.set("botActivity", new Discord.Collection());
 	}
-	const now = Date.now();
-	const timestamps = cooldowns.get("botActivity");
-	const cooldownAmount = 7000; //7 Seconds
+	now = Date.now();
+	timestamps = cooldowns.get("botActivity");
+	// 7 Seconds
+	cooldownAmount = 7000;
 	if (!timestamps.has("botActivity")) {
 		await param.updateActivity.execute(param);
 	}
@@ -267,9 +270,9 @@ client.on('message', async message => {
 						cooldowns.set(command.name, new Discord.Collection());
 					}
 
-					const now = Date.now();
-					const timestamps = cooldowns.get(command.name);
-					const cooldownAmount = config.cooldown * 1000;
+					now = Date.now();
+					timestamps = cooldowns.get(command.name);
+					cooldownAmount = config.cooldown * 1000;
 
 					if (timestamps.has(message.author.id)) {
 						const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
@@ -293,9 +296,9 @@ client.on('message', async message => {
 					cooldowns.set(command.name, new Discord.Collection());
 				}
 
-				const now = Date.now();
-				const timestamps = cooldowns.get(command.name);
-				const cooldownAmount = config.cooldown * 1000;
+				now = Date.now();
+				timestamps = cooldowns.get(command.name);
+				cooldownAmount = config.cooldown * 1000;
 
 				if (timestamps.has(message.author.id)) {
 					const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
