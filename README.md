@@ -85,7 +85,7 @@ To operate functionally the bot need the following :
 
 ## Testing
 
-I made Discord server to test the bot, feel free to join at https://discord.gg/GGRWNgJ.
+I made Discord server to test the bot, feel free to join at https://discord.gg/bzG7AqcRyC.
 
 ## Change Log
 
