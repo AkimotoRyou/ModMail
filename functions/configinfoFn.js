@@ -6,9 +6,9 @@ module.exports = {
 		const ConfigDB = param.ConfigDB;
 
 		const configName = args.shift();
-		const isConfig = await ConfigDB.findOne({ where: { name: configName } });
-		const configCollection = await ConfigDB.findAll({ attributes: ["name"] });
-		const configList = configCollection.map(conf => `\`${conf.name}\``).join(', ');
+		const isConfig = await ConfigDB.get(configName);
+		const configCollection = await ConfigDB.list();
+		const configList = configCollection.map(conf => `\`${conf}\``).join(', ');
 
 		const noConfigEmbed = getEmbed.execute(param, config.error_color, "Not Found", `Couldn't find config named \`${configName}\`.\nAvailable names : ${configList}`);
 

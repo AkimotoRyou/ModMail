@@ -10,6 +10,8 @@ const Sequelize = require("sequelize");
 const fs = require("fs");
 const moment = require("moment");
 const defConfig = require("./config.json");
+const Database = require("@replit/database");
+const ConfigDB = new Database();
 require("dotenv").config();
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,20 +43,8 @@ const config = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DATABASE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// #configDB
-const configDB = new Sequelize("database", "user", "password", {
-	host: "localhost",
-	dialect: "sqlite",
-	logging: false,
-	storage: "config.sqlite"
-});
-const ConfigDB = configDB.define("config", {
-	name: {
-		type: Sequelize.STRING,
-		unique: true
-	},
-	input: Sequelize.STRING
-});
+// For debuugging purpose, deleting all keys in the database.
+// ConfigDB.list().then(keys => keys.forEach(async key => {await ConfigDB.delete(key)}));
 
 // #blockedDB
 const blockedDB = new Sequelize("database", "user", "password", {
@@ -94,7 +84,7 @@ const threadDB = new Sequelize("database", "user", "password", {
 	logging: false,
 	storage: "thread.sqlite"
 });
-const ThreadDB = configDB.define("thread", {
+const ThreadDB = threadDB.define("thread", {
 	userID: {
 		type: Sequelize.STRING,
 		unique: true,
@@ -162,7 +152,7 @@ const param = {
 	defConfig,
 	activity,
 }
-// add every functions to param
+// add every functions to param object
 client.functions.forEach(fn => param[fn.name] = client.functions.get(fn.name));
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,7 +161,6 @@ client.functions.forEach(fn => param[fn.name] = client.functions.get(fn.name));
 client.on('ready', async () => {
 	console.log("[Syncing Database]");
 	await BlockedDB.sync();
-	await ConfigDB.sync();
 	await TagDB.sync();
 	await ThreadDB.sync();
 	await QueueDB.sync();
@@ -179,7 +168,6 @@ client.on('ready', async () => {
 	await param.configSync.execute(param);
 
 	console.log(`Logged in as ${client.user.tag}!`);
-	// when i use local variable (config.maintenance), the configSync() is still in process that's why i use database value for this.
 	setTimeout(async ()=> {
 		await param.updateActivity.execute(param);
 	}, 5000);

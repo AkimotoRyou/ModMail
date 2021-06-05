@@ -1,8 +1,10 @@
 module.exports = {
 	name: "configSync",
 	async execute(param) {
+		const defConfig = param.defConfig;
 		const config = param.config;
 		const ConfigDB = param.ConfigDB;
+		const user = param.client.user;
 
 		console.log("[Syncing Configuration]");
 		const configKeys = Object.keys(config);
@@ -10,16 +12,15 @@ module.exports = {
 			try {
 				async function forLoop() {
 					for (let i = 0; i < configKeys .length; i++) {
-						const getConfig = await ConfigDB.findOne({ where: { name: configKeys[i] } });
-						if(getConfig) {
-							console.log(`Syncing ${getConfig.name}...`)
-							config[configKeys[i]] = getConfig.input || "empty";
-						} else {
-							// resolved too cause im still confused with reject()
-							console.log("Calling reset function...")
-							await param.reset.execute(param);
-							break;
-						}
+						ConfigDB.get(configKeys[i]).then(async value => {
+							if(!value) {
+								console.log(`Resetting ${configKeys[i]} value.`);
+								await ConfigDB.set(configKeys[i], defConfig[configKeys[i]]);
+								value = await ConfigDB.get(configKeys[i]);
+							}
+							console.log(`Syncing ${configKeys[i]}...`);
+							config[configKeys[i]] = value || "empty";
+						});
 					}
 					resolve();
 				}
@@ -28,7 +29,7 @@ module.exports = {
 				return console.log(error);
 			}
 		});
-		syncPromise.then(async () => {
+		syncPromise.then(() => {
 			console.log("[Synced]");
 		});
 	}

@@ -125,12 +125,11 @@ module.exports = {
 		}
 
 		// getting all the config name from Database
-		const configCollection = await ConfigDB.findAll({ attributes: ["name"] });
-		const configList = configCollection.map(conf => `\`${conf.name}\``).join(', ');
+		const configCollection = await ConfigDB.list();
+		const configList = configCollection.map(conf => `\`${conf}\``).join(', ');
 
-		// trying to edit the Database
-		const affectedRows = await ConfigDB.update({ input: inputValue }, { where: { name:configName } });
-		if(affectedRows > 0) {
+		if(configCollection.includes(configName)) {
+			await ConfigDB.set(configName, inputValue);
 			console.log(`[${configName}] value changed to [${inputValue}]`);
 			await message.channel.send(successEmbed).then(async () => {
 				await configSync.execute(param);
