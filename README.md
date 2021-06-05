@@ -3,6 +3,9 @@
 Simple ModMail Discord bot designed for a small server and people that want to maintain their own ModMail bot in discord. 
 ModMail is a bot that create a private space between support staff and user to address an issue by creating a new channel. 
 
+## ⚠️⚠️⚠️ Warning!!! ⚠️⚠️⚠️
+I found a critical issue that replit didn't save database file if you're not actively on replit editor. It'll take a while for me to migrate the databasse system from sqlite to replit built in database feature. In the meantime, a temporary fix would be by manually host the bot on your own PC or have a device that open the replit editor.
+
 ## Disclaimer
 This bot only support one pair of server per bot. One main server(where users gather and chatting) and one thread server(where all the threads channel made). I'm debugging the bot alone so some bugs might passed when i upload it on GitHub feel free to report those bugs [here](https://github.com/AkimotoRyou/ModMail/issues).
 
