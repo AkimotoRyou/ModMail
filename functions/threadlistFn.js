@@ -1,14 +1,14 @@
 module.exports = {
 	name: "threadlist",
 	async execute(param, message, args) {
-		const moment = param.moment;
 		const config = param.config;
-		const ThreadDB = param.ThreadDB;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
 		const getEmbed = param.getEmbed;
 
 		let pageNumber = args.shift();
 
-		const threadlist = await ThreadDB.findAll({ attributes: ["userID", "createdAt"] });
+		const threadlist = await db.list(threadPrefix);
 		let pages = Math.floor(threadlist.length / 20);
 		if (threadlist.length % 20 != 0) {
 			// add 1 number of pages if residual quotient is not 0 (15%10=5 -> 5 > 0)
@@ -24,7 +24,10 @@ module.exports = {
 			pageNumber = pages;
 		}
 
-		const listArray = threadlist.map(thread =>`🔹 **[${moment(thread.createdAt).format("D MMM YYYY")}]** <@${thread.userID}> (\`${thread.userID}\`)`);
+		const listArray = threadlist.map(key => {
+			const cleanKey = key.slice(threadPrefix.length);
+			return `🔹 <@${cleanKey}> (\`${cleanKey}\`)`
+		});
 		const firstIndex = Math.abs((pageNumber - 1) * 20);
 		let listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || `\`List empty.\``;
 		if (pages > 1) {

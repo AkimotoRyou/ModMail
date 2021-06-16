@@ -1,5 +1,5 @@
 {
-  "name": "ModMail",
+  "name": "replit-modmail",
   "version": "2.1.0",
   "description": "A simple ModMail bot for Discord.",
   "main": "index.js",

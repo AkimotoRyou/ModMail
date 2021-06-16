@@ -6,19 +6,18 @@ module.exports = {
 		const client = param.client;
 		const getEmbed = param.getEmbed;
 		const config = param.config;
-		const ThreadDB = param.ThreadDB;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
 		const isMember = param.isMember;
 		const isBlocked = param.isBlocked;
 
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.cache.get(mainServerID);
-		const threadServerID = config.threadServerID;
-		const threadServer = await client.guilds.cache.get(threadServerID);
-		const categoryID = config.categoryID;
 		const author = message.author;
 		const channel = message.channel;
 
-		const isThread = await ThreadDB.findOne({ where: { channelID: channel.id } });
+		const userID = channel.name.split("-").pop();
+		const isThread = await db.get(threadPrefix + userID);
 		const checkIsBlocked = await isBlocked.execute(param, author.id);
 
 		const blockedEmbed = getEmbed.execute(param, config.error_color, "Blocked", `User blocked.`);
@@ -29,7 +28,7 @@ module.exports = {
 		if (!isThread) {
 			return channel.send(noThreadEmbed);
 		} else {
-			const checkIsMember = await isMember.execute(param, author.id);
+			const checkIsMember = await isMember.execute(param, userID);
 			const notMemberEmbed = getEmbed.execute(param, config.error_color, "Not a Member", `User aren't inside [**${mainServer.name}**] guild.`);
 
 			if (!checkIsMember) {
@@ -37,7 +36,6 @@ module.exports = {
 			} else if (checkIsBlocked) {
 				return channel.send(blockedEmbed);
 			} else {
-				const userID = isThread.userID;
 				const member = await mainServer.members.cache.get(userID);
 
 				if (!member) {

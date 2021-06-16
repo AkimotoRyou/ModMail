@@ -6,12 +6,11 @@ const Discord = require("discord.js");
 const { Util, MessageAttachment } = require("discord.js");
 const client = new Discord.Client();
 const keepAlive = require("./server.js");
-const Sequelize = require("sequelize");
 const fs = require("fs");
 const moment = require("moment");
 const defConfig = require("./config.json");
 const Database = require("@replit/database");
-const ConfigDB = new Database();
+const db = new Database();
 require("dotenv").config();
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,75 +42,30 @@ const config = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DATABASE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// For debuugging purpose, deleting all keys in the database.
-// ConfigDB.list().then(keys => keys.forEach(async key => {await ConfigDB.delete(key)}));
+const dbPrefix = {
+	block: "bck.",
+	config: "cfg.",
+	thread: "trd.",
+	tag: "tag.",
+}
 
-// #blockedDB
-const blockedDB = new Sequelize("database", "user", "password", {
-	host: "localhost",
-	dialect: "sqlite",
-	logging: false,
-	storage: "blocked.sqlite"
-});
-const BlockedDB = blockedDB.define("blocked", {
-	userID: {
-		type: Sequelize.STRING,
-		unique: true
-	},
-	modID: Sequelize.STRING,
-	reason: Sequelize.STRING
-});
+/* Database Structure
+	~ Block ~
+		bck.userID = modID-reason
+	~ Config~
+		cfg.configName = value
+	~ Thread ~
+		trd.userID = channelID-threadTitle
+	~ Tag ~
+		tag.tagName = content
+*/
 
-// #tagDB
-const tagDB = new Sequelize("database", "user", "password", {
-	host: "localhost",
-	dialect: "sqlite",
-	logging: false,
-	storage: "tag.sqlite"
-});
-const TagDB = tagDB.define("tag", {
-	name: {
-		type: Sequelize.STRING,
-		unique: true
-	},
-	content: Sequelize.STRING
-});
-
-// #threadDB
-const threadDB = new Sequelize("database", "user", "password", {
-	host: "localhost",
-	dialect: "sqlite",
-	logging: false,
-	storage: "thread.sqlite"
-});
-const ThreadDB = threadDB.define("thread", {
-	userID: {
-		type: Sequelize.STRING,
-		unique: true,
-		allowNull: false
-	},
-	channelID: {
-		type: Sequelize.STRING,
-		unique: true
-	},
-	threadTitle: Sequelize.STRING
-});
-
-// #queueDB
-const queueDB = new Sequelize("database", "user", "password", {
-	host: "localhost",
-	dialect: "sqlite",
-	logging: false,
-	storage: "queue.sqlite"
-});
-const QueueDB = queueDB.define("queue", {
-	userID: {
-		type: Sequelize.STRING,
-		unique: true,
-		allowNull: false
-	},
-	messageID: Sequelize.STRING
-});
+// For debugging purpose, deleting all keys in the database.
+// db.list().then(keys => keys.forEach(async key => {await db.delete(key)}));
+// db.list(dbPrefix.block).then(keys => keys.forEach(async key => {await db.delete(key)}));
+// db.list(dbPrefix.config).then(keys => keys.forEach(async key => {await db.delete(key)}));
+// db.list(dbPrefix.thread).then(keys => keys.forEach(async key => {await db.delete(key)}));
+// db.list(dbPrefix.tag).then(keys => keys.forEach(async key => {await db.delete(key)}));
 
 // #commandsCollection
 client.commands = new Discord.Collection();
@@ -143,11 +97,8 @@ const param = {
 	MessageAttachment,
 	moment,
 	client,
-	ConfigDB,
-	ThreadDB,
-	TagDB,
-	BlockedDB,
-	QueueDB,
+	db,
+	dbPrefix,
 	config,
 	defConfig,
 	activity,
@@ -160,10 +111,6 @@ client.functions.forEach(fn => param[fn.name] = client.functions.get(fn.name));
 
 client.on('ready', async () => {
 	console.log("[Syncing Database]");
-	await BlockedDB.sync();
-	await TagDB.sync();
-	await ThreadDB.sync();
-	await QueueDB.sync();
 	// cant make the bot waiting this guy below to finish pfft
 	await param.configSync.execute(param);
 
@@ -224,7 +171,7 @@ client.on('message', async message => {
 				return;
 			} else {
 				// Direct Message
-				const isThread = await ThreadDB.findOne({ where: { userID: message.author.id } });
+				const isThread = await db.get(dbPrefix.thread + message.author.id);
 				if(!isThread) {
 					// User didn't have any open thread
 					return;
@@ -233,7 +180,12 @@ client.on('message', async message => {
 					return message.channel.send(maintenanceEmbed);
 				} else {
 					// User have open thread and maintenance mode disabled
-					return param.userReply.execute(param, message, isThread);
+					const temp = isThread.split("-");
+					const thread = {
+						channelID: temp.shift(),
+						threadTitle: temp.join("-")
+					}
+					return param.userReply.execute(param, message, thread);
 				}
 			}
 		} else {

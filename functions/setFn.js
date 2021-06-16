@@ -5,8 +5,10 @@ module.exports = {
 		const config = param.config;
 		const getEmbed = param.getEmbed;
 		const configSync = param.configSync;
-		const ConfigDB = param.ConfigDB;
+		const db = param.db;
+		const configPrefix = param.dbPrefix.config;
 		const configName = args.shift();
+		const dbKey = configPrefix + configName;
 		let inputValue = args.shift() || "empty";
 
 		// manual toggle since i set database to String, can't store boolean for maintenance config.
@@ -125,12 +127,12 @@ module.exports = {
 		}
 
 		// getting all the config name from Database
-		const configCollection = await ConfigDB.list();
-		const configList = configCollection.map(conf => `\`${conf}\``).join(', ');
+		const configCollection = await db.list(configPrefix);
+		const configList = configCollection.map(conf => `\`${conf.slice(configPrefix.length)}\``).join(', ');
 
-		if(configCollection.includes(configName)) {
-			await ConfigDB.set(configName, inputValue);
-			console.log(`[${configName}] value changed to [${inputValue}]`);
+		if(configCollection.includes(dbKey)) {
+			await db.set(dbKey, inputValue);
+			console.log(`[${dbKey}] value changed to [${inputValue}]`);
 			await message.channel.send(successEmbed).then(async () => {
 				await configSync.execute(param);
 				if(configName == "maintenance" || configName == "prefix") {

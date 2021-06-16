@@ -3,9 +3,6 @@
 Simple ModMail Discord bot designed for a small server and people that want to maintain their own ModMail bot in discord. 
 ModMail is a bot that create a private space between support staff and user to address an issue by creating a new channel. 
 
-## ⚠️⚠️⚠️ Warning!!! ⚠️⚠️⚠️
-I found a critical issue that replit didn't save database file if you're not actively on replit editor. It'll take a while for me to migrate the databasse system from sqlite to replit built in database feature. In the meantime, a temporary fix would be by manually host the bot on your own PC or have a device that open the replit editor.
-
 ## Disclaimer
 This bot only support one pair of server per bot. One main server(where users gather and chatting) and one thread server(where all the threads channel made). I'm debugging the bot alone so some bugs might passed when i upload it on GitHub feel free to report those bugs [here](https://github.com/AkimotoRyou/ModMail/issues).
 
@@ -60,7 +57,6 @@ To operate functionally the bot need the following :
 * **blockinfo** : Information about a user's block.
 * **blocklist** : List of blocked users.
 * **close** : Close a user thread.
-* **queues** : Show information about queued threads and create threads if ModMail category have less than 50 channels.
 * **reply** : Reply to a user thread.
 * **tag** : Send a saved response.
 * **tagadd** : Add a saved response.
@@ -92,7 +88,5 @@ I made Discord server to test the bot, feel free to join at https://discord.gg/b
 
 ## Change Log
 
-1. Turning `restart` command to `turnoff` command. `(Need to manually run the bot from repl.it after turned off.)`
-2. Changing how cycling bot activities works to not abuse Discord API. 
-- Before : Changed every 7 seconds.
-- Now : Changed when there's a new message every 7 seconds `(Anywhere from any users except bots)`.
+1. Migrate Database system from sqlite to replDB.
+2. Due to replDB limitation, queue feature are removed and several other changes are made.

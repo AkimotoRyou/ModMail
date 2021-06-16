@@ -10,10 +10,11 @@ module.exports = {
 	async execute(param, message, args) {
 		const config = param.config;
 		const getEmbed = param.getEmbed;
-		const TagDB = param.TagDB;
+		const db = param.db;
+		const tagPrefix = param.dbPrefix.tag;
 
-		const tagCollection = await TagDB.findAll({ attributes: ["name"] });
-		const tagList = tagCollection.map(tag => `\`${tag.name}\``).join(', ') || "No available tag";
+		const tagCollection = await db.list(tagPrefix);
+		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(', ') || "No available tag";
 
 		const tagListEmbed = getEmbed.execute(param, config.info_color, "Tags", tagList);
 		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don't have permission to run this command.");

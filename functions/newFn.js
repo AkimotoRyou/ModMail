@@ -6,7 +6,8 @@ module.exports = {
 		const moment = param.moment;
 		const client = param.client;
 		const config = param.config;
-		const ThreadDB = param.ThreadDB;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
 		const updateActivity = param.updateActivity;
 
 		const mainServerID = config.mainServerID;
@@ -26,7 +27,8 @@ module.exports = {
 			mentionedRole = "<@&" + mentionedRoleID + ">";
 		}
 
-		const newChannel = await threadServer.channels.create(author.tag.replace(/[^0-9a-z]/gi, ''), { type: "text" });
+		const channelName = author.tag.replace(/[^0-9a-z]/gi, '') + `-${author.id}`;
+		const newChannel = await threadServer.channels.create(channelName, { type: "text" });
 		// Set channel parent and then set the permissions
 		await newChannel.setParent(categoryID).then(chnl => chnl.lockPermissions())
 		const logEmbed = new Discord.MessageEmbed()
@@ -69,11 +71,7 @@ module.exports = {
 			});
 		}
 
-		const newThread = await ThreadDB.create({
-			userID: author.id,
-			channelID: newChannel.id,
-			threadTitle: args.join(' ')
-		});
+		const newThread = await db.set(threadPrefix + author.id, `${newChannel.id}-${args.join(' ')}`);
 		console.log(`${author.tag}(${newThread.userID}) created thread.`);
 
 		await updateActivity.execute(param);

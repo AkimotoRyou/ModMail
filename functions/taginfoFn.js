@@ -3,25 +3,26 @@ module.exports = {
 	async execute(param, message, args) {
 		const moment = param.moment;
 		const config = param.config;
-		const TagDB = param.TagDB;
+		const db = param.db;
+		const tagPrefix = param.dbPrefix.tag;
 		const getEmbed = param.getEmbed;
 
 		const tagName = args.join(' ').toLowerCase();
-		const isTag = await TagDB.findOne({ where: { name: tagName } });
-		const tagCollection = await TagDB.findAll({ attributes: ["name"] });
-		const tagList = tagCollection.map(tag => `\`${tag.name}\``).join(', ') || "No available tag";
+		const dbKey = tagPrefix + tagName;
+		const isTag = await db.get(dbKey);
+		const tagCollection = await db.list(tagPrefix);
+		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(', ') || "No available tag";
 
 		const noTagEmbed = getEmbed.execute(param, config.error_color, "Not Found", `CouldnS't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
 
 		if(!isTag) {
+			console.log(`Tag not found.`);
 			return message.channel.send(noTagEmbed);
 		} else {
 			const data = [];
 
-			data.push(`**Name** : ${isTag.name}`);
-			data.push(`**Created at** : ${moment(isTag.createdAt).format("D MMMM YYYY, **HH:mm:ss** UTC")}`);
-			data.push(`**Updated at** : ${moment(isTag.updatedAt).format("D MMMM YYYY, **HH:mm:ss** UTC")}`);
-			data.push(`**Response** : \`\`\`${isTag.content}\`\`\``);
+			data.push(`**Name** : ${tagName}`);
+			data.push(`**Response** : \`\`\`${isTag}\`\`\``);
 
 			const tagInfoEmbed = getEmbed.execute(param, config.info_color, "Tag Information", data.join('\n'));
 			return message.channel.send(tagInfoEmbed);

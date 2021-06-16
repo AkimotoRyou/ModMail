@@ -3,10 +3,9 @@ module.exports = {
 	async execute(param, message, args) {
 		const getEmbed = param.getEmbed;
 		const config = param.config;
-		const ConfigDB = param.ConfigDB;
 
 		const configName = args.shift();
-		const configCollection = await ConfigDB.list();
+		const configCollection = await Object.Keys(config);
 		const isConfig = await configCollection.includes(configName);
 		const configList = configCollection.map(conf => `\`${conf}\``).join(', ');
 

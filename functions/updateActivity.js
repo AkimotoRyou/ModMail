@@ -5,11 +5,10 @@ module.exports = {
 		const config = param.config;
 		const prefix = config.prefix;
 		const activity = param.activity;
-		const ThreadDB = param.ThreadDB;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
 
-		const threads = await ThreadDB.findAll({ attributes: ["userID"] }).catch(
-			error => {console.log(error)}
-		);
+		const threads = await db.list(threadPrefix)
 		const threadServer = client.guilds.cache.get(config.threadServerID);
 		let maxThreads = "";
 		if (threadServer) {

@@ -4,8 +4,9 @@ module.exports = {
 		const Discord = param.Discord;
 		const client = param.client;
 		const config = param.config;
-		const TagDB = param.TagDB;
-		const ThreadDB = param.ThreadDB;
+		const db = param.db;
+		const tagPrefix = param.dbPrefix.tag;
+		const threadPrefix = param.dbPrefix.thread;
 		const getEmbed = param.getEmbed;
 
 		const mainServerID = config.mainServerID;
@@ -13,11 +14,13 @@ module.exports = {
 		const author = message.author;
 		const channel = message.channel;
 		const tagName = args.join(' ').toLowerCase();
+		const dbKey = tagPrefix + tagName;
 
-		const isTag = await TagDB.findOne({ where: { name: tagName } });
-		const isThread = await ThreadDB.findOne({ where: { channelID: message.channel.id } });
-		const tagCollection = await TagDB.findAll({ attributes: ["name"] });
-		const tagList = tagCollection.map(tag => `\`${tag.name}\``).join(', ') || "No available tag";
+		const isTag = await db.get(dbKey);
+		const userID = channel.name.split("-").pop();
+		const isThread = await db.get(threadPrefix + userID);
+		const tagCollection = await db.list(tagPrefix);
+		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(', ') || "No available tag";
 
 		const noTagEmbed = getEmbed.execute(param, config.error_color, "Not Found", `Couldn't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
 		const cancelEmbed = getEmbed.execute(param, config.error_color, "Canceled", `Command are canceled.`);
@@ -26,15 +29,17 @@ module.exports = {
 
 		if(!isTag) {
 			// can't find tag
+			console.log(`Tag not found.`);
 			return message.channel.send(noTagEmbed);
 		} else if(!isThread) {
 			// no user thread
-			const noThreadEmbed = getEmbed.execute(param, config.info_color, "", isTag.content);
+			console.log(`Not a thread channel.`);
+			const noThreadEmbed = getEmbed.execute(param, config.info_color, "", isTag);
 			return message.channel.send(noThreadEmbed).then(message.delete());
 		} else {
 			// There's user thread and tag
-			const userID = isThread.userID;
-			const checkIsBlocked = await param.isBlocked.execute(param, isThread.userID);
+			console.log(`Thread channel.`);
+			const checkIsBlocked = await param.isBlocked.execute(param, userID);
 			const checkIsMember = await param.isMember.execute(param, author.id);
 			const blockedEmbed = getEmbed.execute(param, config.error_color, "Blocked", `User blocked.`);
 			const notMemberEmbed = getEmbed.execute(param, config.error_color, "Not a Member", `User aren't inside [**${mainServer.name}**] guild.`);
@@ -45,7 +50,7 @@ module.exports = {
 
 			const waitingEmbed = new param.Discord.MessageEmbed()
 				.setColor(config.info_color)
-				.setDescription(isTag.content + `\n\nReact with ✅ to send, ❌ to cancel.\n\`Timeout: 30 seconds.\``)
+				.setDescription(isTag + `\n\nReact with ✅ to send, ❌ to cancel.\n\`Timeout: 30 seconds.\``)
 				.setFooter(param.client.user.tag, param.client.user.avatarURL())
 				.setTimestamp();
 
@@ -74,14 +79,14 @@ module.exports = {
 						const userDMEmbed = new Discord.MessageEmbed()
 							.setColor(config.sent_color)
 							.setTitle("Message Received")
-							.setDescription(isTag.content)
+							.setDescription(isTag)
 							.setFooter(mainServer.name, mainServer.iconURL())
 							.setTimestamp();
 						const threadChannelEmbed = new Discord.MessageEmbed()
 							.setColor(config.sent_color)
 							.setAuthor(`[Anonymous] | ${author.tag}`, author.avatarURL())
 							.setTitle("Message Sent")
-							.setDescription(isTag.content)
+							.setDescription(isTag)
 							.setFooter(`${getUser.tag} | ${getUser.id}`, getUser.avatarURL())
 							.setTimestamp();
 

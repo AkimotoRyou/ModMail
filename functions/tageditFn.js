@@ -2,13 +2,15 @@ module.exports = {
 	name: "tagedit",
 	async execute(param, message, args) {
 		const config = param.config;
-		const TagDB = param.TagDB;
+		const db = param.db;
+		const tagPrefix = param.dbPrefix.tag;
 		const getEmbed = param.getEmbed;
 
 		const tagName = args.join(' ').toLowerCase();
-		const isTag = await TagDB.findOne({ where: { name: tagName } });
-		const tagCollection = await TagDB.findAll({ attributes: ["name"] });
-		const tagList = tagCollection.map(tag => `\`${tag.name}\``).join(', ') || "No available tag";
+		const dbKey = tagPrefix + tagName;
+		const isTag = await db.get(dbKey);
+		const tagCollection = await db.list(tagPrefix);
+		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(', ') || "No available tag";
 
 		const noTagEmbed = getEmbed.execute(param, config.error_color, "Not Found", `Couldn't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
 		const successEmbed = getEmbed.execute(param, config.info_color, "Success", `Succesfully edit (\`${tagName}\`) tag response.`);
@@ -17,6 +19,7 @@ module.exports = {
 		const timeoutEmbed = getEmbed.execute(param, config.error_color, "Timeout", `Timeout, command are canceled.`);
 
 		if(!isTag) {
+			console.log(`Tag not found.`);
 			return message.channel.send(noTagEmbed);
 		} else {
 			const filter = msg => msg.author.id == message.author.id;
@@ -28,11 +31,10 @@ module.exports = {
 							return message.channel.send(cancelEmbed);
 						} else {
 							const content = collected.first().content;
-							const affectedRows = await TagDB.update({ content: content }, { where: { name: tagName } });
-							if(affectedRows > 0) {
+							db.set(dbKey, content).then(() => {
 								console.log(`Edited [${tagName}] tag`);
 								return message.channel.send(successEmbed);
-							}
+							});
 						}
 					})
 					.catch(collected => {

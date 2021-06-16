@@ -5,7 +5,8 @@ module.exports = {
 		const client = param.client;
 		const getEmbed = param.getEmbed;
 		const config = param.config;
-		const ThreadDB = param.ThreadDB;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
 		const updateActivity = param.updateActivity;
 
 		const mainServerID = config.mainServerID;
@@ -17,7 +18,11 @@ module.exports = {
 		const author = message.author;
 		const channel = message.channel;
 
-		const isThread = await ThreadDB.findOne({ where: { channelID: channel.id } });
+		const userID = channel.name.split("-").pop();
+		const isThread = await db.get(threadPrefix + userID);
+		const temp = isThread.split("-");
+		temp.shift();
+		const threadTitle = temp.join("-");
 		const addSpace = args.join(' ');
 		const deleteSeparator = addSpace.split(/-+/);
 		const reason = deleteSeparator.shift();
@@ -28,9 +33,9 @@ module.exports = {
 		if (!isThread) {
 			return channel.send(noThreadEmbed);
 		} else {
-			const user = await client.users.cache.get(isThread.userID);
-			const logDescription = `${isThread.threadTitle}\n**Reason** : ${reason}\n**Note** : ${note}`;
-			const userDescription = `${isThread.threadTitle}\n**Reason** : ${reason}`;
+			const user = await client.users.cache.get(userID);
+			const logDescription = `${threadTitle}\n**Reason** : ${reason}\n**Note** : ${note}`;
+			const userDescription = `${threadTitle}\n**Reason** : ${reason}`;
 
 			let logEmbed;
 			const userDMEmbed = new Discord.MessageEmbed()
@@ -57,15 +62,12 @@ module.exports = {
 					.setAuthor(`[Anonymous] | ${author.tag}`, author.avatarURL())
 					.setTitle("Thread Closed")
 					.setDescription(logDescription)
-					.setFooter(`Can't find user | ${isThread.userID}`)
+					.setFooter(`Can't find user | ${userID}`)
 					.setTimestamp();
 				await logChannel.send(logEmbed);
 			}
 
-			const rowCount = await ThreadDB.destroy({ where: { userID: isThread.userID } });
-			if (rowCount > 0) {
-				console.log(`Closing Thread.`);
-			}
+			db.delete(threadPrefix + userID).then(() => console.log(`Closing Thread.`));
 			await updateActivity.execute(param);
 			return channel.delete();
 		}

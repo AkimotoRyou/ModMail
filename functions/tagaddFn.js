@@ -2,7 +2,8 @@ module.exports = {
 	name: "tagadd",
 	async execute(param, message, args) {
 		const config = param.config;
-		const TagDB = param.TagDB;
+		const db = param.db;
+		const tagPrefix = param.dbPrefix.tag;
 		const getEmbed = param.getEmbed;
 
 		const tagName = args.join(' ').toLowerCase();
@@ -13,8 +14,10 @@ module.exports = {
 		const cancelEmbed = getEmbed.execute(param, config.error_color, "Canceled", `Command are canceled.`);
 		const timeoutEmbed = getEmbed.execute(param, config.error_color, "Timeout", `Timeout, command are canceled.`);
 
-		const isDuplicated = await TagDB.findOne({ where: { name: tagName } });
+		const dbKey = tagPrefix + tagName;
+		const isDuplicated = await db.get(dbKey);
 		if(isDuplicated) {
+			console.log(`Duplicated tag name.`);
 			return message.channel.send(duplicatedEmbed);
 		} else {
 			const filter = msg => msg.author.id == message.author.id;
@@ -27,14 +30,10 @@ module.exports = {
 							return message.channel.send(cancelEmbed);
 						} else {
 							const content = collected.first().content;
-							const addThis = await TagDB.create({
-								name: tagName,
-								content: content
-							});
-							if(addThis) {
-								console.log(`Added [${tagName}] tag`);
+							db.set(dbKey, content).then(() => {
+								console.log(`Added [${tagName}] tag.`);
 								return message.channel.send(successEmbed);
-							}
+							});
 						}
 					})
 					.catch(collected => {

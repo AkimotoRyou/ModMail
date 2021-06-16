@@ -4,7 +4,7 @@ module.exports = {
 	level: 'Moderator',
 	guildOnly: true,
 	args: true,
-	usage: '[<userID> or <channelID>]',
+	usage: '<userID>',
 	description: 'Show a user thread information.',
 	note: false,
 	async execute(param, message, args) {

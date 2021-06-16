@@ -1,14 +1,14 @@
 module.exports = {
 	name: "blocklist",
 	async execute(param, message, args) {
-		const moment = param.moment;
 		const config = param.config;
-		const BlockedDB = param.BlockedDB;
+		const db = param.db;
+		const blockPrefix = param.dbPrefix.block;
 		const getEmbed = param.getEmbed;
 
 		let pageNumber = args.shift();
 
-		const blocklist = await BlockedDB.findAll({ attributes: ["userID", "createdAt"] });
+		const blocklist = await db.list(blockPrefix);
 		let pages = Math.floor(blocklist.length / 20);
 		if (blocklist.length % 20 != 0) {
 			// add 1 number of pages if residual quotient is not 0 (15%10=5 -> 5 > 0)
@@ -24,7 +24,7 @@ module.exports = {
 			pageNumber = pages;
 		}
 
-		const listArray = blocklist.map(block =>`🔸 **[${moment(block.createdAt).format("D MMM YYYY")}]** <@${block.userID}> (\`${block.userID}\`)`);
+		const listArray = blocklist.map(block =>`🔸 <@${block.slice(blockPrefix.length)}> (\`${block.slice(blockPrefix.length)}\`)`);
 		const firstIndex = Math.abs((pageNumber - 1) * 20);
 		let listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || `\`List empty.\``;
 		if (pages > 1) {

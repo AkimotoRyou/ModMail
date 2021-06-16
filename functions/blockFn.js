@@ -2,7 +2,8 @@ module.exports = {
 	name: "block",
 	async execute(param, message, args) {
 		const config = param.config;
-		const BlockedDB = param.BlockedDB;
+		const db = param.db;
+		const blockPrefix = param.dbPrefix.block;
 		const getEmbed = param.getEmbed;
 
 		const modID = message.author.id;
@@ -12,21 +13,16 @@ module.exports = {
 		const duplicatedEmbed = getEmbed.execute(param, config.error_color, "Duplicated", `<@${userID}> (\`${userID}\`) already blocked.`);
 		const successEmbed = getEmbed.execute(param, config.info_color, "Success", `Succesfully block <@${userID}> (\`${userID}\`).`);
 
-		try{
-			const blockThis = await BlockedDB.create({
-				userID: userID,
-				modID: modID,
-				reason: reason
-			});
-			if(blockThis) {
-				console.log(`Blocked [${userID}]`);
+		const dbKey = blockPrefix + userID;
+		const isBlocked = await db.get(dbKey);
+		if(isBlocked){
+			console.log(`User [${userID}] is already blocked.`);
+			return message.channel.send(duplicatedEmbed);
+		} else {
+			db.set(dbKey, `${modID}-${reason}`).then(() => {
+				console.log(`Blocked [${userID}].`);
 				return message.channel.send(successEmbed);
-			}
-		} catch (error) {
-			if(error.name == "SequelizeUniqueConstraintError") {
-				return message.channel.send(duplicatedEmbed);
-			}
+			})
 		}
-
 	}
 };
