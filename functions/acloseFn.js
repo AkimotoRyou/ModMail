@@ -20,9 +20,6 @@ module.exports = {
 
 		const userID = channel.name.split("-").pop();
 		const isThread = await db.get(threadPrefix + userID);
-		const temp = isThread.split("-");
-		temp.shift();
-		const threadTitle = temp.join("-");
 		const addSpace = args.join(' ');
 		const deleteSeparator = addSpace.split(/-+/);
 		const reason = deleteSeparator.shift();
@@ -33,6 +30,9 @@ module.exports = {
 		if (!isThread) {
 			return channel.send(noThreadEmbed);
 		} else {
+			const temp = isThread.split("-");
+			temp.shift();
+			const threadTitle = temp.join("-");
 			const user = await client.users.cache.get(userID);
 			const logDescription = `${threadTitle}\n**Reason** : ${reason}\n**Note** : ${note}`;
 			const userDescription = `${threadTitle}\n**Reason** : ${reason}`;
