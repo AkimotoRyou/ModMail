@@ -5,7 +5,7 @@ module.exports = {
 		const config = param.config;
 
 		const configName = args.shift();
-		const configCollection = await Object.Keys(config);
+		const configCollection = await Object.keys(config);
 		const isConfig = await configCollection.includes(configName);
 		const configList = configCollection.map(conf => `\`${conf}\``).join(', ');
 
