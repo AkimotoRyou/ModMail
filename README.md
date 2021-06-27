@@ -16,18 +16,20 @@ This bot only support one pair of server per bot. One main server(where users ga
 6. Choose `Node.js` as the language.
 7. Rename your project. `*(Optional)`
 8. Click `Create Repl`.
-9. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page. `*(make sure to replace the index.js file)`
+9. Delete Replit prebuilt index.js file.
 10. At `.env` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=`.
-11. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
-12. Click `Run` button on top center of the page.
-13. If you have repl.it [Hacker subscription](https://repl.it/site/pricing) **when** the `Always-on repls` feature added, you can skip the instructions below.
-14. Create [UptimeRobot](https://uptimerobot.com/) account and login.
-15. On Dashboard, click `+ Add New Monitor`.
-16. Change `Monitor Type *` to `HTTP(s)`.
-17. Fill the name to your own liking.
-18. On your Repl.it project, there should be a window showing a page that says `Bot is running.` copy the url on that window to UptimeRobot `URL (or IP)*` part. `*(The url should be something like: "https://projectName.replUsername.repl.co")`
-19. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
-20. Finally, click `Create Monitor`.
+11. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page.
+12. Run `npm i @replit/database` from shell `(ctrl+shift+s)`.
+13. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
+14. Click `Run` button on top center of the page.
+15. If you have repl.it [Hacker subscription](https://repl.it/site/pricing) **when** the `Always-on repls` feature added, you can skip the instructions below.
+16. Create [UptimeRobot](https://uptimerobot.com/) account and login.
+17. On Dashboard, click `+ Add New Monitor`.
+18. Change `Monitor Type *` to `HTTP(s)`.
+19. Fill the name to your own liking.
+20. On your Repl.it project, there should be a window showing a page that says `Bot is running.` copy the url on that window to UptimeRobot `URL (or IP)*` part. `*(The url should be something like: "https://projectName.replUsername.repl.co")`
+21. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
+22. Finally, click `Create Monitor`.
 
 
 ## Requirements
