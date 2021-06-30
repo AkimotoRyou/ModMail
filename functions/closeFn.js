@@ -62,7 +62,7 @@ module.exports = {
 					.setAuthor(author.tag, author.avatarURL())
 					.setTitle("Thread Closed")
 					.setDescription(logDescription)
-					.setFooter(`Can't find user | ${isThread.userID}`)
+					.setFooter(`Can't find user | ${userID}`)
 					.setTimestamp();
 				await logChannel.send(logEmbed);
 			}
