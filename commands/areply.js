@@ -1,61 +1,88 @@
 module.exports = {
-	name: 'areply',
-	aliases: false,
-	level: 'Moderator',
+	name: "areply",
+	aliases: ["ar"],
+	level: "Moderator",
 	guildOnly: true,
-	// in case only attachment no message
-	args: false,
-	usage: '[reply message]',
-	description: 'Anonymously reply to a user thread.',
+	args: false, // in case there's only attachment with no message
+	reqConfig: ["mainServerID"], // Configs needed to run this command.
+	usage: ["[reply message]"],
+	description: "Anonymously reply to a user thread.",
 	note: false,
-	async execute(param, message, args) {
-		const config = param.config;
+	async execute(param, message, args, replyChannel) {
+		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+
+		const MessageAttachment = param.MessageAttachment;
+		const client = param.client;
 		const getEmbed = param.getEmbed;
-		const areply = param.areply;
+		const config = param.config;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
+		const isMember = param.isMember;
+		const isBlocked = param.isBlocked;
 
-		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don't have permission to run this command.");
-		const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "`mainServerID` and/or `threadServerID` value is empty.");
-		const noChannelEmbed = getEmbed.execute(param, config.error_color, "Configuration Needed", "`categoryID` and/or `logChannelID` value is empty.");
-		const noAdminEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "`adminRoleID` and/or `modRoleID` value is empty.");
-		const notChannelEmbed = getEmbed.execute(param, config.error_color, "Invalid Channel", `This isn't thread channel.`);
-		const noArgsEmbed = param.getEmbed.execute(param, config.warning_color, "Missing Arguments", `You didn't provide any arguments nor attachments.`);
+		const mainServerID = config.mainServerID;
+		const mainServer = await client.guilds.fetch(mainServerID);
+		const author = message.author;
 
-		if (config.mainServerID == "empty" && config.threadServerID == "empty" && message.member.hasPermission("ADMINISTRATOR")) {
-			// mainServerID and threadServerID empty and user has ADMINISTRATOR permission
-			return message.channel.send(noServerEmbed);
-		} else if(message.guild.id == config.threadServerID) {
-			// inside thread server
-			if (config.adminRoleID == "empty" || config.modRoleID == "empty") {
-				// adminRoleID or modRoleID empty
-				return message.channel.send(noAdminEmbed);
-			} else if(config.categoryID == "empty" || config.logChannelID == "empty") {
-				// categoryID or logChannelID empty
-				return message.channel.send(noChannelEmbed);
-			} else if (message.channel.parentID != config.categoryID || message.channel.id == config.logChannelID || message.channel.id == config.botChannelID) {
-				// adminRoleID, modRoleID, categoryID and logChannelID not empty
-				// the channel isn't under modmail category or it's a log channel or it's bot channel -_-
-				return message.channel.send(notChannelEmbed);
-			} else if(!args.length && message.attachments.size == 0) {
-				// the channel is under modmail category, it's not a log channel, and it's not bot channel
-				return message.channel.send(noArgsEmbed);
-			} else if(message.author.id == config.botOwnerID) {
-				return areply.execute(param, message, args);
-			} else if (message.member.hasPermission("ADMINISTRATOR") || await param.roleCheck.execute(message, config.adminRoleID)) {
-				// user has ADMINISTRATOR permission or has admin role
-				return areply.execute(param, message, args);
-			} else if (await param.roleCheck.execute(message, config.modRoleID)) {
-				// user has moderator role
-				return areply.execute(param, message, args);
-			} else if (config.botChannelID != "empty" && message.channel.id != config.botChannelID) {
-				// user didn't have ADMINISTRATOR permission nor has admin role
-				return;
-			} else {
-				return message.channel.send(noPermEmbed);
-			}
+		const userID = message.channel.name.split("-").pop();
+		const isThread = await db.get(threadPrefix + userID);
+		const checkIsBlocked = await isBlocked.execute(param, author.id);
 
-		} else {
-			// outside main server and thread server
-			return message.channel.send(noPermEmbed);
+		const blockedEmbed = getEmbed.execute(param, "", config.error_color, "Blocked", "User blocked.");
+		const noDMEmbed = getEmbed.execute(param, "", config.error_color, "Not Sent", "User disabled Direct Message.");
+		const noUserEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find user in my collection.");
+		const noThreadEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find any thread asociated with this channel.");
+
+		if (!isThread) {
+			console.log("> Thread not found.");
+			return replyChannel.send(noThreadEmbed);
 		}
-	}
+		else {
+			const checkIsMember = await isMember.execute(param, userID);
+			const notMemberEmbed = getEmbed.execute(param, "", config.error_color, "Not a Member", `User aren't inside [**${mainServer.name}**] guild.`);
+
+			if (!checkIsMember) {
+				console.log("> The user isn't a main server member.");
+				return replyChannel.send(notMemberEmbed);
+			}
+			else if (checkIsBlocked) {
+				console.log("> The user is blocked.");
+				return replyChannel.send(blockedEmbed);
+			}
+			else {
+				const member = await mainServer.members.fetch(userID);
+
+				if (!member) {
+					console.log("> Can't fetch user data.");
+					return replyChannel.send(noUserEmbed);
+				}
+				else {
+					const user = member.user;
+					const description = args.join(" ");
+					const userDMEmbed = getEmbed.execute(param, "[Anonymous]", config.sent_color, "Message Received", description, "", mainServer);
+					const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, "Message Sent Anonymously", description, "", user);
+
+					try{
+						await user.send(userDMEmbed);
+					}
+					catch (error) {
+						if(error.message == "Cannot send messages to this user") {
+							console.log("> Recipient's DM are disabled.");
+							return replyChannel.send(noDMEmbed);
+						}
+					}
+					await replyChannel.send(threadChannelEmbed);
+					if (message.attachments.size > 0) {
+						await message.attachments.forEach(async atch => {
+							const attachment = new MessageAttachment(atch.url);
+							await user.send(attachment);
+							await replyChannel.send(attachment);
+						});
+					}
+					return message.delete().then(() => console.log("> Message deleted."));
+				}
+
+			}
+		}
+	},
 };

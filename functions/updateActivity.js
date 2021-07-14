@@ -1,6 +1,8 @@
 module.exports = {
 	name: "updateActivity",
 	async execute(param) {
+		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+
 		const client = param.client;
 		const config = param.config;
 		const prefix = config.prefix;
@@ -8,7 +10,7 @@ module.exports = {
 		const db = param.db;
 		const threadPrefix = param.dbPrefix.thread;
 
-		const threads = await db.list(threadPrefix)
+		const threads = await db.list(threadPrefix);
 		const threadServer = client.guilds.cache.get(config.threadServerID);
 		let maxThreads = "";
 		if (threadServer) {
@@ -17,10 +19,12 @@ module.exports = {
 				const childSize = categoryChannel.children.size;
 				const threadSize = threads.length;
 				maxThreads = 50 - (childSize - threadSize);
-			} else {
+			}
+			else {
 				maxThreads = 0;
 			}
-		} else {
+		}
+		else {
 			maxThreads = 0;
 		}
 		const activities = [
@@ -34,16 +38,17 @@ module.exports = {
 			`Пришлите мне сообщение | ${prefix}helpRU`,
 			`给我发一条信息 | ${prefix}helpCHS`,
 			`給我發一條信息 | ${prefix}helpCHT`,
-			`Envíeme un mensaje | ${prefix}helpES`
-		]
+			`Envíeme un mensaje | ${prefix}helpES`,
+		];
 
 		if (config.maintenance == 0) {
 			client.user.setActivity(activities[activity.index]);
 			activity.index++;
 			if (activity.index == activities.length) activity.index = 0;
-		} else {
+		}
+		else {
 			client.user.setActivity("~ Under Maintenance ~");
 		}
-		console.log(`> Activity Updated. Index : ${activity.index}`)
-	}
+		console.log(`> Activity Updated. Index : ${activity.index}`);
+	},
 };

@@ -16,18 +16,20 @@ This bot only support one pair of server per bot. One main server(where users ga
 6. Choose `Node.js` as the language.
 7. Rename your project. `*(Optional)`
 8. Click `Create Repl`.
-9. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page. `*(make sure to replace the index.js file)`
+9. Delete Replit prebuilt index.js file.
 10. At `.env` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=`.
-11. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
-12. Click `Run` button on top center of the page.
-13. If you have repl.it [Hacker subscription](https://repl.it/site/pricing) **when** the `Always-on repls` feature added, you can skip the instructions below.
-14. Create [UptimeRobot](https://uptimerobot.com/) account and login.
-15. On Dashboard, click `+ Add New Monitor`.
-16. Change `Monitor Type *` to `HTTP(s)`.
-17. Fill the name to your own liking.
-18. On your Repl.it project, there should be a window showing a page that says `Bot is running.` copy the url on that window to UptimeRobot `URL (or IP)*` part. `*(The url should be something like: "https://projectName.replUsername.repl.co")`
-19. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
-20. Finally, click `Create Monitor`.
+11. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page.
+12. Run `npm i @replit/database` from shell `(ctrl+shift+s)`.
+13. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
+14. Click `Run` button on top center of the page.
+15. If you have repl.it [Hacker subscription](https://repl.it/site/pricing) **when** the `Always-on repls` feature added, you can skip the instructions below.
+16. Create [UptimeRobot](https://uptimerobot.com/) account and login.
+17. On Dashboard, click `+ Add New Monitor`.
+18. Change `Monitor Type *` to `HTTP(s)`.
+19. Fill the name to your own liking.
+20. On your Repl.it project, there should be a window showing a page that says `Bot is running.` copy the url on that window to UptimeRobot `URL (or IP)*` part. `*(The url should be something like: "https://projectName.replUsername.repl.co")`
+21. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
+22. Finally, click `Create Monitor`.
 
 
 ## Requirements
@@ -45,40 +47,22 @@ To operate functionally the bot need the following :
 * **turnoff** : Turn off the bot.
 #### ~ Admin Level ~
 * **bind** : Bind user thread to a channel.
-* **configinfo** : Show a configuration information.
-* **configuration** : Bot configuration.
+* **config** : Show current bot config or info about each config.
 * **guilds** : List of guilds (servers) that have this bot.
-* **reset** : Reset all configuration values.
+* **reset** : Reset specific or all configuration values.
 * **set** : Set specific configuration value.
 #### ~ Moderator Level ~
 * **aclose** : Anonymously close a user thread.
 * **areply** : Anonymously reply to a user thread.
-* **block** : Block a user from creating new thread and replying to a thread.
-* **blockinfo** : Information about a user's block.
-* **blocklist** : List of blocked users.
+* **block** : Block a user, show an info, or show list of blocked user(s).
 * **close** : Close a user thread.
 * **reply** : Reply to a user thread.
-* **tag** : Send a saved response.
-* **tagadd** : Add a saved response.
-* **tagdelete** : Delete a saved response.
-* **tagedit** : Edit a saved response.
-* **taginfo** : Show a saved response information.
-* **taglist** : Show all tag names.
-* **threadinfo** : Show a user thread information.
-* **threadlist** : Show all open threads.
+* **tag** : Send, add, delete, edit, show an info or show list of saved response(s).
+* **thread** : Show a user thread information or list of open thread(s).
 * **unblock** : Unblock user from creating new thread.
 #### ~ User level ~
 * **commands** : List of all available commands according to your permission level.
 * **help** : Short instruction on how to create a new thread or info on a specific command.
-* **helpchs** : 显示如何使用操作这个系统的说明.
-* **helpcht** : 顯示如何使用操作這個系統的說明.
-* **helpde** : Anleitung zur Verwendung des Bots anzeigen.
-* **helpes** : Mostrar instrucciones sobre cómo usar el bot.
-* **helpfr** : Afficher les instructions sur l'utilisation du bot.
-* **helpkr** : 봇 사용 방법에 대한 지시 사항 표시.
-* **helppt** : Mostrar instruções sobre como usar o bot.
-* **helpru** : Показать инструкцию о том, как использовать бот.
-* **helptr** : Bot kullanımı hakkında talimat göster.
 * **new** : Create new thread.
 * **ping** : Calculate bot latency.
 
@@ -88,5 +72,8 @@ I made Discord server to test the bot, feel free to join at https://discord.gg/b
 
 ## Change Log
 
-1. Migrate Database system from sqlite to replDB.
-2. Due to replDB limitation, queue feature are removed and several other changes are made.
+1. Events separated from index file make it easier for me to maintain or add stuff.
+2. Permission check are now sentralized in commandHandler.js instead of in individual command file.
+3. Config value are now checked before executing the command and will notify if it's invalid.
+4. Several commands are now merged, use `<prefix>help <command name>` for more info.
+5. More bot action logged in console for easier debugging.
