@@ -1,58 +1,69 @@
 module.exports = {
-	name: 'aclose',
-	aliases: false,
-	level: 'Moderator',
+	name: "aclose",
+	aliases: ["ac"],
+	level: "Moderator",
 	guildOnly: true,
 	args: true,
-	usage: '[reason]-[note]',
-	description: 'Anonymously close a user thread.',
+	reqConfig: ["mainServerID", "threadServerID", "logChannelID"], // Configs needed to run this command.
+	usage: ["<reason>-[note]"],
+	description: "Anonymously close a user thread.",
 	note: false,
-	async execute(param, message, args) {
-		const config = param.config;
+	async execute(param, message, args, replyChannel) {
+		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+
+		const client = param.client;
 		const getEmbed = param.getEmbed;
-		const aclose = param.aclose;
+		const config = param.config;
+		const db = param.db;
+		const threadPrefix = param.dbPrefix.thread;
+		const updateActivity = param.updateActivity;
 
-		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don't have permission to run this command.");
-		const noServerEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "`mainServerID` and/or `threadServerID` value is empty.");
-		const noChannelEmbed = getEmbed.execute(param, config.error_color, "Configuration Needed", "`categoryID` and/or `logChannelID` value is empty.");
-		const noAdminEmbed = getEmbed.execute(param, config.warning_color, "Configuration Needed", "`adminRoleID` and/or `modRoleID` value is empty.");
-		const notChannelEmbed = getEmbed.execute(param, config.error_color, "Invalid Channel", `This isn't thread channel.`);
+		const mainServerID = config.mainServerID;
+		const mainServer = await client.guilds.fetch(mainServerID);
+		const threadServerID = config.threadServerID;
+		const threadServer = await client.guilds.fetch(threadServerID);
+		const logChannelID = config.logChannelID;
+		const logChannel = await threadServer.channels.fetch(logChannelID);
+		const author = message.author;
+		const channel = message.channel;
 
-		if (config.mainServerID == "empty" && config.threadServerID == "empty" && message.member.hasPermission("ADMINISTRATOR")) {
-			// mainServerID and threadServerID empty and user has ADMINISTRATOR permission
-			return message.channel.send(noServerEmbed);
-		} else if(message.guild.id == config.threadServerID) {
-			// inside thread server
-			if (config.adminRoleID == "empty" || config.modRoleID == "empty") {
-				// adminRoleID or modRoleID empty
-				return message.channel.send(noAdminEmbed);
-			} else if(config.categoryID == "empty" || config.logChannelID == "empty") {
-				// categoryID or logChannelID empty
-				return message.channel.send(noChannelEmbed);
-			} else if (message.channel.parentID != config.categoryID || message.channel.id == config.logChannelID || message.channel.id == config.botChannelID) {
-				// adminRoleID, modRoleID, categoryID and logChannelID not empty
-				// the channel isn't under modmail category or it's a log channel or it's bot channel -_-
-				return message.channel.send(notChannelEmbed);
-			} else if(message.author.id == config.botOwnerID) {
-				// the channel is under modmail category, it's not a log channel, and it's not bot channel
-				return aclose.execute(param, message, args);
-			} else if (message.member.hasPermission("ADMINISTRATOR") || await param.roleCheck.execute(message, config.adminRoleID)) {
-				// user has ADMINISTRATOR permission or has admin role
-				return aclose.execute(param, message, args);
-			} else if (await param.roleCheck.execute(message, config.modRoleID)) {
-				// user has moderator role
-				return aclose.execute(param, message, args);
-			} else if (config.botChannelID != "empty" && message.channel.id != config.botChannelID) {
-				// user didn't have ADMINISTRATOR permission, admin role, moderator role, and not in bot channel
-				return;
-			} else {
-				// user didn't have ADMINISTRATOR permission, admin role, nor moderator role
-				return message.channel.send(noPermEmbed);
+		const userID = channel.name.split("-").pop();
+		const isThread = await db.get(threadPrefix + userID);
+		const addSpace = args.join(" ");
+		const deleteSeparator = addSpace.split(/-+/);
+		const reason = deleteSeparator.shift();
+		const note = deleteSeparator.shift() || "empty";
+
+		const noThreadEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find any thread asociated with this channel.");
+
+		if (!isThread) {
+			console.log("> Thread not found.");
+			return replyChannel.send(noThreadEmbed);
+		}
+		else {
+			const temp = isThread.split("-");
+			temp.shift();
+			const threadTitle = temp.join("-");
+			const user = await client.users.fetch(userID);
+			const logDescription = `${threadTitle}\n**Reason** : ${reason}\n**Note** : ${note}`;
+			const userDescription = `${threadTitle}\n**Reason** : ${reason}`;
+
+			let logEmbed;
+			const userDMEmbed = getEmbed.execute(param, "[Anonymous]", config.warning_color, "Thread Closed", userDescription, "", mainServer);
+
+			if (user) {
+				logEmbed = getEmbed.execute(param, author, config.warning_color, "Thread Closed Anonymously", logDescription, "", user);
+				await user.send(userDMEmbed);
+				await logChannel.send(logEmbed);
+			}
+			else {
+				logEmbed = getEmbed.execute(param, author, config.warning_color, "Thread Closed Anonymously", logDescription, "", `Can't find user | ${userID}`);
+				await logChannel.send(logEmbed);
 			}
 
-		} else {
-			// outside main server and thread server
-			return message.channel.send(noPermEmbed);
+			db.delete(threadPrefix + userID).then(() => console.log("> Thread closed anonymously."));
+			await updateActivity.execute(param);
+			return channel.delete().then(() => console.log("> Channel deleted."));
 		}
-	}
+	},
 };

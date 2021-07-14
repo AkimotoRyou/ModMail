@@ -1,28 +1,25 @@
 module.exports = {
-	name: 'turnoff',
-	aliases: ['shutdown', 'stop'],
-	level: 'Owner',
+	name: "turnoff",
+	aliases: ["shutdown", "stop"],
+	level: "Owner",
 	guildOnly: true,
 	args: false,
+	reqConfig: false, // Configs needed to run this command.
 	usage: false,
-	description: 'Turn off the bot.',
+	description: "Turn off the bot.",
 	note: false,
-	async execute(param, message, args) {
+	async execute(param, message, args, replyChannel) {
+		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+
+		const process = param.process;
 		const config = param.config;
 		const getEmbed = param.getEmbed;
 
-		const successEmbed = getEmbed.execute(param, config.info_color, "Turning Off", `**Turning off in** : **${Math.round(param.client.ws.ping)}** ms`);
-		const noPermEmbed = getEmbed.execute(param, config.warning_color, "Missing Permission", "You don't have permission to run this command.");
+		const successEmbed = getEmbed.execute(param, "", config.info_color, "Turning Off", `**Turning off in** : **${Math.round(param.client.ws.ping)}** ms`);
 
-		if (message.author.id === config.botOwnerID) {
-			// bot owner
-			console.log("Turning Off...");
-			message.channel.send(successEmbed).then(() => {
-				process.exit(1);
-			});
-		} else {
-			// Not bot owner
-			return message.channel.send(noPermEmbed);
-		}
-	}
+		console.log(">>> Turning Off <<<");
+		replyChannel.send(successEmbed).then(() => {
+			process.exit(1);
+		});
+	},
 };
