@@ -83,12 +83,8 @@ module.exports = {
 		data.push(`**Name** : ${command.name}`);
 		if (command.aliases) data.push(`**Aliases** : ${command.aliases.join(", ")}`);
 		if (command.level) data.push(`**Required Level** : ${command.level}`);
-		if(command.guildOnly) {
-			data.push("**Direct Message** : false");
-		}
-		else {
-			data.push("**Direct Message** : true");
-		}
+		data.push(`**Guild Only** : ${command.guildOnly}`);
+		if (command.reqConfig) data.push(`**Required Config** : ${command.reqConfig.map(key => `\`${key}\``).join(", ")}`);
 		const usages = [];
 		if(!command.args) usages.push(`\`${prefix}${command.name}\``);
 		if(command.usage) {
