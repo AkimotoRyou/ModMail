@@ -83,8 +83,17 @@ module.exports = {
 		data.push(`**Name** : ${command.name}`);
 		if (command.aliases) data.push(`**Aliases** : ${command.aliases.join(", ")}`);
 		if (command.level) data.push(`**Required Level** : ${command.level}`);
+<<<<<<< HEAD
 		data.push(`**Guild Only** : ${command.guildOnly}`);
 		if (command.reqConfig) data.push(`**Required Config** : ${command.reqConfig.map(key => `\`${key}\``).join(", ")}`);
+=======
+		if(command.guildOnly) {
+			data.push("**Direct Message** : false");
+		}
+		else {
+			data.push("**Direct Message** : true");
+		}
+>>>>>>> d2f9d550a17c80193425c3e5027cdf13aed67d0c
 		const usages = [];
 		if(!command.args) usages.push(`\`${prefix}${command.name}\``);
 		if(command.usage) {
