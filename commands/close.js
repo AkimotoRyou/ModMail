@@ -57,7 +57,7 @@ module.exports = {
 				await logChannel.send(logEmbed);
 			}
 			else {
-				logEmbed = getEmbed.execute(param, author, config.warning_color, "Thread Closed Anonymously", logDescription, "", `Can't find user | ${userID}`);
+				logEmbed = getEmbed.execute(param, author, config.warning_color, "Thread Closed", logDescription, "", `Can't find user | ${userID}`);
 				await logChannel.send(logEmbed);
 			}
 
