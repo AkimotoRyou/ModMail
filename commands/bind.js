@@ -21,7 +21,7 @@ module.exports = {
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.fetch(mainServerID);
 		const threadServerID = config.threadServerID;
-		const threadServer = await client.guilds.fetch(threadServerID);
+		const threadServer = await client.guilds.cache.get(threadServerID);
 		const categoryID = config.categoryID;
 		const logChannelID = config.logChannelID;
 
