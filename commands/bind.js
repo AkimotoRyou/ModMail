@@ -21,7 +21,7 @@ module.exports = {
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.fetch(mainServerID);
 		const threadServerID = config.threadServerID;
-		const threadServer = await client.guilds.cache.get(threadServerID);
+		const threadServer = await client.guilds.fetch(threadServerID);
 		const categoryID = config.categoryID;
 		const logChannelID = config.logChannelID;
 
@@ -29,7 +29,7 @@ module.exports = {
 		const channelID = args.shift();
 		const dbKey = threadPrefix + userID;
 		let isThread = await db.get(dbKey);
-		const getChannel = await threadServer.channels.fetch(channelID);
+		const getChannel = await threadServer.channels.cache.get(channelID);
 		const chUserID = getChannel.name.split("-").pop();
 		const chIsThread = await db.get(threadPrefix + chUserID);
 		const member = await mainServer.members.fetch(userID);
