@@ -23,7 +23,7 @@ module.exports = {
 		const threadServerID = config.threadServerID;
 		const threadServer = await client.guilds.fetch(threadServerID);
 		const logChannelID = config.logChannelID;
-		const logChannel = await threadServer.channels.fetch(logChannelID);
+		const logChannel = await threadServer.channels.cache.get(logChannelID);
 		const author = message.author;
 		const channel = message.channel;
 
