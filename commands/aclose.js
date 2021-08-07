@@ -5,9 +5,6 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	reqConfig: ["mainServerID", "threadServerID", "logChannelID"], // Configs needed to run this command.
-	usage: ["<reason>-[note]"],
-	description: "Anonymously close a user thread.",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -17,6 +14,7 @@ module.exports = {
 		const db = param.db;
 		const threadPrefix = param.dbPrefix.thread;
 		const updateActivity = param.updateActivity;
+		const locale = param.locale;
 
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.fetch(mainServerID);
@@ -29,12 +27,9 @@ module.exports = {
 
 		const userID = channel.name.split("-").pop();
 		const isThread = await db.get(threadPrefix + userID);
-		const addSpace = args.join(" ");
-		const deleteSeparator = addSpace.split(/-+/);
-		const reason = deleteSeparator.shift();
-		const note = deleteSeparator.shift() || "empty";
 
-		const noThreadEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find any thread asociated with this channel.");
+		const noThread = locale.noThread;
+		const noThreadEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, noThread.channel);
 
 		if (!isThread) {
 			console.log("> Thread not found.");
@@ -45,19 +40,25 @@ module.exports = {
 			temp.shift();
 			const threadTitle = temp.join("-");
 			const user = await client.users.fetch(userID);
-			const logDescription = `${threadTitle}\n**Reason** : ${reason}\n**Note** : ${note}`;
-			const userDescription = `${threadTitle}\n**Reason** : ${reason}`;
+
+			const addSpace = args.join(" ");
+			const deleteSeparator = addSpace.split(/-+/);
+			const reason = deleteSeparator.shift();
+			const note = deleteSeparator.shift() || locale.empty;
+			const logDescription = `${threadTitle}\n**${locale.reason}** : ${reason}\n**${locale.note}** : ${note}`;
+			const userDescription = `${threadTitle}\n**${locale.reason}** : ${reason}`;
+			const close = locale.close(userID);
 
 			let logEmbed;
-			const userDMEmbed = getEmbed.execute(param, "[Anonymous]", config.warning_color, "Thread Closed", userDescription, "", mainServer);
+			const userDMEmbed = getEmbed.execute(param, locale.anonAuthor, config.warning_color, close.title, userDescription, "", mainServer);
 
 			if (user) {
-				logEmbed = getEmbed.execute(param, author, config.warning_color, "Thread Closed Anonymously", logDescription, "", user);
+				logEmbed = getEmbed.execute(param, author, config.warning_color, close.anonTitle, logDescription, "", user);
 				await user.send(userDMEmbed);
 				await logChannel.send(logEmbed);
 			}
 			else {
-				logEmbed = getEmbed.execute(param, author, config.warning_color, "Thread Closed Anonymously", logDescription, "", `Can't find user | ${userID}`);
+				logEmbed = getEmbed.execute(param, author, config.warning_color, close.anonTitle, logDescription, "", close.noUserFooter);
 				await logChannel.send(logEmbed);
 			}
 

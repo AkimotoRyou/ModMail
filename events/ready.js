@@ -7,9 +7,5 @@ module.exports = {
 		console.log(`> Logged in as ${param.client.user.tag}.`);
 
 		await param.configSync.execute(param);
-
-		setTimeout(async ()=> {
-			await param.updateActivity.execute(param);
-		}, 5000);
 	},
 };

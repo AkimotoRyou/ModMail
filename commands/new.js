@@ -1,13 +1,10 @@
 module.exports = {
 	name: "new",
-	aliases: ["neu", "yeni", "새로운", "novo", "nouveau", "новый", "新", "nuevo"],
+	aliases: [],
 	level: "User",
 	guildOnly: false,
 	args: true,
 	reqConfig: ["mainServerID", "threadServerID", "categoryID", "logChannelID"], // Configs needed to run this command.
-	usage: ["[thread title]"],
-	description: "Create new thread.",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -17,26 +14,29 @@ module.exports = {
 		const config = param.config;
 		const getEmbed = param.getEmbed;
 		const newThread = param.newThread;
-		const isMember = param.isMember;
 		const isBlocked = param.isBlocked;
+		const locale = param.locale;
 
 		const mainServerID = config.mainServerID;
-		const mainServer = await client.guilds.cache.get(mainServerID);
+		const mainServer = await client.guilds.fetch(mainServerID);
 		const threadServerID = config.threadServerID;
-		const threadServer = await client.guilds.cache.get(threadServerID);
+		const threadServer = await client.guilds.fetch(threadServerID);
 		const categoryID = config.categoryID;
 		const categoryChannel = await threadServer.channels.cache.get(categoryID);
 		const author = message.author;
 
 		const isThread = await db.get(threadPrefix + author.id);
-		const checkIsMember = await isMember.execute(param, author.id);
+		const checkIsMember = await mainServer.members.fetch(author.id);
 		const checkIsBlocked = await isBlocked.execute(param, author.id);
 
-		const notMemberEmbed = getEmbed.execute(param, "", config.error_color, "Not a Member", `You aren't inside [**${mainServer.name}**] guild.`);
-		const blockedEmbed = getEmbed.execute(param, "", config.error_color, "Blocked", "You are blocked from creating new thread.");
-		const isThreadEmbed = getEmbed.execute(param, "", config.error_color, "Thread Detected", "You still have open thread.");
-		const notDMEmbed = getEmbed.execute(param, "", config.error_color, "Command Unavailable", "This command can only be used in Direct Message.");
-		const maxEmbed = getEmbed.execute(param, "", config.error_color, "Maximum Thread Reached", "Maximum threads for this server is reached, please wait until some of the threads closed.");
+		const blocked = locale.blocked;
+		const notMember = locale.notMember(mainServer.name);
+		const newCmd = locale.newCmd;
+		const notMemberEmbed = getEmbed.execute(param, "", config.error_color, notMember.title, notMember.user);
+		const blockedEmbed = getEmbed.execute(param, "", config.error_color, blocked.title, blocked.user);
+		const isThreadEmbed = getEmbed.execute(param, "", config.error_color, newCmd.title, newCmd.active);
+		const notDMEmbed = getEmbed.execute(param, "", config.error_color, newCmd.title, newCmd.notDM);
+		const maxEmbed = getEmbed.execute(param, "", config.error_color, newCmd.title, newCmd.maxThread);
 
 		if(message.guild != null) {
 			// Outside main server or thread server not Direct Message

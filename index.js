@@ -52,6 +52,7 @@ console.log("[Loading Variables]");
 const config = {
 	prefix: "",
 	botOwnerID: "",
+	language: "",
 	cooldown: "",
 	maintenance: "",
 	mainServerID: "",
@@ -69,15 +70,20 @@ const config = {
 	sent_color: "",
 };
 
-// #activities
-const activity = {
-	index: 0,
-};
+// $localeCollection save locales in memory
+client.locale = new Discord.Collection();
+const localeFiles = fs.readdirSync("./locale").filter(file => file.endsWith(".js"));
+for (const file of localeFiles) {
+	console.log(`> Add ${file} content to memory.`);
+	const loc = require(`./locale/${file}`);
+	client.locale.set(loc.name, loc);
+}
 
 // #commandsCollection save commands in memory
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 for (const file of commandFiles) {
+	console.log(`> Add ${file} content to memory.`);
 	const cmd = require(`./commands/${file}`);
 	client.commands.set(cmd.name, cmd);
 }
@@ -86,6 +92,7 @@ for (const file of commandFiles) {
 client.functions = new Discord.Collection();
 const functionFiles = fs.readdirSync("./functions").filter(file => file.endsWith(".js"));
 for (const file of functionFiles) {
+	console.log(`> Add ${file} content to memory.`);
 	const func = require(`./functions/${file}`);
 	client.functions.set(func.name, func);
 }
@@ -95,10 +102,7 @@ const cooldowns = new Discord.Collection();
 
 // #parameter
 const param = {
-	activity,
 	client,
-	cmdName: "",
-	commandName : "",
 	config,
 	cooldowns,
 	db,
@@ -108,12 +112,24 @@ const param = {
 	isOwner : false,
 	isAdmin : false,
 	isModerator : false,
+	locale: client.locale.get(defConfig.language),
 	MessageAttachment,
 	moment,
 	process,
 };
 // add every functions to param object
 client.functions.forEach(fn => param[fn.name] = client.functions.get(fn.name));
+// add command name from multiple language to each command alias.
+client.locale.forEach(lang => {
+	// excluding english language
+	if(lang.name == "en") return console.log("> Excluding english locale for command alias.");
+	const commandNames = Object.keys(lang.commands);
+	commandNames.forEach(cmdName => {
+		const cmd = client.commands.get(cmdName);
+		cmd.aliases.push(lang.commands[cmdName].name);
+		console.log(`> Add ${lang.commands[cmdName].name} to ${cmd.name} command alias.`);
+	});
+});
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~EVENT HANDLER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

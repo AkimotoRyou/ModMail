@@ -5,9 +5,6 @@ module.exports = {
 	guildOnly: true,
 	args: false, // in case there's only attachment with no message
 	reqConfig: ["mainServerID"], // Configs needed to run this command.
-	usage: ["[reply message]"],
-	description: "Anonymously reply to a user thread.",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -17,8 +14,8 @@ module.exports = {
 		const config = param.config;
 		const db = param.db;
 		const threadPrefix = param.dbPrefix.thread;
-		const isMember = param.isMember;
 		const isBlocked = param.isBlocked;
+		const locale = param.locale;
 
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.fetch(mainServerID);
@@ -28,20 +25,23 @@ module.exports = {
 		const isThread = await db.get(threadPrefix + userID);
 		const checkIsBlocked = await isBlocked.execute(param, author.id);
 
-		const blockedEmbed = getEmbed.execute(param, "", config.error_color, "Blocked", "User blocked.");
-		const noDMEmbed = getEmbed.execute(param, "", config.error_color, "Not Sent", "User disabled Direct Message.");
-		const noUserEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find user in my collection.");
-		const noThreadEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find any thread asociated with this channel.");
+		const blocked = locale.blocked;
+		const noDM = locale.noDM;
+		const noThread = locale.noThread;
+		const blockedEmbed = getEmbed.execute(param, "", config.error_color, blocked.title, blocked.admin);
+		const noDMEmbed = getEmbed.execute(param, "", config.error_color, noDM.title, noDM.description);
+		const noThreadEmbed = getEmbed.execute(param, "", config.error_color, noThread.title, noThread.channel);
 
 		if (!isThread) {
 			console.log("> Thread not found.");
 			return replyChannel.send(noThreadEmbed);
 		}
 		else {
-			const checkIsMember = await isMember.execute(param, userID);
-			const notMemberEmbed = getEmbed.execute(param, "", config.error_color, "Not a Member", `User aren't inside [**${mainServer.name}**] guild.`);
+			const member = await mainServer.members.fetch(userID);
+			const notMember = locale.notMember(mainServer.name);
+			const notMemberEmbed = getEmbed.execute(param, "", config.error_color, notMember.title, notMember.admin);
 
-			if (!checkIsMember) {
+			if (!member) {
 				console.log("> The user isn't a main server member.");
 				return replyChannel.send(notMemberEmbed);
 			}
@@ -50,38 +50,29 @@ module.exports = {
 				return replyChannel.send(blockedEmbed);
 			}
 			else {
-				const member = await mainServer.members.fetch(userID);
+				const user = member.user;
+				const description = args.join(" ");
+				const userDMEmbed = getEmbed.execute(param, locale.anonAuthor, config.sent_color, locale.msgReceived, description, "", mainServer);
+				const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, locale.anonSent, description, "", user);
 
-				if (!member) {
-					console.log("> Can't fetch user data.");
-					return replyChannel.send(noUserEmbed);
+				try{
+					await user.send(userDMEmbed);
 				}
-				else {
-					const user = member.user;
-					const description = args.join(" ");
-					const userDMEmbed = getEmbed.execute(param, "[Anonymous]", config.sent_color, "Message Received", description, "", mainServer);
-					const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, "Message Sent Anonymously", description, "", user);
-
-					try{
-						await user.send(userDMEmbed);
+				catch (error) {
+					if(error.message == "Cannot send messages to this user") {
+						console.log("> Recipient's DM are disabled.");
+						return replyChannel.send(noDMEmbed);
 					}
-					catch (error) {
-						if(error.message == "Cannot send messages to this user") {
-							console.log("> Recipient's DM are disabled.");
-							return replyChannel.send(noDMEmbed);
-						}
-					}
-					await replyChannel.send(threadChannelEmbed);
-					if (message.attachments.size > 0) {
-						await message.attachments.forEach(async atch => {
-							const attachment = new MessageAttachment(atch.url);
-							await user.send(attachment);
-							await replyChannel.send(attachment);
-						});
-					}
-					return message.delete().then(() => console.log("> Message deleted."));
 				}
-
+				await replyChannel.send(threadChannelEmbed);
+				if (message.attachments.size > 0) {
+					await message.attachments.forEach(async atch => {
+						const attachment = new MessageAttachment(atch.url);
+						await user.send(attachment);
+						await replyChannel.send(attachment);
+					});
+				}
+				return message.delete().then(() => console.log("> Message deleted."));
 			}
 		}
 	},

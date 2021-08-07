@@ -31,6 +31,16 @@ This bot only support one pair of server per bot. One main server(where users ga
 21. Set the `Monitoring Interval *` to anything between 5 minutes and 45 minutes `(Recomended: 30 minutes)`.
 22. Finally, click `Create Monitor`.
 
+## Adding other Language
+
+1. Copy `en.js` inside `locale` folder.
+2. Rename it to designated language that you going to add.
+3. Translate it's content inside.
+4. Upload it inside `locale` folder on your Replit project.
+5. Reload the bot.
+#### Notes
+- Make sure the language name is same as the file name without the file type so that you can use reload command on it.
+- Don't delete or leave an empty message as it'll throw an error.
 
 ## Requirements
 
@@ -72,8 +82,7 @@ I made Discord server to test the bot, feel free to join at https://discord.gg/b
 
 ## Change Log
 
-1. Events separated from index file make it easier for me to maintain or add stuff.
-2. Permission check are now sentralized in commandHandler.js instead of in individual command file.
-3. Config value are now checked before executing the command and will notify if it's invalid.
-4. Several commands are now merged, use `<prefix>help <command name>` for more info.
-5. More bot action logged in console for easier debugging.
+1. Tag command now can be triggered without using a command name, you can just use: `<prefix><tag name>`. And now the bot won't respond if the tag name didn't exist.
+2. Add manual localization, now you can add multiple language that the bot can support, you'll need to manually translate it, check the instruction above. I was thinking of using a translation package but the translation won't be perfect and we won't be able to fix it ourself.
+3. Add language config, you can change the default language the bot will use. It'll only affect non command based action such as bot activity, user reply, guild join, etc.
+4. Cycling activity are deleted, and will use the configured language as it's base.

@@ -1,27 +1,27 @@
 module.exports = {
 	name: "leave",
-	aliases: false,
+	aliases: [],
 	level: "Owner",
 	guildOnly: false,
 	args: true,
 	reqConfig: false, // Configs needed to run this command.
-	usage: ["<guildID>"],
-	description: "Leave a guild (server).",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
 		const client = param.client;
 		const config = param.config;
 		const getEmbed = param.getEmbed;
+		const locale = param.locale;
 
 		const serverID = args.shift();
 		const getServer = await client.guilds.fetch(serverID);
+		const noGuild = locale.noGuild(serverID);
+		const leaveCmd = locale.leaveCmd(getServer);
 
-		const notFoundEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `Can't find guild with ID (\`${serverID}\`) in my collection.`);
+		const notFoundEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, noGuild);
 
 		if(getServer) {
-			const successEmbed = getEmbed.execute(param, "", config.info_color, "Leaving", `Leaving [**${getServer.name}**] (\`${getServer.id}\`) guild.`);
+			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, leaveCmd);
 			console.log(`> Leaving [${getServer.name}] guild.`);
 			return getServer.leave().then(replyChannel.send(successEmbed));
 		}

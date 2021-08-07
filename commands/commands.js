@@ -5,9 +5,6 @@ module.exports = {
 	guildOnly: false,
 	args: false,
 	reqConfig: false, // Configs needed to run this command.
-	usage: false,
-	description: "List of all available commands according to your permission level.",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -16,29 +13,32 @@ module.exports = {
 		const getEmbed = param.getEmbed;
 		const commands = param.client.commands;
 
-		const description = `Use \`${config.prefix}help [command name]\` to get information for each command.`;
-
-		// collections
+		// filtering command for each level
 		const ownerCollection = commands.filter(command => command.level === "Owner");
-		const ownerLevel = ownerCollection.map(command => `**${command.name}** : ${command.description}`).join("\n");
 		const adminCollection = commands.filter(command => command.level === "Admin");
-		const adminLevel = adminCollection.map(command => `**${command.name}** : ${command.description}`).join("\n");
-		const moderatorCollection = commands.filter(command => command.level === "Moderator");
-		const moderatorLevel = moderatorCollection.map(command => `**${command.name}** : ${command.description}`).join("\n");
+		const modCollection = commands.filter(command => command.level === "Moderator");
 		const userCollection = commands.filter(command => command.level === "User");
-		const userLevel = userCollection.map(command => `**${command.name}** : ${command.description}`).join("\n");
+		// mapping command name for each level
+		const ownerLevel = ownerCollection.map(command => command.name);
+		const adminLevel = adminCollection.map(command => command.name);
+		const modLevel = modCollection.map(command => command.name);
+		const userLevel = userCollection.map(command => command.name);
 
-		// fields
-		const ownerField = `~ Owner Level ~;${ownerLevel || "empty"}`;
-		const adminField = `~ Admin Level ~;${adminLevel || "empty"}`;
-		const moderatorField = `~ Moderator Level ~;${moderatorLevel || "empty"}`;
-		const userField = `~ User Level ~;${userLevel || "empty"}`;
+		// calling function from locale file and passing command names for each level
+		const cmdList = param.locale.cmdList(param, ownerLevel, adminLevel, modLevel, userLevel);
+
+		const title = cmdList.title;
+		const description = cmdList.description;
+		const ownerField = cmdList.ownerField;
+		const adminField = cmdList.adminField;
+		const moderatorField = cmdList.modField;
+		const userField = cmdList.userField;
 
 		// embeds
-		const ownerEmbed = getEmbed.execute(param, client.user, config.info_color, "Command List", description, [ownerField, adminField, moderatorField, userField], "", client.user.displayAvatarURL());
-		const adminEmbed = getEmbed.execute(param, client.user, config.info_color, "Command List", description, [adminField, moderatorField, userField], "", client.user.displayAvatarURL());
-		const moderatorEmbed = getEmbed.execute(param, client.user, config.info_color, "Command List", description, [moderatorField, userField], "", client.user.displayAvatarURL());
-		const userEmbed = getEmbed.execute(param, client.user, config.info_color, "Command List", description, [userField], "", client.user.displayAvatarURL());
+		const ownerEmbed = getEmbed.execute(param, client.user, config.info_color, title, description, [ownerField, adminField, moderatorField, userField], "", client.user.displayAvatarURL());
+		const adminEmbed = getEmbed.execute(param, client.user, config.info_color, title, description, [adminField, moderatorField, userField], "", client.user.displayAvatarURL());
+		const moderatorEmbed = getEmbed.execute(param, client.user, config.info_color, title, description, [moderatorField, userField], "", client.user.displayAvatarURL());
+		const userEmbed = getEmbed.execute(param, client.user, config.info_color, title, description, [userField], "", client.user.displayAvatarURL());
 
 		if (param.isOwner) {
 			// Bot owner

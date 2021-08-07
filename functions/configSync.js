@@ -24,6 +24,8 @@ module.exports = {
 			}
 		}
 		forLoop().then(async () => {
+			param.locale = param.client.locale.get(config.language);
+			await param.updateActivity.execute(param);
 			console.log(">> Synced <<");
 		});
 	},

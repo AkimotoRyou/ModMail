@@ -1,13 +1,10 @@
 module.exports = {
 	name: "unblock",
-	aliases: false,
+	aliases: [],
 	level: "Moderator",
 	guildOnly: true,
 	args: true,
 	reqConfig: false, // Configs needed to run this command.
-	usage: ["<userID>"],
-	description: "Unblock user from creating new thread.",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -15,11 +12,13 @@ module.exports = {
 		const db = param.db;
 		const blockPrefix = param.dbPrefix.block;
 		const getEmbed = param.getEmbed;
+		const locale = param.locale;
 
 		const userID = args.shift();
+		const unblockCmd = locale.unblockCmd(userID);
 
-		const notFoundEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `<@${userID}> (\`${userID}\`) isn't blocked.`);
-		const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `Succesfully unblock <@${userID}> (\`${userID}\`).`);
+		const notFoundEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, unblockCmd.notBlocked);
+		const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, unblockCmd.unblock);
 
 		const dbKey = blockPrefix + userID;
 		const blockData = await db.get(dbKey);

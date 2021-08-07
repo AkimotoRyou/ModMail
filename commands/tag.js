@@ -5,9 +5,6 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	reqConfig: ["mainServerID"], // Configs needed to run this command.
-	usage: ["<tag name>", "<list|l>", "<add|+> <tag name>", "<del|-> <tag name>", "<edit|=> <tag name>", "<info|?> <tag name>"],
-	description: "Send, add, delete, edit, show an info or show list of saved response(s).",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -17,32 +14,33 @@ module.exports = {
 		const tagPrefix = param.dbPrefix.tag;
 		const threadPrefix = param.dbPrefix.thread;
 		const getEmbed = param.getEmbed;
+		const locale = param.locale;
+
 		const author = message.author;
 		const channel = message.channel;
-
 		const tagCollection = await db.list(tagPrefix);
-		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(", ") || "No available tag";
+		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(", ") || locale.emptyList;
 
-		const cancelEmbed = getEmbed.execute(param, "", config.error_color, "Canceled", "Command are canceled.");
-		const timeoutEmbed = getEmbed.execute(param, "", config.error_color, "Timeout", "Timeout, command are canceled.");
+		const firstArg = args.shift().toLowerCase();
+		const shiftedTagName = args.join(" ").toLowerCase();
+		const tagName = `${firstArg} ${shiftedTagName}`;
+		const tagCmd = locale.tagCmd(shiftedTagName);
+		const cancelMsg = tagCmd.cancelMsg;
+		const timeoutMsg = tagCmd.timeoutMsg;
+		const tagResponse = tagCmd.tagResponse;
 
-		const firstArg = args.shift();
-		switch(firstArg.toLowerCase()) {
-		case "l": // fallthrough
-		case "list": {
-			const tagListEmbed = getEmbed.execute(param, "", config.info_color, "Tags", tagList);
-			replyChannel.send(tagListEmbed);
-			break;
+		const noTagEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, tagCmd.noTag);
+		const responseEmbed = getEmbed.execute(param, "", config.info_color, tagResponse.title, tagResponse.description, "", tagResponse.footer);
+
+		if(locale.list.includes(firstArg)) {
+			const tagListEmbed = getEmbed.execute(param, "", config.info_color, tagCmd.tagList, tagList);
+			return replyChannel.send(tagListEmbed);
 		}
-		case "+": // fallthrough
-		case "add": {
-			const tagName = args.join(" ").toLowerCase();
+		else if(locale.add.includes(firstArg)) {
+			const duplicatedEmbed = getEmbed.execute(param, "", config.error_color, tagCmd.duplicate.title, tagCmd.duplicate.description);
+			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, tagCmd.added);
 
-			const duplicatedEmbed = getEmbed.execute(param, "", config.error_color, "Duplicated", `There's a tag named (\`${tagName}\`) already.`);
-			const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `Succesfully add (\`${tagName}\`) tag.`);
-			const waitingEmbed = getEmbed.execute(param, "", config.info_color, "Response", "Please write the response for this tag.\nType `cancel` to cancel the command.\n\n`Timeout: 30 seconds.`");
-
-			const dbKey = tagPrefix + tagName;
+			const dbKey = tagPrefix + shiftedTagName;
 			const isDuplicated = await db.get(dbKey);
 			if(isDuplicated) {
 				console.log("> Duplicated tag name.");
@@ -51,37 +49,33 @@ module.exports = {
 			else {
 				const filter = msg => msg.author.id == message.author.id;
 
-				replyChannel.send(waitingEmbed).then(() => {
+				replyChannel.send(responseEmbed).then(() => {
 					message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
 						.then(async collected => {
-							if (collected.first().content.toLowerCase() == "cancel") {
+							if (collected.first().content.toLowerCase() == tagCmd.cancelCmd) {
 								console.log("> Command canceled.");
-								return replyChannel.send(cancelEmbed);
+								return replyChannel.send(cancelMsg);
 							}
 							else {
 								const content = collected.first().content;
 								db.set(dbKey, content).then(() => {
-									console.log(`> Added [${tagName}] tag.`);
+									console.log(`> Added [${shiftedTagName}] tag.`);
 									return replyChannel.send(successEmbed);
 								});
 							}
 						})
 						.catch(async () => {
 							console.log("> Timeout.");
-							return replyChannel.send(timeoutEmbed);
+							return replyChannel.send(timeoutMsg);
 						});
 				});
 			}
-			break;
 		}
-		case "-": // fallthrough
-		case "del": {
-			const tagName = args.join(" ").toLowerCase();
-			const dbKey = tagPrefix + tagName;
+		else if(locale.del.includes(firstArg)) {
+			const dbKey = tagPrefix + shiftedTagName;
 			const isTag = await db.get(dbKey);
 
-			const noTagEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `Couldn't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
-			const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `Deleted (\`${tagName}\`) tag.`);
+			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, tagCmd.deleteTag);
 
 			if(!isTag) {
 				console.log("> Tag not found.");
@@ -89,21 +83,16 @@ module.exports = {
 			}
 			else {
 				db.delete(dbKey).then(() => {
-					console.log(`> Deleted ${tagName}.`);
+					console.log(`> Deleted ${shiftedTagName}.`);
 					return replyChannel.send(successEmbed);
 				});
 			}
-			break;
 		}
-		case "=": // fallthrough
-		case "edit": {
-			const tagName = args.join(" ").toLowerCase();
-			const dbKey = tagPrefix + tagName;
+		else if(locale.edit.includes(firstArg)) {
+			const dbKey = tagPrefix + shiftedTagName;
 			const isTag = await db.get(dbKey);
 
-			const noTagEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `Couldn't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
-			const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `Succesfully edit (\`${tagName}\`) tag response.`);
-			const waitingEmbed = getEmbed.execute(param, "", config.info_color, "Response", "Please write new response for this tag.\nType `cancel` to cancel the command.\n\n`Timeout: 30 seconds.`");
+			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, tagCmd.editTag);
 
 			if(!isTag) {
 				console.log("> Tag not found.");
@@ -112,35 +101,30 @@ module.exports = {
 			else {
 				const filter = msg => msg.author.id == message.author.id;
 
-				replyChannel.send(waitingEmbed).then(() => {
+				replyChannel.send(responseEmbed).then(() => {
 					message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
 						.then(async collected => {
-							if (collected.first().content.toLowerCase() == "cancel") {
-								return replyChannel.send(cancelEmbed);
+							if (collected.first().content.toLowerCase() == tagCmd.cancelCmd) {
+								return replyChannel.send(cancelMsg);
 							}
 							else {
 								const content = collected.first().content;
 								db.set(dbKey, content).then(() => {
-									console.log(`> Edited [${tagName}] tag.`);
+									console.log(`> Edited [${shiftedTagName}] tag.`);
 									return replyChannel.send(successEmbed);
 								});
 							}
 						})
 						.catch(async () => {
 							console.log("> Timeout.");
-							return replyChannel.send(timeoutEmbed);
+							return replyChannel.send(timeoutMsg);
 						});
 				});
 			}
-			break;
 		}
-		case "?": // fallthrough
-		case "info": {
-			const tagName = args.join(" ").toLowerCase();
-			const dbKey = tagPrefix + tagName;
+		else if(locale.info.includes(firstArg)) {
+			const dbKey = tagPrefix + shiftedTagName;
 			const isTag = await db.get(dbKey);
-
-			const noTagEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `CouldnS't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
 
 			if(!isTag) {
 				console.log("> Tag not found.");
@@ -148,53 +132,48 @@ module.exports = {
 			}
 			else {
 				const data = [];
-				data.push(`**Name** : ${tagName}`);
-				data.push(`**Response** : \`\`\`${isTag}\`\`\``);
+				data.push(`**${tagCmd.tagInfo.name}** : ${shiftedTagName}`);
+				data.push(`**${tagCmd.tagInfo.response}** : \`\`\`${isTag}\`\`\``);
 
-				const tagInfoEmbed = getEmbed.execute(param, "", config.info_color, "Tag Information", data.join("\n"));
-				replyChannel.send(tagInfoEmbed);
+				const tagInfoEmbed = getEmbed.execute(param, "", config.info_color, tagCmd.tagInfo.title, data.join("\n"));
+				return replyChannel.send(tagInfoEmbed);
 			}
-			break;
 		}
-		default: {
-			args.unshift(firstArg);
-			const tagName = args.join(" ").toLowerCase();
-
+		else {
 			const mainServerID = config.mainServerID;
-			const mainServer = await client.guilds.cache.get(mainServerID);
+			const mainServer = await client.guilds.fetch(mainServerID);
 			const dbKey = tagPrefix + tagName;
 
 			const isTag = await db.get(dbKey);
 			const userID = channel.name.split("-").pop();
 			const isThread = await db.get(threadPrefix + userID);
 
-			const noTagEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `Couldn't find tag named \`${tagName}\`.\nAvailable names : ${tagList}`);
-			const noDMEmbed = getEmbed.execute(param, "", config.error_color, "Not Sent", "User disabled Direct Message.");
+			const noDMEmbed = getEmbed.execute(param, "", config.error_color, locale.noDM.title, locale.noDM.description);
 
 			if(!isTag) {
 			// can't find tag
-				console.log("> Tag not found.");
-				return replyChannel.send(noTagEmbed);
+				return console.log("> Tag not found.");
 			}
 			else if(!isThread) {
 			// no user thread
 				console.log("> Not a thread channel.");
-				const noThreadEmbed = getEmbed.execute(param, "", config.info_color, "", isTag);
+				const noThreadEmbed = getEmbed.execute(param, author, config.info_color, "", isTag);
 				return message.channel.send(noThreadEmbed).then(message.delete());
 			}
 			else {
 			// There's user thread and tag
 				console.log("> Thread channel.");
 				const checkIsBlocked = await param.isBlocked.execute(param, userID);
-				const checkIsMember = await param.isMember.execute(param, author.id);
-				const blockedEmbed = getEmbed.execute(param, "", config.error_color, "Blocked", "User blocked.");
-				const notMemberEmbed = getEmbed.execute(param, "", config.error_color, "Not a Member", `User aren't inside [**${mainServer.name}**] guild.`);
+				const checkIsMember = await mainServer.members.fetch(author.id);
+				const notMember = locale.notMember(mainServer.name);
+				const blockedEmbed = getEmbed.execute(param, "", config.error_color, locale.blocked.title, locale.blocked.admin);
+				const notMemberEmbed = getEmbed.execute(param, "", config.error_color, notMember.title, notMember.admin);
 
 				const filter = (reaction, user) => {
 					return user.id === message.author.id && (reaction.emoji.name == "✅" || reaction.emoji.name == "❌");
 				};
 
-				const waitingEmbed = getEmbed.execute(param, "", config.info_color, isTag + "\n\nReact with ✅ to send, ❌ to cancel.\n`Timeout: 30 seconds.`");
+				const waitingEmbed = getEmbed.execute(param, author, config.info_color, "", isTag + tagCmd.react, "", tagResponse.footer);
 
 				const botMsg = await replyChannel.send(waitingEmbed);
 				await botMsg.react("✅");
@@ -206,7 +185,7 @@ module.exports = {
 						// user react with ❌
 							await botMsg.reactions.removeAll();
 							console.log("> Command canceled.");
-							return replyChannel.send(cancelEmbed);
+							return replyChannel.send(cancelMsg);
 						}
 						else if (!checkIsMember) {
 						// user react with ✅
@@ -223,9 +202,10 @@ module.exports = {
 						}
 						else {
 						// user are member and not blocked
-							const getUser = await mainServer.members.cache.get(userID).user;
-							const userDMEmbed = getEmbed.execute(param, "", config.sent_color, "Message Received", isTag, "", mainServer);
-							const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, "Tag Message Sent", isTag, "", getUser);
+							const getMember = await mainServer.members.fetch(userID);
+							const getUser = getMember.user;
+							const userDMEmbed = getEmbed.execute(param, "", config.sent_color, locale.msgReceived, isTag, "", mainServer);
+							const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, tagCmd.tagSent, isTag, "", getUser);
 
 							try{
 								await getUser.send(userDMEmbed);
@@ -244,11 +224,9 @@ module.exports = {
 					.catch(async () => {
 						await botMsg.reactions.removeAll();
 						console.log("> Timeout.");
-						return replyChannel.send(timeoutEmbed);
+						return replyChannel.send(timeoutMsg);
 					});
 			}
-			break;
-		}
 		}
 	},
 };

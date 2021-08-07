@@ -5,9 +5,6 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	reqConfig: false, // Configs needed to run this command.
-	usage: ["<userID> [reason]", "<info|i|?> <userID>", "<list|l> [page number]"],
-	description: "Block a user, show an info, or show list of blocked user(s).",
-	note: "User presence isn't checked to enable blocking users that are outside the server.",
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -15,17 +12,18 @@ module.exports = {
 		const db = param.db;
 		const blockPrefix = param.dbPrefix.block;
 		const getEmbed = param.getEmbed;
+		const locale = param.locale;
 
 		const author = message.author;
 		const modID = author.id;
 		const firstArg = args.shift().toLowerCase();
+		const infoArg = locale.info;
+		const listArg = locale.list;
 
-		switch(firstArg) {
-		case "i": // fallthrough
-		case "?": // fallthrough
-		case "info": {
+		if(infoArg.includes(firstArg)) {
 			const userID = args.shift();
-			const notFoundEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", `<@${userID}> (\`${userID}\`) isn't blocked.`);
+			const notBlocked = locale.notBlocked(userID);
+			const notFoundEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, notBlocked);
 			const blockData = await db.get(blockPrefix + userID);
 
 			if(blockData) {
@@ -33,20 +31,18 @@ module.exports = {
 				const blockModID = temp.shift();
 				const reason = temp.join("-");
 				const data = [];
-				data.push(`**User** : <@${userID}> [\`${userID}\`]`);
-				data.push(`**Moderator** : <@${modID}> [\`${blockModID}\`]`);
-				data.push(`**Reason** : ${reason}`);
-				const infoEmbed = getEmbed.execute(param, "", config.info_color, "Block Info", data.join("\n"));
-				replyChannel.send(infoEmbed);
+				data.push(`**${locale.user}** : <@${userID}> [\`${userID}\`]`);
+				data.push(`**${locale.mod}** : <@${modID}> [\`${blockModID}\`]`);
+				data.push(`**${locale.reason}** : ${reason}`);
+				const infoEmbed = getEmbed.execute(param, "", config.info_color, locale.blockInfo, data.join("\n"));
+				return replyChannel.send(infoEmbed);
 			}
 			else {
 				console.log("> Data not found.");
-				replyChannel.send(notFoundEmbed);
+				return replyChannel.send(notFoundEmbed);
 			}
-			break;
 		}
-		case "l": // fallthrough
-		case "list": {
+		else if(listArg.includes(firstArg)) {
 			let pageNumber = args.shift();
 
 			const blocklist = await db.list(blockPrefix);
@@ -67,26 +63,22 @@ module.exports = {
 				pageNumber = pages;
 			}
 
+			const pagedList = locale.pagedList(pages, pageNumber);
 			const listArray = blocklist.map(block =>`🔸 <@${block.slice(blockPrefix.length)}> (\`${block.slice(blockPrefix.length)}\`)`);
 			const firstIndex = Math.abs((pageNumber - 1) * 20);
-			let listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || "`List empty.`";
-			if (pages > 1) {
-				listString += `\n\`Page ${pageNumber} from ${pages} pages\``;
-			}
-			else {
-				listString += `\n\`Page ${pageNumber} from ${pages} page\``;
-			}
+			const listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || `\`${locale.emptyList}\``;
 
-			const listEmbed = getEmbed.execute(param, "", config.info_color, "Blocked Users", listString);
-			replyChannel.send(listEmbed);
-			break;
+			const listEmbed = getEmbed.execute(param, "", config.info_color, pagedList.blockList, listString, "", pagedList.footer);
+			return replyChannel.send(listEmbed);
 		}
-		default: {
+		else {
 			const userID = firstArg;
-			const reason = args.join(" ") || "empty";
+			const reason = args.join(" ") || locale.empty;
+			const blockDuplicate = locale.blockDuplicate(userID);
+			const blockSuccess = locale.blockSuccess(userID);
 
-			const duplicatedEmbed = getEmbed.execute(param, "", config.error_color, "Duplicated", `<@${userID}> (\`${userID}\`) already blocked.`);
-			const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `Succesfully block <@${userID}> (\`${userID}\`).`);
+			const duplicatedEmbed = getEmbed.execute(param, "", config.error_color, blockDuplicate.title, blockDuplicate.description);
+			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, blockSuccess);
 
 			const dbKey = blockPrefix + userID;
 			const isBlocked = await db.get(dbKey);
@@ -100,8 +92,6 @@ module.exports = {
 					return replyChannel.send(successEmbed);
 				});
 			}
-			break;
-		}
 		}
 	},
 };

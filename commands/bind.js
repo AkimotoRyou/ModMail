@@ -1,13 +1,10 @@
 module.exports = {
 	name: "bind",
-	aliases: false,
+	aliases: [],
 	level: "Admin",
 	guildOnly: true,
 	args: true,
 	reqConfig: ["mainServerID", "threadServerID", "categoryID", "logChannelID"], // Configs needed to run this command.
-	usage: ["<userID> <channelID> [thread title]"],
-	description: "Bind user thread to a channel.",
-	note: "\nOnly use under these circumtances : \n> There is an open thread from other bot.\n> The channel was accidentally deleted.\n> Category channel was accidentally deleted and changed.",
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -17,6 +14,7 @@ module.exports = {
 		const db = param.db;
 		const threadPrefix = param.dbPrefix.thread;
 		const updateActivity = param.updateActivity;
+		const locale = param.locale;
 
 		const mainServerID = config.mainServerID;
 		const mainServer = await client.guilds.fetch(mainServerID);
@@ -35,10 +33,11 @@ module.exports = {
 		const member = await mainServer.members.fetch(userID);
 		const channelName = member ? member.user.tag.replace(/[^0-9a-z]/gi, "") + `-${userID}` : userID;
 
-		const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `Binded <@${userID}> (\`${userID}\`) thread to <#${channelID}>.`);
-		const noChannelEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find that channel.");
-		const activeChannelEmbed = getEmbed.execute(param, "", config.error_color, "Error", "That's other user's thread channel.");
-		const notChannelEmbed = getEmbed.execute(param, "", config.error_color, "Invalid Channel", "That channel can't be a thread channel.");
+		const bindCmd = locale.bindCmd(userID, channelID);
+		const noChannelEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, locale.noChannel);
+		const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, bindCmd.binded);
+		const activeChannelEmbed = getEmbed.execute(param, "", config.error_color, bindCmd.active.title, bindCmd.active.description);
+		const invalidChannelEmbed = getEmbed.execute(param, "", config.error_color, bindCmd.invalid.title, bindCmd.invalid.description);
 
 		if(!getChannel) {
 			console.log("> Channel not found.");
@@ -48,12 +47,12 @@ module.exports = {
 			console.log("> Other user thread channel.");
 			return replyChannel.send(activeChannelEmbed);
 		}
-		else if(getChannel.parentID != categoryID || channelID == categoryID || channelID == logChannelID) {
+		else if(getChannel.parentID !== categoryID || getChannel.type !== "text" || channelID === logChannelID || channelID == config.botChannelID) {
 			console.log("> Invalid channel.");
-			return replyChannel.send(notChannelEmbed);
+			return replyChannel.send(invalidChannelEmbed);
 		}
 		else if(!isThread) {
-			await db.set(dbKey, `${channelID}-${args.join(" ") || "empty"}`);
+			await db.set(dbKey, `${channelID}-${args.join(" ") || locale.empty}`);
 			await getChannel.setName(channelName);
 			await updateActivity.execute(param);
 			console.log("> Thread created.");

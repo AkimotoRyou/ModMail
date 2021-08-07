@@ -1,13 +1,10 @@
 module.exports = {
 	name: "thread",
-	aliases: false,
+	aliases: [],
 	level: "Moderator",
 	guildOnly: true,
 	args: true,
 	reqConfig: ["mainServerID"], // Configs needed to run this command.
-	usage: ["<info|i|?> <userID>", "<list|l> [page number]"],
-	description: "Show a user thread information or list of open thread(s).",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -16,17 +13,19 @@ module.exports = {
 		const config = param.config;
 		const db = param.db;
 		const threadPrefix = param.dbPrefix.thread;
-		const firstArg = args.shift();
+		const locale = param.locale;
+		const firstArg = args.shift().toLowerCase();
 
-		if(firstArg == "info" || firstArg == "i" || firstArg == "?") {
+		if(locale.info.includes(firstArg)) {
 			const mainServerID = config.mainServerID;
 			const mainServer = await client.guilds.cache.get(mainServerID);
 
 			const userID = args.shift();
 			const dbKey = threadPrefix + userID;
 			const isThread = await db.get(dbKey);
+			const threadInfo = locale.threadInfo;
 
-			const noThreadEmbed = getEmbed.execute(param, "", config.error_color, "Not Found", "Couldn't find any thread asociated with that user id.");
+			const noThreadEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, locale.noThread.user);
 
 			if (!isThread) {
 				console.log("> Thread not found.");
@@ -34,25 +33,25 @@ module.exports = {
 			}
 			else {
 				const threadData = [];
-				const member = mainServer.members.cache.get(userID);
+				const member = await mainServer.members.fetch(userID);
 
 				const temp = isThread.split("-");
 				const channelID = temp.shift();
 				threadData.push(`${temp.join("-")}`);
 				if (member) {
-					threadData.push(`**User Tag** : \`${member.user.tag}\``);
+					threadData.push(`**${threadInfo.userTag}** : \`${member.user.tag}\``);
 				}
 				else {
-					threadData.push("**User Tag** : `Couldn't find user at main server.`");
+					threadData.push(`**${threadInfo.userTag}** : ${threadInfo.noUser}`);
 				}
-				threadData.push(`**User ID** : \`${userID}\``);
-				threadData.push(`**Thread Channel** : <#${channelID}>`);
+				threadData.push(`**${threadInfo.userID}** : \`${userID}\``);
+				threadData.push(`**${threadInfo.threadCh}** : <#${channelID}>`);
 
-				const threadInfoEmbed = getEmbed.execute(param, "", config.info_color, "Thread Information", threadData.join("\n"));
+				const threadInfoEmbed = getEmbed.execute(param, "", config.info_color, threadInfo.title, threadData.join("\n"));
 				return replyChannel.send(threadInfoEmbed);
 			}
 		}
-		else if(firstArg == "list" || firstArg == "l") {
+		else if(locale.list.includes(firstArg)) {
 			let pageNumber = args.shift();
 
 			const threadlist = await db.list(threadPrefix);
@@ -73,20 +72,15 @@ module.exports = {
 				pageNumber = pages;
 			}
 
+			const pagedList = locale.pagedList(pages, pageNumber);
 			const listArray = threadlist.map(key => {
 				const cleanKey = key.slice(threadPrefix.length);
 				return `🔹 <@${cleanKey}> (\`${cleanKey}\`)`;
 			});
 			const firstIndex = Math.abs((pageNumber - 1) * 20);
-			let listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || "`List empty.`";
-			if (pages > 1) {
-				listString += `\n\`Page ${pageNumber} from ${pages} pages\``;
-			}
-			else {
-				listString += `\n\`Page ${pageNumber} from ${pages} page\``;
-			}
+			const listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || locale.emptyList;
 
-			const listEmbed = getEmbed.execute(param, "", config.info_color, "Open Threads", listString);
+			const listEmbed = getEmbed.execute(param, "", config.info_color, pagedList.threadList, listString, "", pagedList.footer);
 			return replyChannel.send(listEmbed);
 		}
 	},

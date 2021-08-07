@@ -6,6 +6,7 @@ module.exports = {
 		const client = param.client;
 		const getEmbed = param.getEmbed;
 		const config = param.config;
+		const locale = param.locale;
 
 		const isOwner = param.isOwner;
 		const isAdmin = param.isAdmin;
@@ -20,10 +21,10 @@ module.exports = {
 				owner = await client.users.fetch(config.botOwnerID);
 			}
 			if(config.mainServerID !== "empty") {
-				mainServer = client.guilds.cache.get(config.mainServerID);
+				mainServer = await client.guilds.fetch(config.mainServerID);
 			}
 			if(config.threadServerID !== "empty") {
-				threadServer = client.guilds.cache.get(config.threadServerID);
+				threadServer = await client.guilds.fetch(config.threadServerID);
 			}
 			if(threadServer) {
 				category = threadServer.channels.cache.get(config.categoryID);
@@ -32,19 +33,19 @@ module.exports = {
 			reqConfig.forEach(configName => {
 				switch(configName) {
 				case "ownerID":
-					if(!owner) data.push(`- \`${configName}\``);
+					if(!owner) data.push(`\`${configName}\``);
 					break;
 				case "mainServerID":
-					if(!mainServer) data.push(`- \`${configName}\``);
+					if(!mainServer) data.push(`\`${configName}\``);
 					break;
 				case "threadServerID":
-					if(!threadServer) data.push(`- \`${configName}\``);
+					if(!threadServer) data.push(`\`${configName}\``);
 					break;
 				case "categoryID":
-					if(!category) data.push(`- \`${configName}\``);
+					if(!category) data.push(`\`${configName}\``);
 					break;
 				case "logChannelID":
-					if(!logChannel) data.push(`- \`${configName}\``);
+					if(!logChannel) data.push(`\`${configName}\``);
 					break;
 				default:
 					break;
@@ -52,8 +53,10 @@ module.exports = {
 			});
 		}
 
-		const requiredEmbed = getEmbed.execute(param, "", config.warning_color, "Required Configuration", `The following configuration cannot be empty or invalid : \n${data.join("\n")}`);
-		const noPermEmbed = getEmbed.execute(param, "", config.warning_color, "Missing Permission", "You don't have permission to run this command.");
+		const reqConf = locale.reqConfig(data.join("\n"));
+		const noPerm = locale.noPerm;
+		const requiredEmbed = getEmbed.execute(param, "", config.warning_color, reqConf.title, reqConf.description);
+		const noPermEmbed = getEmbed.execute(param, "", config.warning_color, noPerm.title, noPerm.description);
 
 		switch(command.level) {
 		case "Owner" : {
@@ -82,7 +85,7 @@ module.exports = {
 		// eslint-disable-next-line no-fallthrough
 		default : {
 			if (data.length !== 0) {
-				console.log(`> Configuration needed: ${data.join(", ")}.`);
+				console.log(`> Required config(s): ${data.join(", ")}.`);
 				replyChannel.send(requiredEmbed);
 				break;
 			}

@@ -1,13 +1,10 @@
 module.exports = {
 	name: "reset",
-	aliases: false,
+	aliases: [],
 	level: "Admin",
 	guildOnly: true,
 	args: false,
 	reqConfig: false, // Configs needed to run this command.
-	usage: ["all", "<config name>"],
-	description: "Reset specific or all configuration values.",
-	note: false,
 	async execute(param, message, args, replyChannel) {
 		console.log(`~~ ${this.name.toUpperCase()} ~~`);
 
@@ -17,15 +14,17 @@ module.exports = {
 		const db = param.db;
 		const configPrefix = param.dbPrefix.config;
 		const configKeys = Object.keys(param.config);
+		const locale = param.locale;
 
 		const firstArg = args.shift();
 		let resetName;
-		if(!firstArg || firstArg == "all") resetName = "All";
+		if(!firstArg || firstArg.toLowerCase() == locale.all.toLowerCase()) resetName = locale.all;
 		else resetName = `\`${firstArg}\``;
 
-		const successEmbed = getEmbed.execute(param, "", config.info_color, "Success", `${resetName} config value is reset to default value.`);
+		const resetCmd = locale.resetCmd(resetName);
+		const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, resetCmd);
 
-		if(!firstArg || firstArg == "all") {
+		if(resetName == locale.all) {
 			configKeys.forEach(async aKey => {
 				const dbKey = configPrefix + aKey;
 				console.log(`> Resetting ${dbKey} value to ${defConfig[aKey]}.`);
@@ -38,7 +37,8 @@ module.exports = {
 			await db.set(dbKey, defConfig[firstArg]);
 		}
 		else {
-			const invalidEmbed = getEmbed.execute(param, "", config.warning_color, "Not a Config Name", `That's not a valid config name.\nUse \`${config.prefix}config\` to show available configs.`);
+			const noConfig = locale.noConfig(param, resetName);
+			const invalidEmbed = getEmbed.execute(param, "", config.warning_color, locale.notFound, noConfig);
 			console.log("> Not a config name.");
 			return replyChannel.send(invalidEmbed);
 		}

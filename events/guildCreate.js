@@ -7,10 +7,10 @@ module.exports = {
 
 		const guild = args[0];
 		const config = param.config;
-		const owner = param.client.users.fetch(config.botOwnerID);
+		const owner = await param.client.users.fetch(config.botOwnerID);
 
 		if(owner) {
-			const newServerEmbed = param.getEmbed.execute(param, guild, config.info_color, "Joined a Guild", `[**${guild.name}**] (\`${guild.id}\`)`);
+			const newServerEmbed = param.getEmbed.execute(param, guild, config.info_color, param.locale.guildCreate, `[**${guild.name}**] (\`${guild.id}\`)`);
 			owner.send(newServerEmbed);
 		}
 		console.log(`> Joined [${guild.name}] guild.`);

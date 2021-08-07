@@ -6,24 +6,56 @@ module.exports = {
 		const MessageAttachment = param.MessageAttachment;
 		const client = param.client;
 		const getEmbed = param.getEmbed;
+		const locale = param.locale;
 		const config = param.config;
-		const isMember = param.isMember;
 		const isBlocked = param.isBlocked;
 
 		const mainServerID = config.mainServerID;
-		const mainServer = await client.guilds.cache.get(mainServerID);
+		const mainServer = await client.guilds.fetch(mainServerID);
 		const threadServerID = config.threadServerID;
-		const threadServer = await client.guilds.cache.get(threadServerID);
+		const threadServer = await client.guilds.fetch(threadServerID);
 		const author = message.author;
 
+		// Checking whether user are blocked or not.
 		const checkIsBlocked = await isBlocked.execute(param, author.id);
+		if(checkIsBlocked) {
+			const blocked = locale.blocked;
+			const blockedEmbed = getEmbed.execute(param, "", config.error_color, blocked.title, blocked.user);
+			console.log("> User are blocked.");
+			return message.channel.send(blockedEmbed);
+		}
 
-		const blockedEmbed = getEmbed.execute(param, "", config.error_color, "Blocked", "You are blocked from replying to a thread.");
-		const noServerEmbed = getEmbed.execute(param, "", config.error_color, "Contact Admin", "`mainServerID` and/or `threadServerID` value is invalid.");
-		const noChannelEmbed = getEmbed.execute(param, "", config.error_color, "Channel Not Found", `Couldn't find your thread channel, ask admin to use \`${config.prefix}bind\` command.`);
-		const userReplyEmbed = getEmbed.execute(param, "", config.received_color, "Message Received", message.content, "", author);
+		// Validating main server and thread server.
+		const configNames = [];
+		if(!mainServer) configNames.push("mainServerID");
+		if(!threadServer) configNames.push("threadServerID");
+		if (configNames.length !== 0) {
+			const reqConfig = locale.reqConfig(configNames.join("\n"));
+			const reqConfigEmbed = getEmbed.execute(param, "", config.error_color, reqConfig.title, reqConfig.description);
+			console.log(`> Required config(s): ${configNames.join(", ")}`);
+			return message.channel.send(reqConfigEmbed);
+		}
 
+		// Checking whether user are main server member.
+		const checkIsMember = await mainServer.members.fetch(author.id);
+		if(!checkIsMember) {
+			const notMember = locale.notMember(mainServer.name);
+			const notMemberEmbed = getEmbed.execute(param, "", config.error_color, notMember.title, notMember.description);
+			console.log("> User aren't a member of main server.");
+			return message.channel.send(notMemberEmbed);
+		}
+
+		// Checking user thread channel existence.
 		const threadChannel = threadServer ? await threadServer.channels.cache.get(thread.channelID) : false;
+		if(!threadChannel) {
+			const noChannel = locale.noThreadChannel(config.prefix);
+			const noChannelEmbed = getEmbed.execute(param, "", config.error_color, noChannel.title, noChannel.description);
+			console.log("> Can't find this user's thread channel.");
+			return message.channel.send(noChannelEmbed);
+		}
+
+		// Send user reply to thread server.
+		const userReplyEmbed = getEmbed.execute(param, "", config.received_color, locale.msgReceived, message.content, "", author);
 		async function send() {
 			await threadChannel.send(userReplyEmbed);
 
@@ -34,33 +66,7 @@ module.exports = {
 				}
 			}
 		}
-
-		if(checkIsBlocked) {
-			// User is blocked
-			console.log("> User are blocked.");
-			return message.channel.send(blockedEmbed);
-		}
-		else if (!mainServer || !threadServer) {
-			// Can't find main server or thread server
-			console.log("> Can't find main or thread server.");
-			return message.channel.send(noServerEmbed);
-		}
-		else {
-			const checkIsMember = await isMember.execute(param, author.id);
-			const notMemberEmbed = getEmbed.execute(param, "", config.error_color, "Not a Member", `User aren't inside [**${mainServer.name}**] guild.`);
-
-			if(!checkIsMember) {
-				console.log("> User aren't a member of main server.");
-				return message.channel.send(notMemberEmbed);
-			}
-			else if(!threadChannel) {
-				console.log("> Can't find this user's thread channel.");
-				return message.channel.send(noChannelEmbed);
-			}
-			else {
-				send().then(message.react("✅"));
-			}
-		}
+		send().then(message.react("✅"));
 
 	},
 };

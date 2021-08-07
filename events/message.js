@@ -15,23 +15,11 @@ module.exports = {
 		const message = args[0];
 		const author = message.author;
 		const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		let locale = client.locale.get(config.language);
 
 		if(author.bot) return console.log(`> ${author.tag} is a bot.`);
 		let now = Date.now();
 		let timestamps, cooldownAmount;
-
-		// Activity Cooldown
-		if (!cooldowns.has("botActivity")) {
-			cooldowns.set("botActivity", new Discord.Collection());
-		}
-		timestamps = cooldowns.get("botActivity");
-		cooldownAmount = 10000; // 10 seconds
-		if (!timestamps.has("botActivity")) {
-			await param.updateActivity.execute(param);
-		}
-		timestamps.set("botActivity", now);
-		setTimeout(() => timestamps.delete("botActivity"), cooldownAmount);
-		// ----------------------------
 
 		// Permission Check
 		const guildID = message.guild ? message.guild.id : null;
@@ -86,8 +74,6 @@ module.exports = {
 		// -------------------------
 
 		try {
-			const maintenanceEmbed = getEmbed.execute(param, "", config.error_color, "Maintenance", "All functions are disabled.");
-
 			// checking whether user use prefix or mention the bot
 			const prefixRegex = new RegExp(`^(<@!?${client.user.id}>|${escapeRegex(config.prefix)})\\s*`);
 			if (!prefixRegex.test(message.content)) {
@@ -106,6 +92,7 @@ module.exports = {
 					}
 					else if(config.maintenance == "1" && !param.isOwner && !param.isAdmin) {
 						// Maintenance mode enabled
+						const maintenanceEmbed = getEmbed.execute(param, "", config.error_color, locale.maintenance.title, locale.maintenance.description);
 						replyChannel.send(maintenanceEmbed).then(() => {
 							return console.log("> Maintenance mode enabled, ignored.");
 						});
@@ -122,23 +109,33 @@ module.exports = {
 				}
 			}
 
+			const [, matchedPrefix] = message.content.match(prefixRegex);
+			const msgArgs = message.content.slice(matchedPrefix.length).trim().split(/ +/);
+			const commandName = msgArgs.shift().toLowerCase();
+			// finding command that was triggered
+			let command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+			// user using prefix or mention bot, command name is invalid
+			/*
+			if (!command) return console.log(`> ${commandName} isn't a command.`); // Ignore user's message
+			*/
+			if(!command) {
+				// Add shifted arg back and trigger tag command.
+				msgArgs.unshift(commandName);
+				command = client.commands.get("tag");
+			}
+			console.log(`> ${author.tag}(${author.id}) called ${commandName} command.`);
+			// deciding language the bot will use
+			param.locale = client.locale.find(lang => lang.commands && lang.commands[command.name] && lang.commands[command.name].name === commandName) || client.locale.get(config.language);
+			locale = param.locale;
+
+			const maintenanceEmbed = getEmbed.execute(param, "", config.error_color, locale.maintenance.title, locale.maintenance.description);
 			if(config.maintenance == "1" && !param.isOwner && !param.isAdmin) {
 				// Maintenance mode enabled
 				replyChannel.send(maintenanceEmbed).then(() => {
 					return console.log("> Maintenance mode enabled, ignored.");
 				});
 			}
-
-			const [, matchedPrefix] = message.content.match(prefixRegex);
-			const msgArgs = message.content.slice(matchedPrefix.length).trim().split(/ +/);
-			const commandName = msgArgs.shift().toLowerCase();
-			// finding command that was triggered
-			const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-
-			// user using prefix or mention bot, command name is invalid
-			if (!command) return console.log(`> ${commandName} isn't a command.`);
-			console.log(`> ${author.tag}(${author.id}) called ${commandName} command.`);
-			param.cmdName = commandName;
 
 			// cooldown more than 0
 			if (config.cooldown > 0) {
@@ -170,29 +167,18 @@ module.exports = {
 
 			// command is guildOnly, user trigger it inside Direct Message
 			if(command.guildOnly && message.channel.type !== "text" && author.id != config.botOwnerID) {
-				const noDMEmbed = param.getEmbed.execute(param, "", config.error_color, "Command Unavailable", "This command can't be used inside Direct Message.");
+				const guildOnly = locale.guildOnly;
+				const guildOnlyEmbed = await getEmbed.execute(param, "", config.error_color, guildOnly.title, guildOnly.description);
 				console.log("> Guild only command triggered in DM.");
-				return replyChannel.send(noDMEmbed);
+				return replyChannel.send(guildOnlyEmbed);
 			}
 
 			// command need arguments to run, user did't gave any
 			if(command.args && !msgArgs.length) {
-				let description = "You didn't provide any arguments.";
-
-				if(command.usage) {
-					const usages = [];
-					for (let i = 0;i < command.usage.length; i++) {
-						usages.push(`\`${config.prefix}${command.name} ${command.usage[i]}\``);
-					}
-					description += `\n**Usage** : ${usages.join(", ")}`;
-				}
-				if(command.note) {
-					description += `\n**Note** : \`${command.note}\``;
-				}
-
-				const noArgsEmbed = param.getEmbed.execute(param, "", config.warning_color, "Missing Arguments", description);
+				const noArg = locale.noArg(param, command.name);
+				const noArgEmbed = await param.getEmbed.execute(param, "", config.warning_color, noArg.title, noArg.description, "", noArg.footer);
 				console.log("> Missing Arguments.");
-				return replyChannel.send(noArgsEmbed);
+				return replyChannel.send(noArgEmbed);
 			}
 			await param.commandHandler.execute(param, message, msgArgs, command, replyChannel);
 		}
@@ -202,7 +188,8 @@ module.exports = {
 				return console.log(`>> ${error.message} <<`);
 			}
 			else {
-				const errorEmbed = param.getEmbed.execute(param, "", config.error_color, "An Error Occured.", `**Contact bot Owner** : <@${config.botOwnerID}>\n**Error Name** : \`${error.name}\`\n**Error Message** : \`${error.message}\``);
+				const errorMsg = param.locale.errorMsg(config.botOwnerID, error);
+				const errorEmbed = param.getEmbed.execute(param, "", config.error_color, errorMsg.title, errorMsg.description);
 				replyChannel.send(errorEmbed).then(() => {
 					return console.log(error);
 				});
