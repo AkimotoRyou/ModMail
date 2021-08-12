@@ -1,6 +1,7 @@
 {
 	"prefix" : ".",
 	"botOwnerID" : "",
+	"language" : "en",
 	"cooldown" : "0",
 	"maintenance" : "0",
 	"mainServerID" : "",
