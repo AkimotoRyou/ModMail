@@ -11,7 +11,11 @@ module.exports = {
 		const locale = client.locale.get(config.language);
 
 		const threads = await db.list(threadPrefix);
-		const threadServer = await client.guilds.fetch(config.threadServerID);
+		const threadServerID = config.threadServerID;
+		let threadServer = false;
+		if(threadServerID && threadServerID !== "empty") {
+			threadServer = await client.guilds.fetch(config.threadServerID);
+		}
 		let maxThreads = "";
 		if (threadServer) {
 			const categoryChannel = threadServer.channels.cache.get(config.categoryID);
