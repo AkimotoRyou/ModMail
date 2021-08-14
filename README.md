@@ -11,13 +11,13 @@ This bot only support one pair of server per bot. One main server(where users ga
 1. Set up bot application in [Discord](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token).
 2. Don't forget to turn on `Server Members Intent` on Discord Developer Portal.
 3. [Download](https://www.wikihow.com/Download-a-GitHub-Folder) or [clone](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository) files in this repository.
-4. Create [Repl.it](https://repl.it/) account.
-5. Click on `+ New repl`.
-6. Choose `Node.js` as the language.
-7. Rename your project. `*(Optional)`
-8. Click `Create Repl`.
-9. Delete Replit prebuilt index.js file.
-10. At `.env` file, add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=`.
+4. Edit `.env` file, and add your bot [token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token) right after `TOKEN=`.
+5. Create [Repl.it](https://repl.it/) account.
+6. Click on `+ New repl`.
+7. Choose `Node.js` as the language.
+8. Rename your project. `*(Optional)`
+9. Click `Create Repl`.
+10. Delete Replit prebuilt index.js file.
 11. Drag and drop all the `(downloaded or cloned from github)` files to the box below `Files` on left side of the repl.it project page.
 12. Run `npm i @replit/database` from shell `(ctrl+shift+s)`.
 13. At `config.json` file, add your [DiscordID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) between `""` character at `botOwnerID` section.
