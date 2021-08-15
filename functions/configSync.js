@@ -11,7 +11,7 @@ module.exports = {
 		const configKeys = Object.keys(config);
 		const dbKeys = await db.list(configPrefix);
 		async function forLoop() {
-			for (let i = 0; i < configKeys .length; i++) {
+			for (let i = 0; i < configKeys.length; i++) {
 				const dbKey = configPrefix + configKeys[i];
 				if(!dbKeys.includes(dbKey)) {
 					console.log(`> Resetting ${dbKey} value to ${defConfig[configKeys[i]]}.`);
