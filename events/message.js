@@ -116,15 +116,16 @@ module.exports = {
 			let command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
 			// user using prefix or mention bot, command name is invalid
-			/*
-			if (!command) return console.log(`> ${commandName} isn't a command.`); // Ignore user's message
-			*/
-			if(!command) {
-				// Add shifted arg back and trigger tag command.
-				msgArgs.unshift(commandName);
-				command = client.commands.get("tag");
+			if (!commandName) {
+				// Ignore user's message
+				return console.log("> No command name provided.");
 			}
+
+			// Add shifted arg back and trigger tag command.
+			msgArgs.unshift(commandName);
+			command = client.commands.get("tag");
 			console.log(`> ${author.tag}(${author.id}) called ${commandName} command.`);
+
 			// deciding language the bot will use
 			param.locale = client.locale.find(lang => lang.commands && lang.commands[command.name] && lang.commands[command.name].name === commandName) || client.locale.get(config.language);
 			locale = param.locale;
