@@ -122,8 +122,10 @@ module.exports = {
 			}
 
 			// Add shifted arg back and trigger tag command.
-			msgArgs.unshift(commandName);
-			command = client.commands.get("tag");
+			if (!command) {
+				msgArgs.unshift(commandName);
+				command = client.commands.get("tag");
+			}
 			console.log(`> ${author.tag}(${author.id}) called ${commandName} command.`);
 
 			// deciding language the bot will use
