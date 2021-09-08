@@ -26,7 +26,7 @@ module.exports = {
 		const userID = args.shift();
 		const channelID = args.shift();
 		const dbKey = threadPrefix + userID;
-		let isThread = await db.get(dbKey);
+		const isThread = await db.get(dbKey);
 		const getChannel = await threadServer.channels.cache.get(channelID);
 		const chUserID = getChannel.name.split("-").pop();
 		const chIsThread = await db.get(threadPrefix + chUserID);
@@ -59,9 +59,10 @@ module.exports = {
 			return replyChannel.send(successEmbed);
 		}
 		else {
-			isThread.split("-").shift();
-			isThread = isThread.join("-");
-			await db.set(dbKey, `${channelID}-${isThread}`);
+			const threadTitle = isThread.split("-");
+			threadTitle.shift(); // removing old channel id
+			if (threadTitle.length > 1) threadTitle.join("-");
+			await db.set(dbKey, `${channelID}-${threadTitle}`);
 			await getChannel.setName(channelName);
 			await updateActivity.execute(param);
 			console.log("> Channel binded to a thread.");
