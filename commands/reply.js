@@ -53,7 +53,7 @@ module.exports = {
 				const user = member.user;
 				const description = args.join(" ");
 				const userDMEmbed = getEmbed.execute(param, author, config.sent_color, locale.msgReceived, description, "", mainServer);
-				const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, locale.anonSent, description, "", user);
+				const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, locale.msgSent, description, "", user);
 
 				try{
 					await user.send(userDMEmbed);

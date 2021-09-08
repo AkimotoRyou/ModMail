@@ -60,10 +60,10 @@ module.exports = {
 			await threadChannel.send(userReplyEmbed);
 
 			if (message.attachments.size > 0) {
-				for(const atch in message.attachments) {
+				await message.attachments.forEach(async atch => {
 					const attachment = new MessageAttachment(atch.url);
 					await threadChannel.send(attachment);
-				}
+				});
 			}
 		}
 		send().then(message.react("✅"));
