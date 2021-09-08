@@ -54,7 +54,7 @@ module.exports = {
 
 			if (user) {
 				logEmbed = getEmbed.execute(param, author, config.warning_color, close.title, logDescription, "", user);
-				await user.send(userDMEmbed);
+				await user.send(userDMEmbed).catch(e => console.log(e.message));
 				await logChannel.send(logEmbed);
 			}
 			else {
