@@ -385,12 +385,12 @@ module.exports = {
 	},
 	newThread(moment, threadTitle, member, roles) {
 		const userData = [];
-		userData.push(`**Created at**: ${moment(member.user.createdAt).format("D MMM YYYY, HH:mm")}`);
-		userData.push(`**Joined at**: ${moment(member.joinedAt).format("D MMM YYYY, HH:mm")}`);
-		userData.push(`**Roles**: ${roles}`);
+		userData.push(`🔹 Created at: ${moment(member.user.createdAt).format("D MMM YYYY, HH:mm")}`);
+		userData.push(`🔹 Joined at: ${moment(member.joinedAt).format("D MMM YYYY, HH:mm")}`);
+		userData.push(`🔹 Roles: ${roles}`);
 		return {
 			title: "New Thread",
-			info: `User Info;${userData.join("\n")}`,
+			info: `**User Info**\n${userData.join("\n")}`,
 			created: {
 				title: "Thread Created!",
 				description: `**Title** : ${threadTitle}\n\`Please describe your issue. (No command needed.)\``,

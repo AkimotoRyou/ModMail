@@ -32,7 +32,7 @@ module.exports = {
 
 		const threadTitle = args.join(" ");
 		const member = await mainServer.members.fetch(author.id);
-		const memberRoles = await member.roles.cache.filter(role => role.name != "@everyone").map(role => `<@&${role.id}>`).join(", ");
+		const memberRoles = await member.roles.cache.filter(role => role.name != "@everyone").map(role => `<@&${role.id}>` || "none").join(", ");
 		const newThread = param.locale.newThread(param.moment, threadTitle, member, memberRoles);
 
 		const logEmbed = getEmbed.execute(param, "", config.info_color, newThread.title, threadTitle, "", author);
@@ -41,7 +41,7 @@ module.exports = {
 		const dmEmbed = getEmbed.execute(param, "", config.info_color, newThread.created.title, newThread.created.description, "", mainServer);
 		author.send(dmEmbed);
 
-		const newThreadEmbed = getEmbed.execute(param, "", config.info_color, newThread.title, threadTitle, [newThread.info], author, author.displayAvatarURL());
+		const newThreadEmbed = getEmbed.execute(param, "", config.info_color, newThread.title, `${threadTitle}\n${newThread.info}`, "", author, author.displayAvatarURL());
 		await newChannel.send(mentionedRole, newThreadEmbed);
 		if (message.attachments.size > 0) {
 			await message.attachments.forEach(async atch => {
