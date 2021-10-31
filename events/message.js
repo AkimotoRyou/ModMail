@@ -72,6 +72,12 @@ module.exports = {
 			replyChannel = author;
 		}
 		// -------------------------
+		const maintenanceFn = async function() {
+			const maintenanceEmbed = getEmbed.execute(param, "", config.error_color, locale.maintenance.title, locale.maintenance.description);
+			replyChannel.send(maintenanceEmbed).then(() => {
+				console.log("> Maintenance mode enabled, ignored.");
+			});
+		};
 
 		try {
 			// checking whether user use prefix or mention the bot
@@ -92,10 +98,7 @@ module.exports = {
 					}
 					else if(config.maintenance == "1" && !param.isOwner && !param.isAdmin) {
 						// Maintenance mode enabled
-						const maintenanceEmbed = getEmbed.execute(param, "", config.error_color, locale.maintenance.title, locale.maintenance.description);
-						replyChannel.send(maintenanceEmbed).then(() => {
-							return console.log("> Maintenance mode enabled, ignored.");
-						});
+						return maintenanceFn();
 					}
 					else {
 						// User have open thread and maintenance mode disabled
@@ -132,12 +135,9 @@ module.exports = {
 			param.locale = client.locale.find(lang => lang.commands && lang.commands[command.name] && lang.commands[command.name].name === commandName) || client.locale.get(config.language);
 			locale = param.locale;
 
-			const maintenanceEmbed = getEmbed.execute(param, "", config.error_color, locale.maintenance.title, locale.maintenance.description);
 			if(config.maintenance == "1" && !param.isOwner && !param.isAdmin) {
 				// Maintenance mode enabled
-				replyChannel.send(maintenanceEmbed).then(() => {
-					return console.log("> Maintenance mode enabled, ignored.");
-				});
+				return maintenanceFn();
 			}
 
 			// cooldown more than 0
