@@ -1,6 +1,6 @@
 module.exports = {
 	name: "set",
-	aliases: false,
+	aliases: [],
 	level: "Admin",
 	guildOnly: true,
 	args: true,
