@@ -18,9 +18,9 @@
     "npm": "6.5.0"
   },
   "repository": {
-    "url": "https://github.com/AkimotoRyou/ModMail"
+    "url": "https://github.com/AkimotoRyou/-Replit-ModMail"
   },
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0",
   "keywords": [
     "node",
     "replit",
