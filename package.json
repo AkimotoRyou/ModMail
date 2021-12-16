@@ -1,5 +1,5 @@
 {
-  "name": "replit-modmail",
+  "name": "modmail",
   "version": "2.1.0",
   "description": "A simple ModMail bot for Discord.",
   "main": "index.js",
@@ -18,7 +18,7 @@
     "npm": "6.5.0"
   },
   "repository": {
-    "url": "https://github.com/AkimotoRyou/-Replit-ModMail"
+    "url": "https://github.com/AkimotoRyou/ModMail"
   },
   "license": "AGPL-3.0",
   "keywords": [
