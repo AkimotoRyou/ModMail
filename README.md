@@ -7,7 +7,7 @@ This bot only support one pair of server per bot, one main server and one thread
 I'm debugging the bot alone so expect some bugs passed to GitHub, and if you encounter bugs report [here](https://github.com/AkimotoRyou/ModMail/issues).
 
 ## Note
-This is a complete rewrite of previous version. This version of the bot use replit nix to meet node version requirement for Discord.Js v13 to host it in Replit and it's still in beta version. This bot use slash command and currently can't receive file attachment as an input due Discord API limitation. It's still a planned feature for slash command option as stated in this [link](https://github.com/discord/discord-api-docs/discussions/3581).
+This is a complete rewrite of previous version. This version of the bot use replit nix to meet node version requirement for Discord.Js v13 to host it in Replit and it's still in beta version. This bot use slash command and currently can't receive file attachment as an input due Discord API limitation. It's still a planned feature for slash command option as stated in this [link](https://github.com/discord/discord-api-docs/discussions/3581). Slash global commands need up to an hour to register properly.
 
 ## Installation
 #### I. Setting up a bot application
