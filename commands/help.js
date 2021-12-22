@@ -51,8 +51,8 @@ module.exports = {
 		}
 		const title = cmdLocale.name.replace(/^./, cmdLocale.name[0].toUpperCase());
 		data.push(`${cmdLocale.description}`);
-		if (command.language) data.push(`**${locale.target.language}** : ${cmdData.language}`);
-		if (command.id) data.push(`**${helpLocale.cmdID}** : ${cmdData.id}`);
+		if (cmdData.language) data.push(`**${locale.target.language}** : ${cmdData.language}`);
+		if (cmdData.id) data.push(`**${helpLocale.cmdID}** : ${cmdData.id}`);
 		if (command.level) {
 			const temp = [];
 			const keys = Object.keys(command.level).filter(key => key !== "default");
