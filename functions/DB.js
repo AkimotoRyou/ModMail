@@ -1,6 +1,6 @@
 // ReplDB - Uncomment this section and comment Sequelize section to use.
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* *
+/* */
 const Database = require("@replit/database");
 const ReplDB = new Database();
 
@@ -122,7 +122,7 @@ const thread = {
 
 // Sequelize - Uncomment this section and comment ReplDB section to use.
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* */
+/* *
 const Sequelize = require("sequelize");
 const sequelize = new Sequelize({
 	dialect: "sqlite",
