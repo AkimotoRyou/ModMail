@@ -138,6 +138,8 @@ module.exports = {
 			// Target user doesn't have an active thread, create new thread.
 			const title = interaction.options.getString(locale.title.name) || locale.misc.bindTitle;
 			output = await create.thread(param, locale, user, channel, title);
+			const channelName = `${locale.name}-${user.tag.replace(/[^0-9a-z]/gi, "")}`;
+			await channel.setName(channelName);
 			if (output == "dmDisabled") output = cmdData.dmDisabled(userID, channel.id);
 			else output = cmdData.bindSuccess(userID, channel.id);
 		}
