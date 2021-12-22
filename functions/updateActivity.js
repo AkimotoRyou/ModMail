@@ -1,44 +1,33 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "updateActivity",
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	async execute(param) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+		const { client, config, threadList } = param;
+		const { maintenance, threadServerID } = config;
+		const locale = param.locale[config.language];
+		let activity;
 
-		const client = param.client;
-		const config = param.config;
-		const prefix = config.prefix;
-		const db = param.db;
-		const threadPrefix = param.dbPrefix.thread;
-		const locale = client.locale.get(config.language);
-
-		const threads = await db.list(threadPrefix);
-		const threadServerID = config.threadServerID;
-		let threadServer = false;
-		if(threadServerID && threadServerID !== "empty") {
-			threadServer = await client.guilds.fetch(config.threadServerID);
+		if (!locale) {
+			activity = "Invalid Locale";
 		}
-		let maxThreads = "";
-		if (threadServer) {
+		else if (maintenance === "1") {
+			activity = locale.activity.maintenance;
+		}
+		else if (threadServerID && threadServerID !== "-") {
+			const threadServer = await client.guilds.fetch(config.threadServerID);
 			const categoryChannel = threadServer.channels.cache.get(config.categoryID);
 			if (categoryChannel) {
 				const childSize = categoryChannel.children.size;
-				const threadSize = threads.length;
-				maxThreads = 50 - (childSize - threadSize);
-			}
-			else {
-				maxThreads = 0;
+				const threadSize = threadList.length;
+				const maxThreads = 50 - (childSize - threadSize);
+				activity = locale.activity.thread(threadList.length, maxThreads);
 			}
 		}
 		else {
-			maxThreads = 0;
+			activity = locale.activity.ready;
 		}
-		const activity = locale.activity(prefix, threads.length, maxThreads);
-
-		if (config.maintenance == 0) {
-			client.user.setActivity(activity.default);
-		}
-		else {
-			client.user.setActivity(activity.maintenance);
-		}
+		await client.user.setActivity(activity);
 		console.log("> Activity Updated.");
 	},
 };

@@ -1,0 +1,320 @@
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~⚠️⚠️⚠️ Warning ⚠️⚠️⚠️~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Do not modify anything that are left out here, only add the translation unless you know what are you doing.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+module.exports = {
+	name: "",
+	commands: {
+		block: {
+			name: "",
+			description: ".",
+			listTitle: "",
+			infoTitle: "",
+			addSuccess(userID) {
+				return `\` "${userID}" .\``;
+			},
+			removeSuccess(userID) {
+				return `\` "${userID}" .\``;
+			}
+		},
+		close: {
+			name: "",
+			description: ".",
+			closeTitle: "",
+		},
+		config: {
+			name: "",
+			description: ".",
+			setSuccess(configName, value) {
+				return `\` "${configName}"  "${value}".\``;
+			},
+			resetSuccess(configName) {
+				return `\` "${configName}" .\``;
+			},
+			getInfo(configName) {
+				const configData = [];
+				switch (configName) {
+				case "ownerID":
+					configData.push(".");
+					configData.push("**** : \n🔹 .\n🔹 .");
+					break;
+				case "cooldown":
+					configData.push(".");
+					configData.push("**** : \n🔹 .\n🔹 .");
+					break;
+				case "maintenance":
+					configData.push(".");
+					break;
+				case "language":
+					configData.push(".");
+					configData.push("**** : \n🔹 .\n🔹 .");
+					configData.push("**** : \n`- .`");
+					break;
+				case "mainServerID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹 .");
+					configData.push("🔹  [].");
+					configData.push("**** :  => ``");
+					break;
+				case "threadServerID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹 .");
+					configData.push("🔹  [].");
+					configData.push("**** :  => ``");
+					break;
+				case "categoryID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹 .");
+					configData.push("🔹 [] .");
+					configData.push("**** :  => ``.");
+					configData.push(" [](https://support.discordapp.com/hc/en-us/articles/115001580171-Channel-Categories-101).");
+					configData.push("`.`");
+					break;
+				case "logChannelID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹 .");
+					configData.push("🔹 [] .");
+					configData.push("**** :  => ``");
+					break;
+				case "adminRoleID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹 .");
+					configData.push("🔹 [] .");
+					configData.push("**** :  `` => `` => `` => ``");
+					break;
+				case "modRoleID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹 .");
+					configData.push("🔹 [] .");
+					configData.push("**** :  `` => `` => `` => ``");
+					break;
+				case "mentionedRoleID":
+					configData.push(".");
+					configData.push("**** :");
+					configData.push("🔹  [](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
+					configData.push("🔹  `@here`  `@everyone`.");
+					configData.push("🔹  '-'  ().");
+					configData.push("**** :  `` => `` => `` => ``");
+					break;
+				case "infoColor":
+					configData.push(".");
+					configData.push("**** : \n🔹 [](https://html-color.codes/)  [](https://discord.js.org/#/docs/main/stable/typedef/ColorResolvable).");
+					break;
+				case "sentColor":
+					configData.push(".");
+					configData.push("**** : \n🔹 [](https://html-color.codes/)  [](https://discord.js.org/#/docs/main/stable/typedef/ColorResolvable).");
+					break;
+				case "receivedColor":
+					configData.push(".");
+					configData.push("**** : \n🔹 [](https://html-color.codes/)  [](https://discord.js.org/#/docs/main/stable/typedef/ColorResolvable).");
+					break;
+				case "closeColor":
+					configData.push(".");
+					configData.push("**** : \n🔹 [](https://html-color.codes/)  [](https://discord.js.org/#/docs/main/stable/typedef/ColorResolvable).");
+					break;
+				default:
+					configData.push("`.`");
+					break;
+				}
+				return configData.join("\n");
+			},
+		},
+		create: {
+			name: "",
+			description: ".",
+			maxThread: "`.`",
+			duplicate: "`.`",
+			dmDisabled(title) {
+				return `\` "${title}" .\nP.\``;
+			},
+			newSuccess(title) {
+				return `\` "${title}" .\``;
+			},
+			newThread(locale, threadTitle) {
+				return {
+					title: "Thread Created",
+					userDM: `${threadTitle}\n\` /${locale.commands.reply.name} .\``,
+				};
+			},
+		},
+		help: {
+			name: "",
+			description: ".",
+			title: "",
+			cmdName: "",
+			cmdID: "",
+			cmdLang: "",
+			cmdLevel: "",
+			cmdDescription: "",
+			cmdUsage: "",
+		},
+		ping: {
+			name: "",
+			description: ".",
+			reply(latency, responseTime) {
+				return `: ${latency}ms\n: ${responseTime}ms`;
+			},
+		},
+		reply: {
+			name: "",
+			description: ".",
+			contentDescription: ".",
+			tagDescription: ".",
+			dmDisabled: "`.`",
+		},
+		tag: {
+			name: "",
+			description: ".",
+			listTitle: "",
+			addSuccess(tagName) {
+				return `\` "${tagName}" .\``;
+			},
+			setSuccess(tagName) {
+				return `\` "${tagName}" .\``;
+			},
+			removeSuccess(tagName) {
+				return `\` "${tagName}" .\``;
+			}
+		},
+		thread: {
+			name: "",
+			description: ".",
+			infoTitle: "",
+			listTitle: "",
+			activeThread: "`.`",
+			dmDisabled(userID, channelID) {
+				return `\` "${userID}"  "${channelID}" .\n.\``;
+			},
+			bindSuccess(userID, channelID) {
+				return `\` "${userID}"  "${channelID}" .\``;
+			},
+		}
+	},
+	activity: {
+		ready: "",
+		maintenance: "~  ~",
+		thread(threadCount, maxThreads) {
+			return `${threadCount}/${maxThreads} `;
+		},
+	},
+	anon: {
+		name: "anon",
+		description: "Hide command operator.",
+	},
+	cooldown(time) {
+		return ` ${time}s.`;
+	},
+	content: {
+		name: "",
+		description: ".",
+		invalid: "`.`",
+	},
+	errorMsg(error, ownerID) {
+		const output = [
+			` <@${ownerID}>.`,
+			`🔸 : \`${error.name}\``,
+			`🔸 : \`${error.message}\``,
+		];
+		return output.join("\n");
+	},
+	misc: {
+		true: "",
+		default: "",
+		Owner: "",
+		Admin: "",
+		Moderator: "",
+		User: "",
+		reason: "",
+		channel: "",
+		createdAt: "",
+		joinedAt: "",
+		roles: "",
+		bindTitle: "",
+		msgSent: "",
+		msgReceived: "",
+		deploySuccess: "`.`",
+		maintenance: "`.`",
+		noPerm: "`.`",
+		unknownError: "`.`",
+		_SeparatorBot: "",
+		_SeparatorServer: "",
+		_SeparatorColor: "",
+	},
+	note: {
+		name: "",
+		description: ".",
+	},
+	operation: {
+		name: "",
+		description: ".",
+		add: "",
+		bind: "",
+		guild: "",
+		info: "",
+		list: "",
+		reset: "",
+		remove: "",
+		sent: "",
+		set: "",
+		view: "",
+	},
+	page: {
+		name: "",
+		description: ".",
+		emptyList: "`.`",
+	},
+	reason: {
+		name: "",
+		description: ".",
+		invalid: "`.`",
+	},
+	show: {
+		name: "",
+		description: ".",
+	},
+	target: {
+		name: "",
+		description: ".",
+		notFound: "`.`",
+		invalid: "`.`",
+		duplicate: "`.`",
+		all: "",
+		ownerID: "",
+		cooldown: "",
+		maintenance: "",
+		language: "",
+		mainServerID: "",
+		threadServerID: "",
+		categoryID: "",
+		logChannelID: "",
+		adminRoleID: "",
+		modRoleID: "",
+		mentionedRoleID: "",
+		infoColor: "",
+		sentColor: "",
+		receivedColor: "",
+		closeColor: "",
+	},
+	title: {
+		name: "",
+		description: ".",
+	},
+	value: {
+		name: "",
+		description: ".",
+		invalid: "`.`",
+	},
+};

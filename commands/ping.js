@@ -1,22 +1,30 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "ping",
-	aliases: [],
-	level: "User",
-	guildOnly: false,
-	args: false,
-	reqConfig: false, // Configs needed to run this command.
-	async execute(param, message, args, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
-
-		const config = param.config;
-		const getEmbed = param.getEmbed;
-		const ping = param.locale.ping;
-
-		const pingEmbed = getEmbed.execute(param, "", config.info_color, ping.title, ping.msg);
-
-		replyChannel.send(pingEmbed).then((msg) => {
-			const editEmbed = getEmbed.execute(param, "", config.info_color, ping.title, `**${ping.response}** : **${msg.createdTimestamp - message.createdTimestamp}** ms\n**${ping.latency}** : **${Math.round(param.client.ws.ping)}** ms`);
-			msg.edit(editEmbed);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	global: false,
+	// Valid command level: "Owner", "Admin", "Moderator", "User".
+	level: {
+		default: "User",
+	},
+	getData(SlashCommandBuilder, param, locale) {
+		// Defining command structure.
+		const localeData = locale.commands[this.name];
+		const data = new SlashCommandBuilder()
+			.setName(localeData.name)
+			.setDescription(localeData.description);
+		return data;
+	},
+	async execute(param, interaction, locale) {
+		const cmdData = locale.commands[this.name];
+		const timestamp = interaction.createdTimestamp;
+		await interaction.reply({
+			content: "...",
+			ephemeral: true
+		});
+		return await interaction.editReply({
+			content: cmdData.reply(Math.round(param.client.ws.ping), (Date.now() - timestamp)),
+			ephemeral: true
 		});
 	},
 };

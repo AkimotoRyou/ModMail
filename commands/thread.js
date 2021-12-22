@@ -1,87 +1,172 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "thread",
-	aliases: [],
-	level: "Moderator",
-	guildOnly: true,
-	args: true,
-	reqConfig: ["mainServerID"], // Configs needed to run this command.
-	async execute(param, message, args, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	global: false,
+	// Valid command level: "Owner", "Admin", "Moderator", "User".
+	level: {
+		default: "Moderator",
+		bind: "Admin",
+	},
+	usage(locale) {
+		const { commands, operation, target, misc, page, title } = locale;
+		const cmdName = commands[this.name].name;
+		const data = [
+			`🔹 /${cmdName} \`${operation.name}:${operation.info}\` \`${misc.User.toLowerCase()}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.info}\` \`${misc.channel.toLowerCase()}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.list}\` \`${page.name}: ${page.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.bind}\` \`${misc.User.toLowerCase()}:${target.description}\` \`${misc.channel.toLowerCase()}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.bind}\` \`${misc.User.toLowerCase()}:${target.description}\` \`${misc.channel.toLowerCase()}:${target.description}\` \`${title.name}:${title.description}\``,
+		];
+		return data;
+	},
+	getData(SlashCommandBuilder, param, locale) {
+		// Defining command structure.
+		const { commands, operation, target, misc, page, title } = locale;
+		const localeData = commands[this.name];
+		const data = new SlashCommandBuilder()
+			.setName(localeData.name)
+			.setDescription(localeData.description)
+			.addStringOption(option => option
+				.setName(operation.name)
+				.setDescription(operation.description)
+				.addChoice(operation.info, "info")
+				.addChoice(operation.list, "list")
+				.addChoice(operation.bind, "bind")
+				.setRequired(true)
+			)
+			.addUserOption(option => option
+				.setName(misc.User.toLowerCase())
+				.setDescription(target.description)
+			)
+			.addChannelOption(option => option
+				.setName(misc.channel.toLowerCase())
+				.setDescription(target.description)
+			)
+			.addIntegerOption(option => option
+				.setName(page.name)
+				.setDescription(page.description)
+			)
+			.addStringOption(option => option
+				.setName(title.name)
+				.setDescription(title.description)
+			);
+		return data;
+	},
+	// New, reply, and close thread command are separated for easier user experience.
+	// I didn't use subcommand since it doesn't have UX that i want it to be.
+	async info(param, interaction, locale) {
+		// Operation: info.
+		const { config, getEmbed, threadList } = param;
+		const user = interaction.options.getUser(locale.misc.User.toLowerCase());
+		const channel = interaction.options.getChannel(locale.misc.channel.toLowerCase());
 
-		const client = param.client;
-		const getEmbed = param.getEmbed;
-		const config = param.config;
-		const db = param.db;
-		const threadPrefix = param.dbPrefix.thread;
-		const locale = param.locale;
-		const firstArg = args.shift().toLowerCase();
-
-		if(locale.info.includes(firstArg)) {
-			const mainServerID = config.mainServerID;
-			const mainServer = await client.guilds.cache.get(mainServerID);
-
-			const userID = args.shift();
-			const dbKey = threadPrefix + userID;
-			const isThread = await db.get(dbKey);
-			const threadInfo = locale.threadInfo;
-
-			const noThreadEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, locale.noThread.user);
-
-			if (!isThread) {
-				console.log("> Thread not found.");
-				return replyChannel.send(noThreadEmbed);
-			}
-			else {
-				const threadData = [];
-				const member = await mainServer.members.fetch(userID);
-
-				const temp = isThread.split("-");
-				const channelID = temp.shift();
-				threadData.push(`${temp.join("-")}`);
-				if (member) {
-					threadData.push(`**${threadInfo.userTag}** : \`${member.user.tag}\``);
-				}
-				else {
-					threadData.push(`**${threadInfo.userTag}** : ${threadInfo.noUser}`);
-				}
-				threadData.push(`**${threadInfo.userID}** : \`${userID}\``);
-				threadData.push(`**${threadInfo.threadCh}** : <#${channelID}>`);
-
-				const threadInfoEmbed = getEmbed.execute(param, "", config.info_color, threadInfo.title, threadData.join("\n"));
-				return replyChannel.send(threadInfoEmbed);
-			}
-		}
-		else if(locale.list.includes(firstArg)) {
-			let pageNumber = args.shift();
-
-			const threadlist = await db.list(threadPrefix);
-			let pages = Math.floor(threadlist.length / 20);
-			if (threadlist.length % 20 != 0) {
-			// add 1 number of pages if residual quotient is not 0 (15%10=5 -> 5 > 0)
-				pages += 1;
-			}
-			if (threadlist.length == 0) {
-				pageNumber = 0;
-			}
-			else if(!pageNumber || isNaN(pageNumber) || pageNumber <= 0) {
-			// user didn't gave input or input is not a number or input is below or same as 0
-				pageNumber = 1;
-			}
-			else if(pageNumber > pages) {
-			// input is higher than the number of pages
-				pageNumber = pages;
-			}
-
-			const pagedList = locale.pagedList(pages, pageNumber);
-			const listArray = threadlist.map(key => {
-				const cleanKey = key.slice(threadPrefix.length);
-				return `🔹 <@${cleanKey}> (\`${cleanKey}\`)`;
+		let thread;
+		if (user) thread = threadList.find(key => key.userID == user.id);
+		if (!user && channel) thread = threadList.find(key => key.channelID == channel.id);
+		if (!thread) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true
 			});
-			const firstIndex = Math.abs((pageNumber - 1) * 20);
-			const listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || locale.emptyList;
-
-			const listEmbed = getEmbed.execute(param, "", config.info_color, pagedList.threadList, listString, "", pagedList.footer);
-			return replyChannel.send(listEmbed);
 		}
+
+		const threadData = [
+			`${thread.title}`,
+			`🔹 ${locale.target.language} : \`${thread.language}\``,
+			`🔹 ${locale.misc.User} : <@${thread.userID}> [\`${thread.userID}\`]`,
+			`🔹 ${locale.misc.channel} : <#${thread.channelID}> [\`${thread.channelID}\`]`,
+		];
+		const embed = await getEmbed.execute(param, "", config.infoColor, locale.commands[this.name].infoTitle, threadData.join("\n"));
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true
+		});
+	},
+	async list(param, interaction, locale) {
+		// Operation: list.
+		const { config, getEmbed, threadList } = param;
+		let selectedPage = interaction.options.getInteger(locale.page.name);
+		const totalPage = Math.ceil(threadList.length / 20);
+		let tempList = threadList;
+
+		if (threadList.length == 0) {
+			selectedPage = 0;
+			tempList = locale.page.emptyList;
+		}
+		else {
+			if (!selectedPage || selectedPage < 1) selectedPage = 1;
+			if (selectedPage > totalPage) selectedPage = totalPage;
+
+			const firstIndex = Math.abs((selectedPage - 1) * 20);
+			tempList = tempList.slice(firstIndex, firstIndex + 20);
+			tempList = tempList.map(key => `🔸 <@${key.userID}> [\`${key.userID}\`]`).join("\n");
+		}
+
+		const embed = await getEmbed.execute(param, "", config.infoColor, locale.commands[this.name].listTitle, tempList, "", `${locale.page.name} ${selectedPage} / ${totalPage}`);
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async bind(param, interaction, locale) {
+		// Operation: bind.
+		const { DB, client, config, getEmbed, threadList, create, moment } = param;
+		const user = interaction.options.getUser(locale.misc.User.toLowerCase());
+		const channel = interaction.options.getChannel(locale.misc.channel.toLowerCase());
+		const cmdData = locale.commands[this.name];
+		let output;
+
+		if (!user || !channel || channel.guild.id !== config.threadServerID || channel.parent.id !== config.categoryID || channel.id == config.categoryID || channel.id == config.logChannelID) {
+			// Target user or channel isn't provided, or traget channel isn't inside defined thread server nor category channel.
+			return await interaction.reply({
+				content: locale.target.invalid,
+				ephemeral: true
+			});
+		}
+		let thread = threadList.find(key => key.channelID === channel.id);
+		if (thread) {
+			// Target channel already binded with an active thread.
+			return await interaction.reply({
+				content: cmdData.activeThread,
+				ephemeral: true
+			});
+		}
+		const userID = user.id;
+		thread = threadList.find(key => key.userID === userID);
+		if (!thread) {
+			// Target user doesn't have an active thread, create new thread.
+			const title = interaction.options.getString(locale.title.name) || locale.misc.bindTitle;
+			output = await create.thread(param, locale, user, channel, title);
+			if (output == "dmDisabled") output = cmdData.dmDisabled(userID, channel.id);
+			else output = cmdData.bindSuccess(userID, channel.id);
+		}
+		else {
+			// Target user have an active thread, bind it to target channel.
+			const { language, title } = thread;
+			await DB.thread.set(userID, channel.id, language, title);
+			thread.channelID = channel.id;
+			const channelName = `${language}-${user.tag.replace(/[^0-9a-z]/gi, "")}`;
+			await channel.setName(channelName);
+			const userLocale = param.locale[thread.language];
+			const userData = [
+				`${thread.title}`,
+				`🔹 ${userLocale.misc.User} : <@${thread.userID}>`,
+				`🔹 ${userLocale.misc.createdAt} : ${moment(user.createdAt).format("D MMM YYYY, HH:mm")}`,
+			];
+			const member = await client.guilds.cache.get(config.mainServerID).members.fetch(userID);
+			if (member) {
+				const roles = await member.roles.cache.filter(role => role.name != "@everyone").map(role => `<@&${role.id}>` || "-").join(", ");
+				userData.push(`🔹 ${userLocale.misc.joinedAt} : ${moment(member.joinedAt).format("D MMM YYYY, HH:mm")}`);
+				userData.push(`🔹 ${userLocale.misc.roles}: ${roles}`);
+			}
+			const embed = await getEmbed.execute(param, interaction.user, config.infoColor, userLocale.misc.bindTitle, userData.join("\n"), "", user, user.displayAvatarURL());
+			await channel.send({ embeds: [embed] });
+			output = cmdData.bindSuccess(userID, channel.id);
+		}
+
+		return await interaction.reply({
+			content: output,
+		});
 	},
 };

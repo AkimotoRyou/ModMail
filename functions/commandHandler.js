@@ -1,99 +1,98 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "commandHandler",
-	async execute(param, message, msgArgs, command, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	async execute(param, interaction) {
+		const { Collection, client, config, blockList, cmdDataList } = param;
+		const { guild, commandName, channel, member, user } = interaction;
+		const cooldowns = client.cooldowns;
+		const cooldown = parseInt(config.cooldown);
+		const command = client.commands.get(commandName);
+		const cmdData = cmdDataList.find(key => key.name == commandName);
+		const locale = param.locale[cmdData.language];
 
-		const client = param.client;
-		const getEmbed = param.getEmbed;
-		const config = param.config;
-		const locale = param.locale;
-
-		const isOwner = param.isOwner;
-		const isAdmin = param.isAdmin;
-		const isModerator = param.isModerator;
-
-		const reqConfig = command.reqConfig;
-		const data = [];
-
-		if(reqConfig) {
-			let owner = false, mainServer = false, threadServer = false, category = false, logChannel = false;
-			if(config.botOwnerID !== "empty") {
-				owner = await client.users.fetch(config.botOwnerID);
+		if (!isNaN(cooldown) && cooldown > 0) {
+			// Command cooldown.
+			if (!cooldowns.has(command.name)) {
+				cooldowns.set(command.name, new Collection());
 			}
-			if(config.mainServerID !== "empty") {
-				mainServer = await client.guilds.fetch(config.mainServerID);
-			}
-			if(config.threadServerID !== "empty") {
-				threadServer = await client.guilds.fetch(config.threadServerID);
-			}
-			if(threadServer) {
-				category = threadServer.channels.cache.get(config.categoryID);
-				logChannel = threadServer.channels.cache.get(config.logChannelID);
-			}
-			reqConfig.forEach(configName => {
-				switch(configName) {
-				case "ownerID":
-					if(!owner) data.push(`\`${configName}\``);
-					break;
-				case "mainServerID":
-					if(!mainServer) data.push(`\`${configName}\``);
-					break;
-				case "threadServerID":
-					if(!threadServer) data.push(`\`${configName}\``);
-					break;
-				case "categoryID":
-					if(!category) data.push(`\`${configName}\``);
-					break;
-				case "logChannelID":
-					if(!logChannel) data.push(`\`${configName}\``);
-					break;
-				default:
-					break;
+			const now = Date.now();
+			const timestamps = cooldowns.get(command.name);
+			const cooldownAmount = cooldown * 1000;
+			if (timestamps.has(user.id)) {
+				const expirationTime = timestamps.get(user.id) + cooldownAmount;
+				if (now < expirationTime) {
+					// Comment this to disable cooldown message.
+					// User will get "This interaction failed" message instead.
+					/* */
+					const timeLeft = (expirationTime - now) / 1000;
+					await interaction.reply({
+						content: locale.cooldown(timeLeft.toFixed(1)),
+						ephemeral: true
+					});
+					/* */
+					return console.log("> Command still in cooldown.");
 				}
+			}
+			timestamps.set(user.id, now);
+			setTimeout(() => timestamps.delete(user.id), cooldownAmount);
+		}
+
+		const mainServer = client.guilds.cache.get(config.mainServerID);
+		const threadServer = client.guilds.cache.get(config.threadServerID);
+		let operation = interaction.options.getString(locale.operation.name);
+
+		let operationPerm = operation ? command.level[operation] : command.level.default;
+		if (command.name == "reply") operationPerm = interaction.guild ? "Moderator" : "User";
+		// Defining user's permissions.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		const userPerm = {
+			// Default permission value.
+			Owner: user.id === config.ownerID,
+			Admin: false,
+			Moderator: false,
+			User: false,
+		};
+		if (guild && !mainServer && !threadServer) {
+			userPerm.Admin = member.permissions.has("ADMINISTRATOR");
+		}
+		if (guild && (guild.id == config.mainServerID || guild.id == config.threadServerID)) {
+			userPerm.Admin = member.permissions.has("ADMINISTRATOR") || member.roles.cache.get(config.adminRoleID);
+			userPerm.Moderator = userPerm.Admin || member.roles.cache.get(config.modRoleID);
+		}
+		userPerm.User = userPerm.Admin || userPerm.Moderator || !blockList.includes(user.id);
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		// User elimination at maintenance mode.
+		if (config.maintenance == "1" && !userPerm.Owner && !userPerm.Admin) {
+			return await interaction.reply({
+				content: locale.misc.maintenance,
+				ephemeral: true
+			});
+		}
+		// Elimination based on command level.
+		if (!userPerm.Owner && !userPerm[operationPerm]) {
+			return await interaction.reply({
+				content: locale.misc.noPerm,
+				ephemeral: true
 			});
 		}
 
-		const reqConf = locale.reqConfig(data.join("\n"));
-		const noPerm = locale.noPerm;
-		const requiredEmbed = getEmbed.execute(param, "", config.warning_color, reqConf.title, reqConf.description);
-		const noPermEmbed = getEmbed.execute(param, "", config.warning_color, noPerm.title, noPerm.description);
-
-		switch(command.level) {
-		case "Owner" : {
-			if (!isOwner) {
-				console.log("> Missing Permission.");
-				replyChannel.send(noPermEmbed);
-				break;
-			}
+		console.log(`> ${user.tag}[${user.id}] calling "${cmdData.name}" command.`);
+		try {
+			param.timestamp = Date.now();
+			if (!operation) operation = "execute";
+			await command[operation](param, interaction, locale, cmdData);
 		}
-		// eslint-disable-next-line no-fallthrough
-		case "Admin" : {
-			if (!isOwner && !isAdmin) {
-				console.log("> Missing Permission.");
-				replyChannel.send(noPermEmbed);
-				break;
-			}
+		catch (error) {
+			// Catching the error occured when executing the command and send the info to user.
+			await interaction.reply({
+				content: locale.errorMsg(error, config.ownerID),
+				ephemeral: true
+			}).catch(async () => {
+				await channel.send(locale.errorMsg(error, config.ownerID));
+			});
+			console.log(error);
 		}
-		// eslint-disable-next-line no-fallthrough
-		case "Moderator" : {
-			if (!isOwner && !isAdmin && !isModerator) {
-				console.log("> Missing Permission.");
-				replyChannel.send(noPermEmbed);
-				break;
-			}
-		}
-		// eslint-disable-next-line no-fallthrough
-		default : {
-			if (data.length !== 0) {
-				console.log(`> Required config(s): ${data.join(", ")}.`);
-				replyChannel.send(requiredEmbed);
-				break;
-			}
-			else {
-				await command.execute(param, message, msgArgs, replyChannel);
-				break;
-			}
-		}
-		}
+		return console.log(`> Executed for ${Date.now() - param.timestamp} ms`);
 	},
 };

@@ -1,79 +1,125 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "config",
-	aliases: ["configuration", "settings", "cfg"],
-	level: "Admin",
-	guildOnly: true,
-	args: false,
-	reqConfig: false, // Configs needed to run this command.
-	async execute(param, message, args, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	global: false,
+	// Valid command level: "Owner", "Admin", "Moderator", "User".
+	level: {
+		default: "Admin",
+	},
+	usage(locale) {
+		const { commands, operation, target, value } = locale;
+		const cmdName = commands[this.name].name;
+		const data = [
+			`🔹 /${cmdName} \`${operation.name}:${operation.view}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.info}\` \`${target.name}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.set}\` \`${target.name}:${target.description}\` \`${value.name}:${value.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.reset}\` \`${target.name}:${target.all}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.reset}\` \`${target.name}:${target.description}\``,
+		];
+		return data;
+	},
+	getData(SlashCommandBuilder, param, locale) {
+		// Defining command structure.
+		const { config } = param;
+		const { commands, operation, target, value } = locale;
+		const configKeys = Object.keys(config);
+		const separator = new RegExp("^(_Separator)\\s*");
+		const cmdData = commands[this.name];
+		const data = new SlashCommandBuilder()
+			.setName(cmdData.name)
+			.setDescription(cmdData.description)
+			.addStringOption(option => option
+				.setName(operation.name)
+				.setDescription(operation.description)
+				.addChoice(operation.view, "view")
+				.addChoice(operation.info, "info")
+				.addChoice(operation.set, "set")
+				.addChoice(operation.reset, "reset")
+				.setRequired(true)
+			)
+			.addStringOption(option => {
+				option
+					.setName(target.name)
+					.setDescription(target.description)
+					.addChoice(target.all, locale.target.all);
+				configKeys.forEach(key => {
+					if (!separator.test(key)) option.addChoice(target[key], key);
+				});
+				return option;
+			})
+			.addStringOption(option => option
+				.setName(value.name)
+				.setDescription(value.description)
+			);
+		return data;
+	},
+	async view(param, interaction, locale) {
+		// Operation: View.
+		const { config, getEmbed } = param;
+		const configKeys = Object.keys(config);
+		const separator = new RegExp("^(_Separator)\\s*");
+		const data = [];
 
-		const client = param.client;
-		const getEmbed = param.getEmbed;
-		const locale = param.locale;
-		const config = param.config;
-		const configKeys = Object.keys(config);// getting the name of each config (prefix, botOwnerID, etc)
-
-		const firstArg = args.shift();
-
-		if(!firstArg || (firstArg.toLowerCase() !== "info" && firstArg.toLowerCase() !== "i" && firstArg !== "?")) {
-			const botConfig = [];
-			const serverConfig = [];
-			const colorConfig = [];
-			// As separator for server related config and bot config.
-			const maintenanceIndex = configKeys.indexOf("maintenance");
-			// As separator for server related config and embed color config.
-			const info_colorIndex = configKeys.indexOf("info_color");
-
-			for (let i = 0; i < configKeys.length; i++) {
-				const confName = configKeys[i];
-				const confValue = config[confName];
-				if(i <= maintenanceIndex) {
-					botConfig.push(`${confName} : \`${confValue}\``);
-				}
-				else if(i > maintenanceIndex && i < info_colorIndex) {
-					if (confName.match(/role/i)) {
-						serverConfig.push(`${confName} : \`${confValue}\` ~ <@&${confValue}>`);
-					}
-					else if (confName.match(/channel/i)) {
-						serverConfig.push(`${confName} : \`${confValue}\` ~ <#${confValue}>`);
-					}
-					else {
-						serverConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
-					}
-				}
-				else if(i >= info_colorIndex && i < configKeys.length) {
-					colorConfig.push(`${configKeys[i]} : \`${config[configKeys[i]]}\``);
-				}
+		configKeys.forEach(key => {
+			if (separator.test(key)) {
+				data.push(`**[ ${locale.misc[key]} ]**`);
 			}
+			else {
+				data.push(`🔹 ${locale.target[key]} : \`${config[key]}\``);
+			}
+		});
 
-			// fields
-			const configList = locale.configList(config.prefix, botConfig, serverConfig, colorConfig);
-			const fields = [configList.botField, configList.serverField, configList.colorField];
-
-			const configEmbed = param.getEmbed.execute(param, client.user, config.info_color, configList.title, configList.description, fields, "", client.user.displayAvatarURL());
-			return replyChannel.send(configEmbed);
+		const embed = await getEmbed.execute(param, "", config.infoColor, "", data.join("\n"));
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async info(param, interaction, locale) {
+		// Operation: Info.
+		const { config, getEmbed } = param;
+		const configKeys = Object.keys(config);
+		const configName = interaction.options.getString(locale.target.name);
+		if (!configKeys.includes(configName)) {
+			return await interaction.reply({
+				content: locale.target.invalid,
+				ephemeral: true,
+			});
 		}
-		else {
-			const configName = args.shift();
-			if (!configName) {
-				const noArg = locale.noArg(param, this.name);
-				const noArgEmbed = param.getEmbed.execute(param, "", config.warning_color, noArg.title, noArg.description, "", noArg.footer);
-				console.log("> Missing Arguments.");
-				return replyChannel.send(noArgEmbed);
-			}
 
-			const isConfig = await configKeys.includes(configName);
-			if (!isConfig) {
-				const noConfig = locale.noConfig(param, configName);
-				const noConfigEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, noConfig);
-				console.log("> Invalid config name.");
-				return replyChannel.send(noConfigEmbed);
-			}
-
-			const configInfo = locale.configInfo(configName);
-			const configInfoEmbed = await getEmbed.execute(param, "", config.info_color, configInfo.title, configInfo.description);
-			return replyChannel.send(configInfoEmbed);
+		const embed = await getEmbed.execute(param, "", config.infoColor, locale.target[configName], locale.commands[this.name].getInfo(configName));
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async set(param, interaction, locale) {
+		// Operation: Set.
+		const configName = interaction.options.getString(locale.target.name);
+		const value = interaction.options.getString(locale.value.name);
+		// The main set function for this command is separated to make the code easily readable (check "functions/set.js").
+		const output = await param.set.config(param, locale, interaction.user, configName, value);
+		if (configName == "maintenance" || configName == "language") await param.updateActivity.execute(param);
+		return await interaction.reply({
+			content: output,
+		});
+	},
+	async reset(param, interaction, locale) {
+		// Operation: Reset.
+		const configName = interaction.options.getString(locale.target.name);
+		const configKeys = Object.keys(param.config);
+		if (!configKeys.includes(configName) && configName !== locale.target.all) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+			});
 		}
+
+		// The main reset function for this command is separated to enable auto reset when config sync is running.
+		await param.reset.execute(param, configName);
+		const output = locale.commands[this.name].resetSuccess(configName);
+		return await interaction.reply({
+			content: output,
+		});
 	},
 };

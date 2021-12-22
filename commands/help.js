@@ -1,39 +1,76 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "help",
-	aliases: ["h", "?"],
-	level: "User",
-	guildOnly: false,
-	args: false,
-	reqConfig: false, // Configs needed to run this command.
-	async execute(param, message, args, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	global: true,
+	// Valid command level: "Owner", "Admin", "Moderator", "User".
+	level: {
+		default: "User",
+	},
+	usage(locale) {
+		const { commands, target } = locale;
+		const cmdName = commands[this.name].name;
+		const data = [
+			`🔹 /${cmdName} \`${target.name}:${target.description}\``,
+		];
+		return data;
+	},
+	getData(SlashCommandBuilder, param, locale) {
+		// Defining command structure.
+		const { commands, target } = locale;
+		const localeData = commands[this.name];
+		const cmdKeys = Object.keys(commands);
+		const data = new SlashCommandBuilder()
+			.setName(localeData.name)
+			.setDescription(localeData.description)
+			.addStringOption(option => {
+				option
+					.setName(target.name)
+					.setDescription(target.description)
+					.setRequired(true);
+				cmdKeys.forEach(key => option.addChoice(commands[key].name, commands[key].name));
+				return option;
+			});
+		return data;
+	},
+	async execute(param, interaction, locale) {
+		const { client, config, getEmbed, cmdDataList } = param;
+		const helpLocale = locale.commands[this.name];
+		const getTarget = interaction.options.getString(locale.target.name);
+		const command = getTarget ? client.commands.get(getTarget) : false;
+		const cmdData = cmdDataList.find(cmd => cmd.name == interaction.commandName);
+		const cmdLocale = command ? locale.commands[command.name] : false;
+		const usage = command.usage ? command.usage(locale) : false;
+		const data = [];
 
-		const commands = param.client.commands;
-		const config = param.config;
-		const prefix = config.prefix;
-		const getEmbed = param.getEmbed;
-		const locale = param.locale;
-		replyChannel = message.channel;
-
-		const notCmd = locale.notCmd(prefix);
-		const notCmdEmbed = getEmbed.execute(param, "", config.warning_color, notCmd.title, notCmd.description);
-
-		if(!args.length) {
-			const instruction = locale.instruction(prefix);
-			const helpEmbed = getEmbed.execute(param, "", config.info_color, instruction.title, instruction.description);
-			return replyChannel.send(helpEmbed);
+		if (!command) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true,
+			});
 		}
+		const title = cmdLocale.name.replace(/^./, cmdLocale.name[0].toUpperCase());
+		data.push(`${cmdLocale.description}`);
+		if (command.language) data.push(`**${locale.target.language}** : ${cmdData.language}`);
+		if (command.id) data.push(`**${helpLocale.cmdID}** : ${cmdData.id}`);
+		if (command.level) {
+			const temp = [];
+			const keys = Object.keys(command.level).filter(key => key !== "default");
 
-		const name = args[0].toLowerCase();
-		const command = commands.get(name) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(name));
-
-		if(!command) {
-			console.log("> Not a command name or alias.");
-			return replyChannel.send(notCmdEmbed);
+			temp.push(`🔹 ${locale.misc.default} : ${locale.misc[command.level.default]}`);
+			if (keys.length > 0) {
+				keys.forEach(key => {
+					temp.push(`🔹 ${locale.operation[key]} : ${locale.misc[command.level[key]]}`);
+				});
+			}
+			data.push(`**${helpLocale.cmdLevel}**\n${temp.join("\n")}`);
 		}
+		if (usage) data.push(`**${helpLocale.cmdUsage}** :\n${usage.join("\n")}`);
 
-		const cmdInfo = locale.cmdInfo(prefix, command);
-		const cmdInfoEmbed = getEmbed.execute(param, "", config.info_color, cmdInfo.title, cmdInfo.description);
-		return replyChannel.send(cmdInfoEmbed);
+		const embed = await getEmbed.execute(param, "", config.infoColor, title, data.join("\n"));
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
 	},
 };

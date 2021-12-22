@@ -1,232 +1,249 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "tag",
-	aliases: ["t"],
-	level: "Moderator",
-	guildOnly: true,
-	args: true,
-	reqConfig: ["mainServerID"], // Configs needed to run this command.
-	async execute(param, message, args, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
-
-		const client = param.client;
-		const config = param.config;
-		const db = param.db;
-		const tagPrefix = param.dbPrefix.tag;
-		const threadPrefix = param.dbPrefix.thread;
-		const getEmbed = param.getEmbed;
-		const locale = param.locale;
-
-		const author = message.author;
-		const channel = message.channel;
-		const tagCollection = await db.list(tagPrefix);
-		const tagList = tagCollection.map(tag => `\`${tag.slice(tagPrefix.length)}\``).join(", ") || locale.emptyList;
-
-		const firstArg = args.shift().toLowerCase();
-		const shiftedTagName = args.join(" ").toLowerCase();
-		const tagName = `${firstArg} ${shiftedTagName}`;
-		const tagCmd = locale.tagCmd(shiftedTagName);
-		const cancelMsg = tagCmd.cancelMsg;
-		const timeoutMsg = tagCmd.timeoutMsg;
-		const tagResponse = tagCmd.tagResponse;
-
-		const noTagEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, tagCmd.noTag);
-		const responseEmbed = getEmbed.execute(param, "", config.info_color, tagResponse.title, tagResponse.description, "", tagResponse.footer);
-
-		if(locale.list.includes(firstArg)) {
-			const tagListEmbed = getEmbed.execute(param, "", config.info_color, tagCmd.tagList, tagList);
-			return replyChannel.send(tagListEmbed);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	global: true,
+	// Valid command level: "Owner", "Admin", "Moderator", "User".
+	level: {
+		default: "Moderator",
+		view: "User",
+		list: "User",
+	},
+	usage(locale) {
+		const { commands, operation, target, content, show, page, misc } = locale;
+		const cmdName = commands[this.name].name;
+		const data = [
+			`🔹 /${cmdName} \`${operation.name}:${operation.view}\` \`${target.name}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.view}\` \`${target.name}:${target.description}\` \`${show.name}:${misc.true}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.sent}\` \`${target.name}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.info}\` \`${target.name}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.list}\` \`${page.name}:${page.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.add}\` \`${target.name}:${target.description}\` \`${content.name}:${content.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.set}\` \`${target.name}:${target.description}\` \`${content.name}:${content.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.remove}\` \`${target.name}:${target.description}\``,
+		];
+		return data;
+	},
+	getData(SlashCommandBuilder, param, locale) {
+		// Defining command structure.
+		const { commands, operation, target, content, show, page, misc } = locale;
+		const localeData = commands[this.name];
+		const data = new SlashCommandBuilder()
+			.setName(localeData.name)
+			.setDescription(localeData.description)
+			.addStringOption(option => option
+				.setName(operation.name)
+				.setDescription(operation.description)
+				.addChoice(operation.view, "view")
+				.addChoice(operation.sent, "sent")
+				.addChoice(operation.info, "info")
+				.addChoice(operation.list, "list")
+				.addChoice(operation.add, "add")
+				.addChoice(operation.set, "set")
+				.addChoice(operation.remove, "remove")
+				.setRequired(true)
+			)
+			.addStringOption(option => option
+				.setName(target.name)
+				.setDescription(target.description)
+			)
+			.addStringOption(option => option
+				.setName(content.name)
+				.setDescription(content.description)
+			)
+			.addStringOption(option => option
+				.setName(show.name)
+				.setDescription(show.description)
+				.addChoice(misc.true, "true")
+			)
+			.addIntegerOption(option => option
+				.setName(page.name)
+				.setDescription(page.description)
+			);
+		return data;
+	},
+	async view(param, interaction, locale) {
+		// Operation: view.
+		const tagName = interaction.options.getString(locale.target.name);
+		const show = interaction.options.getString(locale.show.name);
+		const content = param.tagList[tagName];
+		if (!content) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true,
+			});
 		}
-		else if(locale.add.includes(firstArg)) {
-			const duplicatedEmbed = getEmbed.execute(param, "", config.error_color, tagCmd.duplicate.title, tagCmd.duplicate.description);
-			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, tagCmd.added);
 
-			const dbKey = tagPrefix + shiftedTagName;
-			const isDuplicated = await db.get(dbKey);
-			if(isDuplicated) {
-				console.log("> Duplicated tag name.");
-				return replyChannel.send(duplicatedEmbed);
-			}
-			else {
-				const filter = msg => msg.author.id == message.author.id;
+		return await interaction.reply({
+			content: content,
+			ephemeral: !show,
+		});
+	},
+	async sent(param, interaction, locale) {
+		// Operation: sent.
+		const { client, config, getEmbed, tagList, threadList } = param;
+		const { channel } = interaction;
+		const tagName = interaction.options.getString(locale.target.name);
+		const content = tagList[tagName];
+		if (!content) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true,
+			});
+		}
 
-				replyChannel.send(responseEmbed).then(() => {
-					message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
-						.then(async collected => {
-							if (collected.first().content.toLowerCase() == tagCmd.cancelCmd) {
-								console.log("> Command canceled.");
-								return replyChannel.send(cancelMsg);
-							}
-							else {
-								const content = collected.first().content;
-								db.set(dbKey, content).then(() => {
-									console.log(`> Added [${shiftedTagName}] tag.`);
-									return replyChannel.send(successEmbed);
-								});
-							}
-						})
-						.catch(async () => {
-							console.log("> Timeout.");
-							return replyChannel.send(timeoutMsg);
-						});
+		const thread = threadList.find(key => key.channelID === channel.id);
+		if (!thread) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true
+			});
+		}
+
+		const mainServer = client.guilds.cache.get(config.mainServerID);
+		const user = await client.users.fetch(thread.userID);
+		const userLocale = param.locale[thread.language];
+		const userEmbed = await getEmbed.execute(param, "", config.receivedColor, userLocale.misc.msgReceived, content, "", mainServer);
+		try {
+			await user.send({ embeds: [userEmbed] });
+		}
+		catch (error) {
+			if (error.message === "Cannot send messages to this user") {
+				return await interaction.reply({
+					content: locale.commands[this.name].dmDisabled,
+					ephemeral: true
 				});
 			}
+			return error;
 		}
-		else if(locale.del.includes(firstArg)) {
-			const dbKey = tagPrefix + shiftedTagName;
-			const isTag = await db.get(dbKey);
 
-			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, tagCmd.deleteTag);
-
-			if(!isTag) {
-				console.log("> Tag not found.");
-				return replyChannel.send(noTagEmbed);
-			}
-			else {
-				db.delete(dbKey).then(() => {
-					console.log(`> Deleted ${shiftedTagName}.`);
-					return replyChannel.send(successEmbed);
-				});
-			}
+		const channelEmbed = await getEmbed.execute(param, interaction.user, config.sentColor, userLocale.misc.msgSent, content, "", user);
+		return await interaction.reply({
+			embeds: [channelEmbed],
+		});
+	},
+	async info(param, interaction, locale) {
+		// Operation: Info.
+		const { DB, config, getEmbed } = param;
+		const tagName = interaction.options.getString(locale.target.name);
+		const tagData = await DB.tag.get(tagName);
+		if (!tagData) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true,
+			});
 		}
-		else if(locale.edit.includes(firstArg)) {
-			const dbKey = tagPrefix + shiftedTagName;
-			const isTag = await db.get(dbKey);
 
-			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, tagCmd.editTag);
+		const { modID, content } = tagData;
+		const data = [
+			`🔹 ${locale.misc.Moderator}: <@${modID}> [\`${modID}\`]`,
+			`\`\`\`${content}\`\`\``,
+		];
+		const embed = await getEmbed.execute(param, "", config.infoColor, tagName, data.join("\n"));
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async list(param, interaction, locale) {
+		// Operation: List.
+		const { config, getEmbed, tagList } = param;
+		let tempList = Object.keys(tagList);
+		let selectedPage = interaction.options.getInteger(locale.page.name);
+		const totalPage = Math.ceil(tempList.length / 30);
 
-			if(!isTag) {
-				console.log("> Tag not found.");
-				return replyChannel.send(noTagEmbed);
-			}
-			else {
-				const filter = msg => msg.author.id == message.author.id;
-
-				replyChannel.send(responseEmbed).then(() => {
-					message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
-						.then(async collected => {
-							if (collected.first().content.toLowerCase() == tagCmd.cancelCmd) {
-								return replyChannel.send(cancelMsg);
-							}
-							else {
-								const content = collected.first().content;
-								db.set(dbKey, content).then(() => {
-									console.log(`> Edited [${shiftedTagName}] tag.`);
-									return replyChannel.send(successEmbed);
-								});
-							}
-						})
-						.catch(async () => {
-							console.log("> Timeout.");
-							return replyChannel.send(timeoutMsg);
-						});
-				});
-			}
-		}
-		else if(locale.info.includes(firstArg)) {
-			const dbKey = tagPrefix + shiftedTagName;
-			const isTag = await db.get(dbKey);
-
-			if(!isTag) {
-				console.log("> Tag not found.");
-				return replyChannel.send(noTagEmbed);
-			}
-			else {
-				const data = [];
-				data.push(`**${tagCmd.tagInfo.name}** : ${shiftedTagName}`);
-				data.push(`**${tagCmd.tagInfo.response}** : \`\`\`${isTag}\`\`\``);
-
-				const tagInfoEmbed = getEmbed.execute(param, "", config.info_color, tagCmd.tagInfo.title, data.join("\n"));
-				return replyChannel.send(tagInfoEmbed);
-			}
+		if (tempList.length == 0) {
+			selectedPage = 0;
+			tempList = locale.page.emptyList;
 		}
 		else {
-			const mainServerID = config.mainServerID;
-			const mainServer = await client.guilds.fetch(mainServerID);
-			const dbKey = tagPrefix + tagName;
+			if (!selectedPage || selectedPage < 1) selectedPage = 1;
+			if (selectedPage > totalPage) selectedPage = totalPage;
 
-			const isTag = await db.get(dbKey);
-			const userID = channel.name.split("-").pop();
-			const isThread = await db.get(threadPrefix + userID);
-
-			const noDMEmbed = getEmbed.execute(param, "", config.error_color, locale.noDM.title, locale.noDM.description);
-
-			if(!isTag) {
-			// can't find tag
-				return console.log("> Tag not found.");
-			}
-			else if(!isThread) {
-			// no user thread
-				console.log("> Not a thread channel.");
-				const noThreadEmbed = getEmbed.execute(param, author, config.info_color, "", isTag);
-				return message.channel.send(noThreadEmbed).then(message.delete());
-			}
-			else {
-			// There's user thread and tag
-				console.log("> Thread channel.");
-				const checkIsBlocked = await param.isBlocked.execute(param, userID);
-				const checkIsMember = await mainServer.members.fetch(author.id);
-				const notMember = locale.notMember(mainServer.name);
-				const blockedEmbed = getEmbed.execute(param, "", config.error_color, locale.blocked.title, locale.blocked.admin);
-				const notMemberEmbed = getEmbed.execute(param, "", config.error_color, notMember.title, notMember.admin);
-
-				const filter = (reaction, user) => {
-					return user.id === message.author.id && (reaction.emoji.name == "✅" || reaction.emoji.name == "❌");
-				};
-
-				const waitingEmbed = getEmbed.execute(param, author, config.info_color, "", isTag + tagCmd.react, "", tagResponse.footer);
-
-				const botMsg = await replyChannel.send(waitingEmbed);
-				await botMsg.react("✅");
-				await botMsg.react("❌");
-
-				botMsg.awaitReactions(filter, { max: 1, time: 30000, errors: ["time"] })
-					.then(async collected => {
-						if (collected.first().emoji.name == "❌") {
-						// user react with ❌
-							await botMsg.reactions.removeAll();
-							console.log("> Command canceled.");
-							return replyChannel.send(cancelMsg);
-						}
-						else if (!checkIsMember) {
-						// user react with ✅
-						// the user that has thread not in main server
-							await botMsg.reactions.removeAll();
-							console.log("> User isn't a member.");
-							return replyChannel.send(notMemberEmbed);
-						}
-						else if(checkIsBlocked) {
-						// the user that has thread are blocked
-							await botMsg.reactions.removeAll();
-							console.log("> User are blocked.");
-							return replyChannel.send(blockedEmbed);
-						}
-						else {
-						// user are member and not blocked
-							const getMember = await mainServer.members.fetch(userID);
-							const getUser = getMember.user;
-							const userDMEmbed = getEmbed.execute(param, "", config.sent_color, locale.msgReceived, isTag, "", mainServer);
-							const threadChannelEmbed = getEmbed.execute(param, author, config.sent_color, tagCmd.tagSent, isTag, "", getUser);
-
-							try{
-								await getUser.send(userDMEmbed);
-							}
-							catch (error) {
-								if(error.message == "Cannot send messages to this user") {
-									await botMsg.reactions.removeAll();
-									console.log("> Recipient's DM are disabled.");
-									return channel.send(noDMEmbed);
-								}
-							}
-							await channel.send(threadChannelEmbed);
-							return message.delete().then(botMsg.delete());
-						}
-					})
-					.catch(async () => {
-						await botMsg.reactions.removeAll();
-						console.log("> Timeout.");
-						return replyChannel.send(timeoutMsg);
-					});
-			}
+			const firstIndex = Math.abs((selectedPage - 1) * 30);
+			tempList = tempList.slice(firstIndex, firstIndex + 30);
+			tempList = tempList.map(key => `\`${key}\``).join(", ");
 		}
+
+		const embed = await getEmbed.execute(param, "", config.infoColor, locale.commands[this.name].listTitle, tempList, "", `${locale.page.name} ${selectedPage} / ${totalPage}`);
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async add(param, interaction, locale) {
+		// Operation: Add.
+		const { DB, tagList } = param;
+		const tagName = interaction.options.getString(locale.target.name);
+		const isTag = tagList[tagName];
+		if (isTag) {
+			return await interaction.reply({
+				content: locale.target.duplicate,
+				ephemeral: true,
+			});
+		}
+
+		const content = interaction.options.getString(locale.content.name);
+		if (!content) {
+			return await interaction.reply({
+				content: locale.content.invalid,
+				ephemeral: true,
+			});
+		}
+
+		const modID = interaction.user.id;
+		await DB.tag.set(tagName, modID, content).then(async () => {
+			tagList[tagName] = content;
+			return await interaction.reply({
+				content: locale.commands[this.name].addSuccess(tagName),
+			});
+		});
+	},
+	async set(param, interaction, locale) {
+		// Operation: Set.
+		const { DB, tagList } = param;
+		const tagName = interaction.options.getString(locale.target.name);
+		const isTag = tagList[tagName];
+		if (!isTag) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true,
+			});
+		}
+
+		const content = interaction.options.getString(locale.content.name);
+		if (!content) {
+			return await interaction.reply({
+				content: locale.content.invalid,
+				ephemeral: true,
+			});
+		}
+
+		const modID = interaction.user.id;
+		await DB.tag.set(tagName, modID, content).then(async () => {
+			tagList[tagName] = content;
+			return await interaction.reply({
+				content: locale.commands[this.name].setSuccess(tagName),
+			});
+		});
+	},
+	async remove(param, interaction, locale) {
+		// Operation: Remove.
+		const { DB, tagList } = param;
+		const tagName = interaction.options.getString(locale.target.name);
+		const isTag = tagList[tagName];
+		if (!isTag) {
+			return await interaction.reply({
+				content: locale.target.notFound,
+				ephemeral: true,
+			});
+		}
+
+		await DB.tag.del(tagName).then(async () => {
+			delete tagList[tagName];
+			return await interaction.reply({
+				content: locale.commands[this.name].removeSuccess(tagName),
+			});
+		});
 	},
 };

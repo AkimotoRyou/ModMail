@@ -1,97 +1,189 @@
 module.exports = {
+	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "block",
-	aliases: ["b"],
-	level: "Moderator",
-	guildOnly: true,
-	args: true,
-	reqConfig: false, // Configs needed to run this command.
-	async execute(param, message, args, replyChannel) {
-		console.log(`~~ ${this.name.toUpperCase()} ~~`);
-
-		const config = param.config;
-		const db = param.db;
-		const blockPrefix = param.dbPrefix.block;
-		const getEmbed = param.getEmbed;
-		const locale = param.locale;
-
-		const author = message.author;
-		const modID = author.id;
-		const firstArg = args.shift().toLowerCase();
-		const infoArg = locale.info;
-		const listArg = locale.list;
-
-		if(infoArg.includes(firstArg)) {
-			const userID = args.shift();
-			const notBlocked = locale.notBlocked(userID);
-			const notFoundEmbed = getEmbed.execute(param, "", config.error_color, locale.notFound, notBlocked);
-			const blockData = await db.get(blockPrefix + userID);
-
-			if(blockData) {
-				const temp = blockData.split("-");
-				const blockModID = temp.shift();
-				const reason = temp.join("-");
-				const data = [];
-				data.push(`**${locale.user}** : <@${userID}> [\`${userID}\`]`);
-				data.push(`**${locale.mod}** : <@${modID}> [\`${blockModID}\`]`);
-				data.push(`**${locale.reason}** : ${reason}`);
-				const infoEmbed = getEmbed.execute(param, "", config.info_color, locale.blockInfo, data.join("\n"));
-				return replyChannel.send(infoEmbed);
-			}
-			else {
-				console.log("> Data not found.");
-				return replyChannel.send(notFoundEmbed);
-			}
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	global: false,
+	// Valid command level: "Owner", "Admin", "Moderator", "User".
+	level: {
+		default: "Moderator",
+	},
+	usage(locale) {
+		// Return command usages;
+		const { commands, operation, target, reason, page } = locale;
+		const cmdName = commands[this.name].name;
+		const data = [
+			`🔹 /${cmdName} \`${operation.name}:${operation.info}\` \`${target.name}:${target.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.list}\` \`${page.name}:${page.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.add}\` \`${target.name}:${target.description}\` \`${reason.name}:${reason.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.set}\` \`${target.name}:${target.description}\` \`${reason.name}:${reason.description}\``,
+			`🔹 /${cmdName} \`${operation.name}:${operation.remove}\` \`${target.name}:${target.description}\``,
+		];
+		return data;
+	},
+	getData(SlashCommandBuilder, param, locale) {
+		// Defining command structure.
+		const { commands, operation, target, reason, page } = locale;
+		const cmdData = commands[this.name];
+		const data = new SlashCommandBuilder()
+			.setName(cmdData.name)
+			.setDescription(cmdData.description)
+			.addStringOption(option => option
+				.setName(operation.name)
+				.setDescription(operation.description)
+				.addChoice(operation.info, "info")
+				.addChoice(operation.list, "list")
+				.addChoice(operation.add, "add")
+				.addChoice(operation.set, "set")
+				.addChoice(operation.remove, "remove")
+				.setRequired(true)
+			)
+			.addStringOption(option => option
+				.setName(target.name)
+				.setDescription(target.description)
+			)
+			.addStringOption(option => option
+				.setName(reason.name)
+				.setDescription(reason.description)
+			)
+			.addIntegerOption(option => option
+				.setName(page.name)
+				.setDescription(page.description)
+			);
+		return data;
+	},
+	async info(param, interaction, locale) {
+		// Operation: Info.
+		const { DB, getEmbed, config } = param;
+		const { target, misc } = locale;
+		const userID = interaction.options.getString(target.name);
+		const blockData = await DB.block.get(userID);
+		if (!blockData) {
+			// Can't find block data, return notFound.
+			return await interaction.reply({
+				content: target.notFound,
+				ephemeral: true,
+			});
 		}
-		else if(listArg.includes(firstArg)) {
-			let pageNumber = args.shift();
 
-			const blocklist = await db.list(blockPrefix);
-			let pages = Math.floor(blocklist.length / 20);
-			if (blocklist.length % 20 != 0) {
-			// add 1 number of pages if residual quotient is not 0 (15%10=5 -> 5 > 0)
-				pages += 1;
-			}
-			if (blocklist.length == 0) {
-				pageNumber = 0;
-			}
-			else if(!pageNumber || isNaN(pageNumber) || pageNumber <= 0) {
-			// user didn't gave input or input is not a number or input is below or same as 0
-				pageNumber = 1;
-			}
-			else if(pageNumber > pages) {
-			// input is higher than the number of pages
-				pageNumber = pages;
-			}
+		const { modID, reason } = blockData;
+		const data = [
+			`🔹 ${misc.User}: <@${userID}> [\`${userID}\`]`,
+			`🔹 ${misc.Moderator}: <@${modID}> [\`${modID}\`]`,
+			`🔹 ${misc.reason}: ${reason}`,
+		];
+		const embed = await getEmbed.execute(param, "", config.infoColor, locale.commands[this.name].infoTitle, data.join("\n"));
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async list(param, interaction, locale) {
+		// Operation: List.
+		const { config, getEmbed, blockList } = param;
+		const { page, commands } = locale;
+		let selectedPage = interaction.options.getInteger(page.name);
+		const totalPage = Math.ceil(blockList.length / 20);
+		let tempList = blockList;
 
-			const pagedList = locale.pagedList(pages, pageNumber);
-			const listArray = blocklist.map(block =>`🔸 <@${block.slice(blockPrefix.length)}> (\`${block.slice(blockPrefix.length)}\`)`);
-			const firstIndex = Math.abs((pageNumber - 1) * 20);
-			const listString = listArray.slice(firstIndex, firstIndex + 20).join("\n") || `\`${locale.emptyList}\``;
-
-			const listEmbed = getEmbed.execute(param, "", config.info_color, pagedList.blockList, listString, "", pagedList.footer);
-			return replyChannel.send(listEmbed);
+		if (blockList.length == 0) {
+			selectedPage = 0;
+			tempList = page.emptyList;
 		}
 		else {
-			const userID = firstArg;
-			const reason = args.join(" ") || locale.empty;
-			const blockDuplicate = locale.blockDuplicate(userID);
-			const blockSuccess = locale.blockSuccess(userID);
+			if (!selectedPage || selectedPage < 1) selectedPage = 1;
+			if (selectedPage > totalPage) selectedPage = totalPage;
 
-			const duplicatedEmbed = getEmbed.execute(param, "", config.error_color, blockDuplicate.title, blockDuplicate.description);
-			const successEmbed = getEmbed.execute(param, "", config.info_color, locale.success, blockSuccess);
-
-			const dbKey = blockPrefix + userID;
-			const isBlocked = await db.get(dbKey);
-			if(isBlocked) {
-				console.log(`> User [${userID}] is already blocked.`);
-				return replyChannel.send(duplicatedEmbed);
-			}
-			else {
-				db.set(dbKey, `${modID}-${reason}`).then(() => {
-					console.log(`> Blocked [${userID}].`);
-					return replyChannel.send(successEmbed);
-				});
-			}
+			const firstIndex = Math.abs((selectedPage - 1) * 20);
+			tempList = tempList.slice(firstIndex, firstIndex + 20);
+			tempList = tempList.map(key => `🔸 <@${key}> [\`${key}\`]`).join("\n");
 		}
+
+		const footer = `${page.name.replace(/^./, page.name[0].toUpperCase())} ${selectedPage} / ${totalPage}`;
+		const embed = await getEmbed.execute(param, "", config.infoColor, commands.block.listTitle, tempList, "", footer);
+		return await interaction.reply({
+			embeds: [embed],
+			ephemeral: true,
+		});
+	},
+	async add(param, interaction, locale) {
+		// Operation: Add.
+		const { DB, blockList } = param;
+		const { commands, target } = locale;
+		const userID = interaction.options.getString(target.name);
+		const isBlocked = blockList.includes(userID);
+		if (isBlocked) {
+			return await interaction.reply({
+				content: target.duplicate,
+				ephemeral: true,
+			});
+		}
+
+		const reason = interaction.options.getString(locale.reason.name);
+		if (!reason) {
+			return await interaction.reply({
+				content: locale.reason.invalid,
+				ephemeral: true,
+			});
+		}
+
+		const modID = interaction.user.id;
+		await DB.block.set(userID, modID, reason).then(async () => {
+			blockList.push(userID);
+			return await interaction.reply({
+				content: commands.block.addSuccess(userID),
+			});
+		});
+	},
+	async set(param, interaction, locale) {
+		// Operation: Set.
+		const { DB, blockList } = param;
+		const { commands, target } = locale;
+		const userID = interaction.options.getString(target.name);
+		const isBlocked = blockList.includes(userID);
+		if (!isBlocked) {
+			return await interaction.reply({
+				content: target.notFound,
+				ephemeral: true,
+			});
+		}
+
+		const reason = interaction.options.getString(locale.reason.name);
+		if (!reason) {
+			return await interaction.reply({
+				content: locale.reason.invalid,
+				ephemeral: true,
+			});
+		}
+
+		const modID = interaction.user.id;
+		await DB.block.add(userID, modID, reason).then(async () => {
+			blockList.push(userID);
+			return await interaction.reply({
+				content: commands.block.addSuccess(userID),
+			});
+		});
+	},
+	async remove(param, interaction, locale) {
+		// Operation: Remove.
+		const { DB, blockList } = param;
+		const { commands, target } = locale;
+		const userID = interaction.options.getString(target.name);
+		const isBlocked = blockList.includes(userID);
+		if (!isBlocked) {
+			return await interaction.reply({
+				content: target.notFound,
+				ephemeral: true,
+			});
+		}
+
+		await DB.block.del(userID).then(async () => {
+			const index = blockList.indexOf(userID);
+			if (index > -1) {
+				blockList.splice(index, 1);
+			}
+			return await interaction.reply({
+				content: commands.block.removeSuccess(userID),
+			});
+		});
 	},
 };
