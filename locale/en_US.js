@@ -101,7 +101,7 @@ module.exports = {
 					configData.push("**Requirements** :");
 					configData.push("🔹 Value must be a valid [role id](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).");
 					configData.push("🔹 Any role at thread server including `@here` and `@everyone`.");
-					configData.push("🔹 Value can be a hypen '-' character (no one mentioned).");
+					configData.push("🔹 Value can be a hyphen '-' character (no one mentioned).");
 					configData.push("**Note** : Go to `Server Settings` => `Roles` => `More` => `Copy ID`");
 					break;
 				case "infoColor":
@@ -133,10 +133,10 @@ module.exports = {
 			maxThread: "`Maximum active thread reached, please wait until some thread are closed.`",
 			duplicate: "`You already have an active thread.`",
 			dmDisabled(title) {
-				return `\`Succesfully create "${title}" thread.\nPlease enable Direct Message to continue.\``;
+				return `\`Successfully create "${title}" thread.\nPlease enable Direct Message to continue.\``;
 			},
 			newSuccess(title) {
-				return `\`Succesfully create "${title}" thread.\``;
+				return `\`Successfully create "${title}" thread.\``;
 			},
 			newThread(locale, threadTitle) {
 				return {
@@ -175,13 +175,13 @@ module.exports = {
 			description: "Show or modify saved response.",
 			listTitle: "Available Tags",
 			addSuccess(tagName) {
-				return `\`Succesfully add "${tagName}" to tag list.\``;
+				return `\`Successfully add "${tagName}" to tag list.\``;
 			},
 			setSuccess(tagName) {
-				return `\`Succesfully change "${tagName}" content.\``;
+				return `\`Successfully change "${tagName}" content.\``;
 			},
 			removeSuccess(tagName) {
-				return `\`Succesfully remove "${tagName}" from tag list.\``;
+				return `\`Successfully remove "${tagName}" from tag list.\``;
 			}
 		},
 		thread: {
@@ -191,10 +191,10 @@ module.exports = {
 			listTitle: "Active Threads",
 			activeThread: "`That's an active thread channel.`",
 			dmDisabled(userID, channelID) {
-				return `\`Succesfully bind "${userID}" thread to "${channelID}" channel.\nCannot send messages to this user.\``;
+				return `\`Successfully bind "${userID}" thread to "${channelID}" channel.\nCannot send messages to this user.\``;
 			},
 			bindSuccess(userID, channelID) {
-				return `\`Succesfully bind "${userID}" thread to "${channelID}" channel.\``;
+				return `\`Successfully bind "${userID}" thread to "${channelID}" channel.\``;
 			},
 		}
 	},
@@ -219,7 +219,7 @@ module.exports = {
 	},
 	errorMsg(error, ownerID) {
 		const output = [
-			`An error occured, please contact bot owner <@${ownerID}>.`,
+			`An error occurred, please contact bot owner <@${ownerID}>.`,
 			`🔸 Name: \`${error.name}\``,
 			`🔸 Message: \`${error.message}\``,
 		];
@@ -240,7 +240,7 @@ module.exports = {
 		bindTitle: "Thread Bind",
 		msgSent: "Message Sent",
 		msgReceived: "Message Received",
-		deploySuccess: "`Succesfully registered application commands.`",
+		deploySuccess: "`Successfully registered application commands.`",
 		maintenance: "`Maintenance mode enabled, command disabled.`",
 		noPerm: "`You don't have permission to execute this command.`",
 		unknownError: "`An error has occured.`",
