@@ -7,7 +7,7 @@
 		"start": "node index.js"
 	},
 	"dependencies": {
-		"@discordjs/rest": "^0.1.0-canary.0",
+		"@discordjs/rest": "^0.2.0-canary.0",
 		"@replit/database": "^2.0.1",
 		"discord-api-types": "^0.25.2",
 		"discord.js": "^13.3.1",
