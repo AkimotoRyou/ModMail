@@ -49,7 +49,7 @@ module.exports = {
 
 		if (!thread) {
 			return await interaction.reply({
-				content: locale.target.notFound,
+				content: locale.misc.noThread,
 				ephemeral: true
 			});
 		}
@@ -74,7 +74,10 @@ module.exports = {
 
 		const mod = anon ? "" : interaction.user;
 		const userEmbed = await getEmbed.execute(param, mod, config.closeColor, cmdData.closeTitle, embedData.join("\n"), "", mainServer);
-		await user.send({ embeds: [userEmbed] });
+		await user.send({ embeds: [userEmbed] }).catch(error => {
+			if (error.message === "Cannot send messages to this user") return console.log(`> ${error.message}`);
+			return error;
+		});
 
 		embedData.push(`🔹 ${userLocale.note.name.replace(/^./, userLocale.note.name[0].toUpperCase())} : ${note}`);
 		const logEmbed = await getEmbed.execute(param, interaction.user, config.closeColor, cmdData.closeTitle, embedData.join("\n"), "", user);

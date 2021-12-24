@@ -172,7 +172,6 @@ module.exports = {
 			name: "",
 			description: ".",
 			contentDescription: ".",
-			tagDescription: ".",
 			dmDisabled: "`.`",
 		},
 		tag: {
@@ -245,6 +244,8 @@ module.exports = {
 		bindTitle: "",
 		msgSent: "",
 		msgReceived: "",
+		noThread: "`.`",
+		noChannel: "`.`",
 		deploySuccess: "`.`",
 		maintenance: "`.`",
 		noPerm: "`.`",

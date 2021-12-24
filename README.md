@@ -43,13 +43,13 @@ This is a complete rewrite of previous version. This version of the bot use repl
 6. After the npm installation complete without error, run `node index.js` command from the terminal.
 #### V. Setting up the bot
 1. Prepare the following stuff before proceed:
-  - **Main Server** : Server that are moderated by moderator. The bot need to be inside the server too.
-  - **Thread Server** : Server where thread channels will be created. The bot need to be inside the server too.
-  - **Category Channel** : Category channel that will hold thread channels. Need to be inside Thread Server.
-  - **Log Channel** : Channel where thread logs will be sent. Need to be inside Thread Server.
-  - **Admin Role** : Role that will have administrator permission level. Need to be inside Thread Server.
-  - **Moderator Role** : Role that will have moderator permission level. Need to be inside Thread Server.
-  - **Mentioned Role** : The role that will be mentioned on new thread. Need to be inside Thread Server.
+   - **Main Server** : Server that are moderated by moderator. The bot need to be inside the server too.
+   - **Thread Server** : Server where thread channels will be created. The bot need to be inside the server too.
+   - **Category Channel** : Category channel that will hold thread channels. Need to be inside Thread Server.
+   - **Log Channel** : Channel where thread logs will be sent. Need to be inside Thread Server.
+   - **Admin Role** : Role that will have administrator permission level. Need to be inside Thread Server.
+   - **Moderator Role** : Role that will have moderator permission level. Need to be inside Thread Server.
+   - **Mentioned Role** : The role that will be mentioned on new thread. Need to be inside Thread Server.
 2. Mention the bot followed by `setup` message to start bot setup and reply to the bot message to proceed. e.g. `@ModMail setup`
 #### VI. Setting up UptimeRobot
 > If you have replit [Hacker](https://replit.com/site/pricing), just make your replit project to [always on](https://docs.replit.com/hosting/enabling-always-on) and ignore this part of instruction.

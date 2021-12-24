@@ -48,14 +48,19 @@ module.exports = {
 
 		if (!thread) {
 			return await interaction.reply({
-				content: locale.target.notFound,
+				content: locale.misc.noThread,
+				ephemeral: true
+			});
+		}
+		const channel = guild ? interaction.channel : await client.channels.fetch(thread.channelID);
+		if (!channel) {
+			return await interaction.reply({
+				content: locale.misc.noChannel,
 				ephemeral: true
 			});
 		}
 
 		const mainServer = client.guilds.cache.get(config.mainServerID);
-		const threadServer = client.guilds.cache.get(config.threadServerID);
-		const channel = guild ? interaction.channel : await threadServer.channels.fetch(thread.channelID);
 		const user = await client.users.fetch(thread.userID);
 		const userLocale = param.locale[thread.language];
 

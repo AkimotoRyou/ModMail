@@ -146,7 +146,8 @@ module.exports = {
 		else {
 			// Target user have an active thread, bind it to target channel.
 			const { language, title } = thread;
-			await DB.thread.set(userID, channel.id, language, title);
+			const setLang = param.locale[language] ? language : config.language ;
+			await DB.thread.set(userID, channel.id, setLang, title);
 			thread.channelID = channel.id;
 			const channelName = `${language}-${user.tag.replace(/[^0-9a-z]/gi, "")}`;
 			await channel.setName(channelName);

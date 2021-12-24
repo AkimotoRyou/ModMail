@@ -167,7 +167,6 @@ module.exports = {
 			name: "reply",
 			description: "Reply an active thread.",
 			contentDescription: "Reply with message.",
-			tagDescription: "Reply with saved response.",
 			dmDisabled: "`User disabled their Direct Message.`",
 		},
 		tag: {
@@ -240,6 +239,8 @@ module.exports = {
 		bindTitle: "Thread Bind",
 		msgSent: "Message Sent",
 		msgReceived: "Message Received",
+		noThread: "`No active thread found.`",
+		noChannel: "`Can't find your thread channel.`",
 		deploySuccess: "`Successfully registered application commands.`",
 		maintenance: "`Maintenance mode enabled, command disabled.`",
 		noPerm: "`You don't have permission to execute this command.`",
