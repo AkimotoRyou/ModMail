@@ -52,8 +52,7 @@ module.exports = {
 		}
 
 		const channelName = `${locale.name.toUpperCase()}-${user.tag.replace(/[^0-9a-z]/gi, "")}`;
-		const channel = await threadServer.channels.create(channelName, { type: "GUILD_TEXT" });
-		await channel.setParent(config.categoryID).then(chnl => chnl.lockPermissions());
+		const channel = await threadServer.channels.create(channelName, { type: "GUILD_TEXT", parent: config.categoryID });
 		const output = await create.thread(param, locale, user, channel, title);
 		if (output == "dmDisabled") {
 			return await interaction.reply({

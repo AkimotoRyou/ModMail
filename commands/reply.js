@@ -42,7 +42,7 @@ module.exports = {
 		const { guild } = interaction;
 		const content = interaction.options.getString(locale.content.name);
 		const anon = interaction.options.getString(locale.anon.name);
-		let thread;
+		let thread, channel;
 		if (interaction.guild) thread = threadList.find(key => key.channelID === interaction.channel.id);
 		else thread = threadList.find(key => key.userID === interaction.user.id);
 
@@ -52,8 +52,10 @@ module.exports = {
 				ephemeral: true
 			});
 		}
-		const channel = guild ? interaction.channel : await client.channels.fetch(thread.channelID);
-		if (!channel) {
+		try {
+			channel = guild ? interaction.channel : await client.channels.fetch(thread.channelID);
+		}
+		catch {
 			return await interaction.reply({
 				content: locale.misc.noChannel,
 				ephemeral: true
