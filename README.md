@@ -28,7 +28,7 @@ This is a complete rewrite of previous version. This version of the bot use repl
 1. Create [Replit](https://replit.com/signup) account and login.
 2. Click `+ Create Repl` button.
 3. Choose `Nix (beta)` as template, and then click `+ Create Repl`.
-4. Upload all the files to replit, the easy way is to select the files then drag and drop them to Files pane inside replit.
+4. Upload all the files to replit and replace the existing files, the easy way is to select the files then drag and drop them to Files pane inside replit.
 5. Go to replit shell (`ctrl`+`shift`+`s`) and type the following command `npm install` and click enter.
 6. After the npm installation complete without error, click `Run` button at the top of replit page and check if your bot goes online.
 #### IV.B Sequelize
