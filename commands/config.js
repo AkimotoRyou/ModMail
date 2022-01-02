@@ -99,8 +99,23 @@ module.exports = {
 		const configName = interaction.options.getString(locale.target.name);
 		const value = interaction.options.getString(locale.value.name);
 		// The main set function for this command is separated to make the code easily readable (check "functions/set.js").
-		const output = await param.set.config(param, locale, interaction.user, configName, value);
-		if (configName == "maintenance" || configName == "language") await param.updateActivity.execute(param);
+		const result = await param.set.config(param, interaction.user, configName, value);
+		let output;
+		if (result.output == "invTarget") {
+			output = locale.target.notFound;
+		}
+		else if (result.output == "invValue") {
+			output = locale.value.invalid;
+		}
+		else if (result.output == "noPerm") {
+			output = locale.misc.noPerm;
+		}
+		else if (result.output == "success") {
+			output = locale.commands.config.setSuccess(configName, result.value);
+		}
+		else if (result.output == "error") {
+			output = locale.misc.unknownError;
+		}
 		return await interaction.reply({
 			content: output,
 		});

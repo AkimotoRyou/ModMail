@@ -2,12 +2,12 @@ module.exports = {
 	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
 	name: "set",
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	async config(param, locale, author, target, value) {
+	async config(param, author, target, value) {
 		const { DB, client, config } = param;
 		const configKeys = Object.keys(config);
-		const invTarget = locale.target.notFound;
-		const invValue = locale.value.invalid;
-		const noPerm = locale.misc.noPerm;
+		const invTarget = { output: "invTarget" };
+		const invValue = { output: "invValue" };
+		const noPerm = { output: "noPerm" };
 
 		// Return if it's an invalid config name.
 		if (!configKeys.includes(target)) return invTarget;
@@ -95,12 +95,11 @@ module.exports = {
 			break;
 		}
 		}
-		// Change database config value and then execute configSync function.
+		// Change database config value.
 		const set = await DB.config.set(target, value);
-		if (!set) {
-			return locale.misc.unknownError;
-		}
+		if (!set) return { output: "error" };
 		param.config[target] = value;
-		return locale.commands.config.setSuccess(target, value);
+		if (target == "maintenance" || target == "language") await param.updateActivity.execute(param);
+		return { output: "success", value: value };
 	},
 };
