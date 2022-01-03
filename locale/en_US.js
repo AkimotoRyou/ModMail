@@ -219,8 +219,7 @@ module.exports = {
 	errorMsg(error, ownerID) {
 		const output = [
 			`An error occurred, please contact bot owner <@${ownerID}>.`,
-			`🔸 Name: \`${error.name}\``,
-			`🔸 Message: \`${error.message}\``,
+			`\`\`\`${error.stack}\`\`\``,
 		];
 		return output.join("\n");
 	},

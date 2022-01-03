@@ -186,6 +186,7 @@ module.exports = {
 			}
 		}
 		catch (error) {
+			await channel.send(`An error has occured.\n\`\`\`${error.stack}\`\`\``);
 			console.log(error);
 		}
 	},

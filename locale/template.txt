@@ -224,8 +224,7 @@ module.exports = {
 	errorMsg(error, ownerID) {
 		const output = [
 			` <@${ownerID}>.`,
-			`🔸 : \`${error.name}\``,
-			`🔸 : \`${error.message}\``,
+			`\`\`\`${error.stack}\`\`\``,
 		];
 		return output.join("\n");
 	},
