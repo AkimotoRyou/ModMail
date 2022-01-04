@@ -34,12 +34,12 @@ module.exports = {
 		const userData = [
 			`${title}`,
 			`🔹 ${locale.misc.User} : <@${user.id}>`,
-			`🔹 ${locale.misc.createdAt} : ${param.moment(user.createdAt).format("D MMM YYYY, HH:mm")}`,
+			`🔹 ${locale.misc.createdAt} : <t:${Math.floor(user.createdAt.getTime() / 1000)}:R>`,
 		];
 		const member = await guilds.cache.get(config.mainServerID).members.fetch(user.id);
 		if (member) {
 			const roles = await member.roles.cache.filter(role => role.name != "@everyone").map(role => `<@&${role.id}>` || "-").join(", ");
-			userData.push(`🔹 ${locale.misc.joinedAt} : ${param.moment(member.joinedAt).format("D MMM YYYY, HH:mm")}`);
+			userData.push(`🔹 ${locale.misc.joinedAt} : <t:${Math.floor(member.joinedAt.getTime() / 1000)}:R>`);
 			userData.push(`🔹 ${locale.misc.roles}: ${roles}`);
 		}
 		const threadEmbed = await getEmbed.execute(param, "", infoColor, userEmbedData.title, userData.join("\n"), "", user, user.displayAvatarURL());

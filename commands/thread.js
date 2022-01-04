@@ -111,7 +111,7 @@ module.exports = {
 	},
 	async bind(param, interaction, locale) {
 		// Operation: bind.
-		const { DB, client, config, getEmbed, threadList, create, moment } = param;
+		const { DB, client, config, getEmbed, threadList, create } = param;
 		const user = interaction.options.getUser(locale.misc.User.toLowerCase());
 		const channel = interaction.options.getChannel(locale.misc.channel.toLowerCase());
 		const cmdData = locale.commands[this.name];
@@ -155,12 +155,12 @@ module.exports = {
 			const userData = [
 				`${thread.title}`,
 				`🔹 ${userLocale.misc.User} : <@${thread.userID}>`,
-				`🔹 ${userLocale.misc.createdAt} : ${moment(user.createdAt).format("D MMM YYYY, HH:mm")}`,
+				`🔹 ${userLocale.misc.createdAt} : <t:${Math.floor(user.createdAt.getTime() / 1000)}:R>`,
 			];
 			const member = await client.guilds.cache.get(config.mainServerID).members.fetch(userID);
 			if (member) {
 				const roles = await member.roles.cache.filter(role => role.name != "@everyone").map(role => `<@&${role.id}>` || "-").join(", ");
-				userData.push(`🔹 ${userLocale.misc.joinedAt} : ${moment(member.joinedAt).format("D MMM YYYY, HH:mm")}`);
+				userData.push(`🔹 ${userLocale.misc.joinedAt} : <t:${Math.floor(member.joinedAt.getTime() / 1000)}:R>`);
 				userData.push(`🔹 ${userLocale.misc.roles}: ${roles}`);
 			}
 			const embed = await getEmbed.execute(param, interaction.user, config.infoColor, userLocale.misc.bindTitle, userData.join("\n"), "", user, user.displayAvatarURL());

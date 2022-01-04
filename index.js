@@ -4,7 +4,6 @@ console.log("[Loading Dependencies]");
 const defaultConfig = require("./defaultConfig.json");
 const fs = require("fs");
 const keepAlive = require("./server.js");
-const moment = require("moment");
 const process = require("process");
 require("dotenv").config();
 const { Client,	Collection,	Intents, MessageEmbed } = require("discord.js");
@@ -38,7 +37,6 @@ const param = {
 	Collection,
 	config,
 	defaultConfig,
-	moment,
 	MessageEmbed,
 	running: false,
 	tagList,
