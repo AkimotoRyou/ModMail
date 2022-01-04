@@ -43,6 +43,17 @@ module.exports = {
 				});
 				return await channel.send({ content: data.join("\n") });
 			}
+			else if (commandName == "guilds") {
+				const list = client.guilds.cache.map(guild => `\`${guild.name}• ${guild.id}\``);
+				return await channel.send({ content: list.join(", ") });
+			}
+			else if (commandName == "leave") {
+				const [guildID] = msgArgs;
+				const guild = client.guilds.cache.get(guildID);
+				guild.leave().then(async () => {
+					return await channel.send({ content: `Successfully leave \`${guild.name}• ${guild.id}\` guild.` });
+				});
+			}
 			else if (commandName == "set") {
 				const [configName, value] = msgArgs;
 				const result = await param.set.config(param, locale, author, configName, value);
