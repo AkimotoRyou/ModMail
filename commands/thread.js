@@ -155,12 +155,12 @@ module.exports = {
 			const userData = [
 				`${thread.title}`,
 				`🔹 ${userLocale.misc.User} : <@${thread.userID}>`,
-				`🔹 ${userLocale.misc.createdAt} : <t:${Math.floor(user.createdAt.getTime() / 1000)}:R>`,
+				`🔹 ${userLocale.misc.createdAt} : <t:${Math.round(user.createdTimestamp / 1000)}:R>`,
 			];
 			const member = await client.guilds.cache.get(config.mainServerID).members.fetch(userID);
 			if (member) {
 				const roles = await member.roles.cache.filter(role => role.name != "@everyone").map(role => `<@&${role.id}>` || "-").join(", ");
-				userData.push(`🔹 ${userLocale.misc.joinedAt} : <t:${Math.floor(member.joinedAt.getTime() / 1000)}:R>`);
+				userData.push(`🔹 ${userLocale.misc.joinedAt} : <t:${Math.round(member.joinedTimestamp / 1000)}:R>`);
 				userData.push(`🔹 ${userLocale.misc.roles}: ${roles}`);
 			}
 			const embed = await getEmbed.execute(param, interaction.user, config.infoColor, userLocale.misc.bindTitle, userData.join("\n"), "", user, user.displayAvatarURL());
