@@ -76,25 +76,25 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
   - Make sure to not leave any property value empty since it might trigger an error.
 
 ## Command List
-***\*Optional***
+#### Slash Commands `*Global Command` `**Optional`
 
 | Name | Operation | Description | Usage |
 | ------- | --------- | ----------- | ----- |
 | **/block** | info | Show specified user information | /block `operation:info` `target:userID` |
-|  | list | Show blocked users list | /block `operation:info` *`page:number` |
+|  | list | Show blocked users list | /block `operation:info` `page:number`\*\* |
 |  | add | Block specified user | /block `operation:add` `target:userID` `reason:blockReason` |
 |  | set | Edit specified user blocking reason | /block `operation:set` `target:userID` `reason:newReason` |
 |  | remove | Remove specified user from blocked list | /block `operation:remove` `target:userID` |
-| **/close** | - | Close an active thread | /close `reason:closeReason` *`note:threadNote` *`anon:true` |
+| **/close** | - | Close an active thread | /close `reason:closeReason` `note:threadNote`\*\* `anon:true`\*\* |
 | **/config** | view | Show current bot configuration | /config `operation:view` |
 |  | info | Show specified config information | /config `operation:info` `target:configName` |
 |  | set | Edit specified config value | /config `operation:set` `target:configName` `value:newValue` |
 |  | reset | Reset specified or all config value | /config `operation:reset` `target:configName` |
-| **/create** | - | Create new thread | /create `title:threadTitle` |
-| **/help** | - | Show specified command information | /help `target:commandName` |
+| **/create**\* | - | Create new thread | /create `title:threadTitle` |
+| **/help**\* | - | Show specified command information | /help `target:commandName` |
 | **/ping** | - | Calculate bot latency | /ping |
-| **/reply** | - | Reply an active thread | /reply `content:message` *`anon:true` |
-| **/tag** | view | Show a saved response | /tag `operation:view` `target:tagName` *`show:true` |
+| **/reply**\* | - | Reply an active thread | /reply `content:message` `anon:true` |
+| **/tag** | view | Show a saved response | /tag `operation:view` `target:tagName` `show:true`\*\* |
 |  | sent | Sent a saved response to an active thread | /tag `operation:sent` `target:tagName` |
 |  | info | Show tag information | /tag `operation:info` `target:tagName` |
 |  | list | Show tag list | /tag `operation:list` `page:number` |
@@ -103,8 +103,21 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
 |  | remove | Remove specified tag | /tag `operation:remove` `target:tagName` |
 | **/thread** | info | Show specified thread information | /thread `operation:info` `user:targetUser` |
 |  |  |  | /thread `operation:info` `channel:targetChannel` |
-|  | list | Show thread list | /thread `operation:list` *`page:number` |
-|  | bind | Bind a user thread to a channel | /thread `operation:bind` `user:targetUser` `channel:targetChannel` *`title:threadTitle` |
+|  | list | Show thread list | /thread `operation:list` `page:number`\*\* |
+|  | bind | Bind a user thread to a channel | /thread `operation:bind` `user:targetUser` `channel:targetChannel` `title:threadTitle`\*\* |
+
+#### Message Commands
+> ⚠️ If `ownerID` is empty any guild admin can execute these commands otherwise, only bot owner.
+
+| Name | Description | Usage |
+| ---- | ----------- | ----- |
+| config | Show current bot config | @ModMail config |
+| deploy | Deploy slash commands | @ModMail deploy |
+| guilds | Show list of guilds(servers) the bot in | @ModMail guilds |
+| leave | Leave specified guild(server) | @ModMail leave guildID |
+| reload | Reload specified command, function, or locale file | @ModMail reload targetName |
+| set | Edit specified config value | @ModMail set configName configValue |
+| setup | Set required bot config and deploy slash command| @ModMail setup |
 
 ## Testing
 

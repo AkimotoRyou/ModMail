@@ -9,7 +9,12 @@ module.exports = {
 		const cooldown = parseInt(config.cooldown);
 		const command = client.commands.get(commandName);
 		const cmdData = cmdDataList.find(key => key.name == commandName);
-		const locale = param.locale[cmdData.language];
+		let locale = param.locale[cmdData.language];
+
+		if (!locale) {
+			locale = param.locale(config.language);
+			if (!locale) return interaction.reply(`Invalid language configuration, ask <@${config.ownerID}> to set valid languaage using message command.`);
+		}
 
 		if (!isNaN(cooldown) && cooldown > 0) {
 			// Command cooldown.

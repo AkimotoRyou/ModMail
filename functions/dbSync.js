@@ -4,7 +4,7 @@ module.exports = {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	async execute(param) {
 		// Syncing config values.
-		const { DB, client, config, defaultConfig, reset, cmdDataList, tagList, threadList, updateActivity } = param;
+		const { DB, client, config, defaultConfig, reset, cmdDataList, tagList, updateActivity } = param;
 		/* For Sequelize, ReplDB doesn't need to be synced thus the function just return undefined. */
 		await DB.sync();
 		/* */
@@ -32,10 +32,12 @@ module.exports = {
 		// Syncing active threads list.
 		const dbThread = await DB.thread.list();
 		if (dbThread.length !== 0) {
+			const data = [];
 			for (const key of dbThread) {
 				const dbData = await DB.thread.get(key);
-				threadList.push(dbData);
+				data.push(dbData);
 			}
+			param.threadList = data;
 			console.log("> ThreadList synced.");
 		}
 		// Syncing commands id.

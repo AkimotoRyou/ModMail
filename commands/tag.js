@@ -148,24 +148,30 @@ module.exports = {
 	async list(param, interaction, locale) {
 		// Operation: List.
 		const { config, getEmbed, tagList } = param;
-		let tempList = Object.keys(tagList);
-		let selectedPage = interaction.options.getInteger(locale.page.name);
-		const totalPage = Math.ceil(tempList.length / 30);
+		const { commands, page } = locale;
+		let selectedPage = interaction.options.getInteger(page.name);
+		const pageItems = 30;
+		let outputList = Object.keys(tagList);
+		const totalPage = Math.ceil(outputList.length / pageItems);
 
-		if (tempList.length == 0) {
+		if (tagList.length == 0) {
 			selectedPage = 0;
-			tempList = locale.page.emptyList;
+			outputList = locale.page.emptyList;
 		}
 		else {
 			if (!selectedPage || selectedPage < 1) selectedPage = 1;
 			if (selectedPage > totalPage) selectedPage = totalPage;
 
-			const firstIndex = Math.abs((selectedPage - 1) * 30);
-			tempList = tempList.slice(firstIndex, firstIndex + 30);
-			tempList = tempList.map(key => `\`${key}\``).join(", ");
+			const firstIndex = Math.abs((selectedPage - 1) * pageItems);
+			outputList = outputList.reduce((total, value, index) => {
+				if (index >= firstIndex && index < firstIndex + pageItems) total.push(`\`${value}\``);
+				return total;
+			}, []);
+			outputList = outputList.join(", ");
 		}
 
-		const embed = await getEmbed.execute(param, "", config.infoColor, locale.commands[this.name].listTitle, tempList, "", `${locale.page.name} ${selectedPage} / ${totalPage}`);
+		const footer = `${page.name.replace(/^./, page.name[0].toUpperCase())} ${selectedPage} / ${totalPage}`;
+		const embed = await getEmbed.execute(param, "", config.infoColor, commands[this.name].listTitle, outputList, "", footer);
 		return await interaction.reply({
 			embeds: [embed],
 			ephemeral: true,

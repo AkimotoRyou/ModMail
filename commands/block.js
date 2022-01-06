@@ -82,24 +82,28 @@ module.exports = {
 		const { config, getEmbed, blockList } = param;
 		const { page, commands } = locale;
 		let selectedPage = interaction.options.getInteger(page.name);
-		const totalPage = Math.ceil(blockList.length / 20);
-		let tempList = blockList;
+		const pageItems = 20;
+		const totalPage = Math.ceil(blockList.length / pageItems);
+		let outputList;
 
 		if (blockList.length == 0) {
 			selectedPage = 0;
-			tempList = page.emptyList;
+			outputList = page.emptyList;
 		}
 		else {
 			if (!selectedPage || selectedPage < 1) selectedPage = 1;
 			if (selectedPage > totalPage) selectedPage = totalPage;
 
-			const firstIndex = Math.abs((selectedPage - 1) * 20);
-			tempList = tempList.slice(firstIndex, firstIndex + 20);
-			tempList = tempList.map(key => `🔸 <@${key}> [\`${key}\`]`).join("\n");
+			const firstIndex = Math.abs((selectedPage - 1) * pageItems);
+			outputList = blockList.reduce((total, value, index) => {
+				if (index >= firstIndex && index < firstIndex + pageItems) total.push(`🔸 <@${value}> [\`${value}\`]`);
+				return total;
+			}, []);
+			outputList = outputList.join("\n");
 		}
 
 		const footer = `${page.name.replace(/^./, page.name[0].toUpperCase())} ${selectedPage} / ${totalPage}`;
-		const embed = await getEmbed.execute(param, "", config.infoColor, commands.block.listTitle, tempList, "", footer);
+		const embed = await getEmbed.execute(param, "", config.infoColor, commands.block.listTitle, outputList, "", footer);
 		return await interaction.reply({
 			embeds: [embed],
 			ephemeral: true,
@@ -156,7 +160,7 @@ module.exports = {
 		}
 
 		const modID = interaction.user.id;
-		await DB.block.add(userID, modID, reason).then(async () => {
+		await DB.block.set(userID, modID, reason).then(async () => {
 			blockList.push(userID);
 			return await interaction.reply({
 				content: commands.block.addSuccess(userID),

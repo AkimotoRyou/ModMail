@@ -13,16 +13,13 @@ module.exports = {
 		const clientID = client.user.id;
 		const locale = param.locale[config.language];
 		const localeNames = client.commands.keys();
-		console.log(localeNames);
 
 		// Getting commands data and store it in `commands` array.
 		const globalCommands = [];
 		const guildCommands = [];
 		for (const localeName of localeNames) {
-			console.log(localeName);
 			const command = client.commands.get(localeName);
 			const cmdData = cmdDataList.find(key => key.name == localeName);
-			console.log(cmdData);
 			// Getting commands data based on it's language.
 			const cmdLocale = param.locale[cmdData.language];
 			const data = command.getData(SlashCommandBuilder, param, cmdLocale);
