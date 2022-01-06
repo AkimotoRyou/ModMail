@@ -33,8 +33,8 @@ This is a complete rewrite of previous version. This version of the bot use repl
 4. Upload all the files to replit and replace the existing files, the easy way is to select the files then drag and drop them to Files pane inside replit.
 5. Go to replit shell (`ctrl`+`shift`+`s`) and type the following command `npm install` and click enter.
 6. After the npm installation complete without error, click `Run` button at the top of replit page and check if your bot goes online.
-#### IV.B Sequelize
-> For non replit user, you can change Database from replDB to any DB that are supported by Sequelize, even though the provided code are using sqlite3.
+#### IV.B Non Replit User
+> Since replDB insist on using absolute path, you can change Database from replDB to any DB that are supported by Sequelize, even though the provided code are using sqlite3.
 Please note that the dependencies version in `sequelize-package.json` wont be checked by dependabot so compare it with `package.json`.
 
 1. Go to `functions/DB.js` file, comment the replDB part by removing second `/` character at top part `/* */` => `/* *`.
@@ -76,7 +76,8 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
   - Make sure to not leave any property value empty since it might trigger an error.
 
 ## Command List
-#### Slash Commands `*Global Command` `**Optional`
+#### Slash Commands
+`*Global Command` `**Optional`
 
 | Name | Operation | Description | Usage |
 | ------- | --------- | ----------- | ----- |
