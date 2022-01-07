@@ -1,13 +1,13 @@
 # ModMail - Discord Bot
 Simple ModMail Discord bot designed for a small server and people that want to maintain their own ModMail bot in discord.
-ModMail is a bot that create a private space between support staff and user to address an issue by creating a new channel.
+ModMail is a bot that create a private space between moderator and user to address an issue by acting as a bridge between user DM channel and new temporary channel inside a thread server.
 
 ## Disclaimer
 This bot only support one pair of server per bot, one main server and one thread server.
 I'm debugging the bot alone so expect some bugs passed to GitHub, and if you encounter bugs report [here](https://github.com/AkimotoRyou/ModMail/issues).
 
 ## Note
-This is a complete rewrite of previous version. This version of the bot use replit nix to meet node version requirement for Discord.Js v13 to host it in Replit and it's still in beta version. This bot use slash command and currently can't receive file attachment as an input due Discord API limitation. It's still a planned feature for slash command option as stated in this [link](https://github.com/discord/discord-api-docs/discussions/3581).  Global slash commands need up to an hour to register properly.
+This is a complete rewrite of previous version. This version of the bot use Replit nix to meet node version requirement for Discord.Js v13 to host it in Replit and it's still in beta version. This bot use slash command and currently can't receive file attachment as an input due Discord API limitation. It's still a planned feature for slash command option as stated in this [link](https://github.com/discord/discord-api-docs/discussions/3581). Global slash commands need up to an hour to register properly.
 
 ## Installation
 #### I. Setting up a bot application
@@ -24,7 +24,7 @@ This is a complete rewrite of previous version. This version of the bot use repl
 2. Extract the downloaded zip file and go to the extracted folder.
 3. Copy your bot [Token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token), and paste it after `TOKEN=` inside .env file and save it. e.g. `TOKEN=YourBotTokenHere`
 4. Copy your discord [User ID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-), and paste it inside double quotes `""` character after `"ownerID":` inside `defaultConfig.json` file and save it. e.g. `"ownerID": "YourUserIdHere"`
-> If you don't set `ownerID`, any admin in any server that have this bot will be able to use commands from `messageCreate.js`.
+> If you don't set `ownerID` when `mainServerID` and `threadServerID` is empty, any admin in any serer will be able to use [Message Commands](https://github.com/AkimotoRyou/ModMail#message-commands).
 
 #### IV.A Setting up Replit
 1. Create [Replit](https://replit.com/signup) account and login.
@@ -70,7 +70,7 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
 * Notes :
   - I recommend to only have up to two language per bot to make cleaner user experience.
   - User experience would be better if you have different bot for different language.
-  - Some of the setup command response are hard coded so it won't be affected.
+  - Most of message command response are hard coded so it won't be affected.
   - Make sure the name property is same as the filename without the filetype. e.g. `en.js` `name: "en"`
   - Make sure there's no same command name within and between language as it will throw an error when deploying the command.
   - Make sure to not leave any property value empty since it might trigger an error.
@@ -108,7 +108,9 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
 |  | bind | Bind a user thread to a channel | /thread `operation:bind` `user:targetUser` `channel:targetChannel` `title:threadTitle`\*\* |
 
 #### Message Commands
-> ⚠️ If `ownerID` is empty any guild admin can execute these commands otherwise, only bot owner.
+> If `ownerID` are set, only owner can use these commands.
+If `ownerID` are empty but `mainServerID` or `threadServerID` are set, only admin from those servers can use these commands.
+⚠️ If `ownerID`, `mainServerID`, and `threadServerID` are empty, any admin from any server can use these commands.
 
 | Name | Description | Usage |
 | ---- | ----------- | ----- |
@@ -117,6 +119,8 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
 | guilds | Show list of guilds(servers) the bot in | @ModMail guilds |
 | leave | Leave specified guild(server) | @ModMail leave guildID |
 | reload | Reload specified command, function, or locale file | @ModMail reload targetName |
+| reset | Reset all or specified config value | @ModMail reset all |
+|  |  | @ModMail reset configName |
 | set | Edit specified config value | @ModMail set configName configValue |
 | setup | Set required bot config and deploy slash command| @ModMail setup |
 

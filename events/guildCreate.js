@@ -9,7 +9,7 @@ module.exports = {
 
 		const { client, config } = param;
 		const { ownerID } = config;
-		const botOwner = ownerID == "-" ? null : await client.users.fetch(ownerID);
+		const botOwner = ownerID == "-" ? false : await client.users.fetch(ownerID);
 
 		if (botOwner) {
 			botOwner.send(`Joined \`${guild.name}• ${guild.id}\`.`).catch(error => {

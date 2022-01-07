@@ -8,7 +8,8 @@ module.exports = {
 	once: false,
 	async execute(param, message) {
 		const { client, config, getEmbed, deployCommands } = param;
-		const { author, content, channel, member } = message;
+		const { author, content, channel, guild, member } = message;
+		const { ownerID, mainServerID, threadServerID } = config;
 		const locale = param.locale[config.language];
 		const configKeys = Object.keys(config);
 		const separator = new RegExp("^(_Separator)\\s*");
@@ -17,19 +18,17 @@ module.exports = {
 			const mentionRegex = new RegExp(`^(<@!?${client.user.id}>)\\s*`);
 			if (!mentionRegex.test(content)) return;
 
-			const isOwner = author.id == config.ownerID;
-			const isAdmin = member ? member.permissions.has("ADMINISTRATOR") : isOwner;
-			const perm = isOwner || (config.ownerID == "-" && isAdmin);
+			const isOwner = author.id == ownerID;
+			const adminPerm = member ? member.permissions.has("ADMINISTRATOR") : false;
+			const isGuild = guild && mainServerID !== "-" && threadServerID !== "-" ? guild.id == mainServerID || guild.id == threadServerID : true;
+			const isAdmin = isGuild && adminPerm;
+			const perm = isOwner || (ownerID == "-" && isAdmin);
 			if (!perm) return;
 
 			const [, matchedPrefix] = content.match(mentionRegex);
 			const msgArgs = content.slice(matchedPrefix.length).trim().split(/ +/);
 			const commandName = msgArgs.shift().toLowerCase();
-			if (commandName == "deploy") {
-				const isDeployed = await deployCommands.execute(param);
-				return await channel.send({ content: isDeployed });
-			}
-			else if (commandName == "config") {
+			if (commandName == "config") {
 				const data = [];
 				configKeys.forEach(key => {
 					if (separator.test(key)) {
@@ -43,20 +42,24 @@ module.exports = {
 				});
 				return await channel.send({ content: data.join("\n") });
 			}
+			else if (commandName == "deploy") {
+				const isDeployed = await deployCommands.execute(param);
+				return await channel.send({ content: isDeployed });
+			}
 			else if (commandName == "guilds") {
-				const list = client.guilds.cache.map(guild => `\`${guild.name}• ${guild.id}\``);
+				const list = client.guilds.cache.map(key => `\`${key.name}• ${key.id}\``);
 				return await channel.send({ content: list.join(", ") });
 			}
 			else if (commandName == "leave") {
 				const [guildID] = msgArgs;
-				const guild = client.guilds.cache.get(guildID);
-				guild.leave().then(async () => {
-					return await channel.send({ content: `Successfully leave \`${guild.name}• ${guild.id}\` guild.` });
+				const target = client.guilds.cache.get(guildID);
+				target.leave().then(async () => {
+					return await channel.send({ content: `Successfully leave \`${target.name}• ${target.id}\` guild.` });
 				});
 			}
 			else if (commandName == "set") {
 				const [configName, value] = msgArgs;
-				const result = await param.set.config(param, locale, author, configName, value);
+				const result = await param.set.config(param, author, configName, value);
 				let output;
 				if (result.output == "invTarget") {
 					output = "Invalid config name.";
@@ -74,6 +77,16 @@ module.exports = {
 					output = "An error has occured.";
 				}
 				return await channel.send({ content: output });
+			}
+			else if (commandName == "reset") {
+				const [configName] = msgArgs;
+				if (!configKeys.includes(configName) && configName.toLowerCase() !== "all") {
+					return await channel.send({ content: "`Can't find that config.`" });
+				}
+
+				// The main reset function for this command is separated to enable auto reset when config sync is running.
+				await param.reset.execute(param, configName);
+				return await channel.send({ content: `\`Succesfully reset ${configName} config.\`` });
 			}
 			else if (commandName == "reload") {
 				const [target] = msgArgs;
