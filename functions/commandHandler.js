@@ -61,8 +61,8 @@ module.exports = {
 			userPerm.Admin = member.permissions.has("ADMINISTRATOR");
 		}
 		if (guild && (guild.id == config.mainServerID || guild.id == config.threadServerID)) {
-			userPerm.Admin = member.permissions.has("ADMINISTRATOR") || member.roles.cache.get(config.adminRoleID);
-			userPerm.Moderator = userPerm.Admin || member.roles.cache.get(config.modRoleID);
+			userPerm.Admin = member.permissions.has("ADMINISTRATOR") || member.roles.cache.has(config.adminRoleID);
+			userPerm.Moderator = userPerm.Admin || member.roles.cache.has(config.modRoleID);
 		}
 		userPerm.User = userPerm.Admin || userPerm.Moderator || !blockList.includes(user.id);
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
