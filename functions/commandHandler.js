@@ -47,7 +47,7 @@ module.exports = {
 		const threadServer = client.guilds.cache.get(config.threadServerID);
 		let operation = interaction.options.getString(locale.operation.name);
 
-		let operationPerm = operation ? command.level[operation] : command.level.default;
+		let operationPerm = operation && command.level[operation] ? command.level[operation] : command.level.default;
 		if (command.name == "reply") operationPerm = interaction.guild ? "Moderator" : "User";
 		// Defining user's permissions.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		const userPerm = {
