@@ -82,7 +82,7 @@ Please note that the dependencies version in `sequelize-package.json` wont be ch
 | Name | Operation | Description | Usage |
 | ------- | --------- | ----------- | ----- |
 | **/block** | info | Show specified user information | /block `operation:info` `target:userID` |
-|  | list | Show blocked users list | /block `operation:info` `page:number`\*\* |
+|  | list | Show blocked users list | /block `operation:list` `page:number`\*\* |
 |  | add | Block specified user | /block `operation:add` `target:userID` `reason:blockReason` |
 |  | set | Edit specified user blocking reason | /block `operation:set` `target:userID` `reason:newReason` |
 |  | remove | Remove specified user from blocked list | /block `operation:remove` `target:userID` |
