@@ -13,7 +13,7 @@ module.exports = {
 
 		if (!locale) {
 			locale = param.locale(config.language);
-			if (!locale) return interaction.reply(`Invalid language configuration, ask <@${config.ownerID}> to set valid languaage using message command.`);
+			if (!locale) return interaction.reply(`Invalid language configuration, ask <@${config.ownerID}> to set valid language using message command.`);
 		}
 
 		if (!isNaN(cooldown) && cooldown > 0) {

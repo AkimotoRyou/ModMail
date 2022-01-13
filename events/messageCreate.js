@@ -7,12 +7,13 @@ module.exports = {
 	disabled: false,
 	once: false,
 	async execute(param, message) {
-		const { client, config, getEmbed, deployCommands } = param;
+		const { client, config, defaultConfig, getEmbed, deployCommands } = param;
 		const { author, content, channel, guild, member } = message;
 		const { ownerID, mainServerID, threadServerID } = config;
-		const locale = param.locale[config.language];
 		const configKeys = Object.keys(config);
 		const separator = new RegExp("^(_Separator)\\s*");
+		let locale = param.locale[config.language];
+		if (!locale) locale = param.locale[defaultConfig.language];
 
 		try {
 			const mentionRegex = new RegExp(`^(<@!?${client.user.id}>)\\s*`);
@@ -150,6 +151,7 @@ module.exports = {
 			}
 			else if (commandName == "setup") {
 				if (param.running) return;
+				if (!locale) return message.reply(`Invalid language configuration, use "<@${client.user.id}> set language languageName" command to change default language.`);
 				const cancel = "`Command canceled.`";
 				const keys = ["mainServerID", "threadServerID", "categoryID", "logChannelID", "adminRoleID", "modRoleID", "mentionedRoleID"];
 				let index = 0;
@@ -181,8 +183,8 @@ module.exports = {
 							}
 
 							const output = await param.set.config(param, locale, author, current, userReply);
-							if (output == locale.value.invalid) {
-								embed = await getEmbed.execute(param, "", config.infoColor, title, `${info}\n\n⚠️ ${output}`, "", footer);
+							if (output == "invValue") {
+								embed = await getEmbed.execute(param, "", config.infoColor, title, `${info}\n\n⚠️ ${locale.value.invalid}`, "", footer);
 								await botMessage.edit({ embeds: [embed] });
 								await userMsg.delete().catch(() => {return});
 								return waitMsg();
