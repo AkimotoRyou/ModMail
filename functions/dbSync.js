@@ -44,20 +44,24 @@ module.exports = {
 		const globalCommands = await client.application?.commands?.fetch();
 		const threadServer = client.guilds.cache.get(config.threadServerID);
 		const guildCommands = await threadServer?.commands?.fetch();
-		if (globalCommands) {
+		if (globalCommands.size !== 0) {
 			for (const key of globalCommands) {
 				const [, data] = key;
 				const getData = cmdDataList.find(cmd => cmd.name == data.name);
-				getData.id = data.id;
-				console.log(`> Synced ${data.name} global command id.`);
+				if (getData && data) {
+					getData.id = data.id;
+					console.log(`> Synced ${data.name} global command id.`);
+				}
 			}
 		}
-		if (guildCommands) {
+		if (guildCommands.size !== 0) {
 			for (const key of guildCommands) {
 				const [, data] = key;
 				const getData = cmdDataList.find(cmd => cmd.name == data.name);
-				getData.id = data.id;
-				console.log(`> Synced ${data.name} guild command id.`);
+				if (getData && data) {
+					getData.id = data.id;
+					console.log(`> Synced ${data.name} guild command id.`);
+				}
 			}
 		}
 		await updateActivity.execute(param);
