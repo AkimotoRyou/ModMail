@@ -44,7 +44,7 @@ module.exports = {
 		const globalCommands = await client.application?.commands?.fetch();
 		const threadServer = client.guilds.cache.get(config.threadServerID);
 		const guildCommands = await threadServer?.commands?.fetch();
-		if (globalCommands.size !== 0) {
+		if (globalCommands && globalCommands.size !== 0) {
 			for (const key of globalCommands) {
 				const [, data] = key;
 				const getData = cmdDataList.find(cmd => cmd.name == data.name);
@@ -54,7 +54,7 @@ module.exports = {
 				}
 			}
 		}
-		if (guildCommands.size !== 0) {
+		if (guildCommands && guildCommands.size !== 0) {
 			for (const key of guildCommands) {
 				const [, data] = key;
 				const getData = cmdDataList.find(cmd => cmd.name == data.name);
