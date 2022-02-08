@@ -182,7 +182,7 @@ module.exports = {
 								return await botMessage.edit({ content: output, embeds: [] });
 							}
 
-							const output = await param.set.config(param, locale, author, current, userReply);
+							const output = await param.set.config(param, author, current, userReply);
 							if (output == "invValue") {
 								embed = await getEmbed.execute(param, "", config.infoColor, title, `${info}\n\n⚠️ ${locale.value.invalid}`, "", footer);
 								await botMessage.edit({ embeds: [embed] });
