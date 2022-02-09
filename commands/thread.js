@@ -123,7 +123,7 @@ module.exports = {
 		const cmdData = locale.commands[this.name];
 		let output;
 
-		if (!user || !channel || channel.guild.id !== config.threadServerID || channel.parent.id !== config.categoryID || channel.id == config.categoryID || channel.id == config.logChannelID) {
+		if (!user || !channel || channel.type !== "GUILD_TEXT" || channel.guild.id !== config.threadServerID || channel.parent.id !== config.categoryID || channel.id == config.categoryID || channel.id == config.logChannelID) {
 			// Target user or channel isn't provided, or traget channel isn't inside defined thread server nor category channel.
 			return await interaction.reply({
 				content: locale.target.invalid,
