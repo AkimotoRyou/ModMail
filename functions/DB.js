@@ -1,6 +1,9 @@
-// ReplDB - Uncomment this section and comment Sequelize section to use.
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* */
+/*
+	* ~~~~~~~~~~~~~~~~~~~~~~~ Start of ReplDB Section ~~~~~~~~~~~~~~~~~~~~~~~~~~
+	* ReplDB - Uncomment this section and comment Sequelize section to use.
+	* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Remove / char to comment, add it to uncomment ➡️ */
+
 const Database = require("@replit/database");
 const ReplDB = new Database();
 
@@ -117,12 +120,14 @@ const thread = {
 		return await list(dbPrefix.thread);
 	}
 };
-/* */
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~ End of ReplDB Section ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// Sequelize - Uncomment this section and comment ReplDB section to use.
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* *
+/*
+	* ~~~~~~~~~~~~~~~~~~~~~~ Start of Sequelize Section ~~~~~~~~~~~~~~~~~~~~~~~~
+	* Sequelize - Uncomment this section and comment ReplDB section to use.
+	* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Remove / char to comment, add it to uncomment ➡️ *
+
 const Sequelize = require("sequelize");
 const sequelize = new Sequelize({
 	dialect: "sqlite",
@@ -244,8 +249,7 @@ const thread = {
 		return threadList.map(key => key.userID);
 	},
 };
-/* */
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/* ~~~~~~~~~~~~~~~~~~~~~~~~ End of Sequelize Section ~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 module.exports = {
 	// ⚠️⚠️⚠️ Don't change this value!!! ⚠️⚠️⚠️
