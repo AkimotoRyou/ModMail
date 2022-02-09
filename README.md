@@ -27,9 +27,9 @@ This is a complete rewrite of previous version. This version of the bot use Repl
    * Required scopes: `bot`, `application.commands`.
    * Required permissions: `Manage Roles`, `Manage Channels`, `Read Messages/View Channels`, `Send Messages`, `Embed Links`, `Attach Files`, `Read Message History`, `Mention Everyone`
 
-   > If you don't understand Discord permissions rules, either give the bot `Administrator` permission or read this *[guide](https://discordjs.guide/popular-topics/permissions-extended.html#permissions-extended)*.
-
-   > You'll need to reinvite the bot with correct scopes if you get "Missing Access" error.
+> If you don't understand Discord permissions rules, either give the bot `Administrator` permission or read this *[guide](https://discordjs.guide/popular-topics/permissions-extended.html#permissions-extended)*.
+>
+> You'll need to re-invite the bot with correct scopes if you get "Missing Access" error.
 
 #### II. Preparing the source code
 
