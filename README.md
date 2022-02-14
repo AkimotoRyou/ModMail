@@ -33,10 +33,11 @@ This is a complete rewrite of previous version. This version of the bot use Repl
 
 #### II. Preparing the source code
 
-1. Copy your *[bot token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token)* from discord developer page.
-2. Open `.env` file and paste your bot token right after the equal sign on `TOKEN=` and save the file. e.g. `TOKEN=YourBotTokenHere`
-3. Copy your discord *[User ID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)*.
-4. Open `defaultConfig.json` file and paste your discord user id inside double quotes `""` character that are after `"ownerID":` and save the file. e.g. `"ownerID": "YourUserIdHere"`
+1. Download latest source code [here](https://github.com/AkimotoRyou/ModMail/releases) and extract it.
+2. Copy your *[bot token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-token)* from discord developer page.
+3. Open `.env` file and paste your bot token right after the equal sign on `TOKEN=` and save the file. e.g. `TOKEN=YourBotTokenHere`
+4. Copy your discord *[User ID](https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)*.
+5. Open `defaultConfig.json` file and paste your discord user id inside double quotes `""` character that are after `"ownerID":` and save the file. e.g. `"ownerID": "YourUserIdHere"`
 
 > Setting ownerID is recommend since it'll limit who can use critical *[commands](https://github.com/AkimotoRyou/ModMail#message-commands)*.
 
