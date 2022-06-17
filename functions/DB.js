@@ -177,7 +177,7 @@ const block = {
 	async set(inputUID, inputMID, inputReason) {
 		const blockData = await Block.findOne({ where: { userID: inputUID } });
 		if (blockData) {
-			return await Block.Update({ modID: inputMID, reason: inputReason }, { where: { userID: inputUID } });
+			return await Block.update({ modID: inputMID, reason: inputReason }, { where: { userID: inputUID } });
 		}
 		return await Block.create({ userID: inputUID, modID: inputMID, reason: inputReason });
 	},
@@ -196,7 +196,7 @@ const config = {
 	async set(inputName, inputValue) {
 		const configData = await Config.findOne({ where: { name: inputName } });
 		if (configData) {
-			return await Config.Update({ value: inputValue }, { where: { name: inputName } });
+			return await Config.update({ value: inputValue }, { where: { name: inputName } });
 		}
 		return await Config.create({ name: inputName, value: inputValue });
 	},
@@ -215,7 +215,7 @@ const tag = {
 	async set(inputName, inputMID, inputContent) {
 		const tagData = await Tag.findOne({ where: { name: inputName } });
 		if (tagData) {
-			return await Tag.Update({ modID: inputMID, content: inputContent }, { where: { name: inputName } });
+			return await Tag.update({ modID: inputMID, content: inputContent }, { where: { name: inputName } });
 		}
 		return await Tag.create({ name: inputName, modID: inputMID, content: inputContent });
 	},
@@ -234,7 +234,7 @@ const thread = {
 	async set(inputUID, inputCID, inputLang, inputTitle) {
 		const threadData = await Thread.findOne({ where: { userID: inputUID } });
 		if (threadData) {
-			return await Thread.Update({ channelID: inputCID, language: inputLang, title: inputTitle }, { where: { userID: inputUID } });
+			return await Thread.update({ channelID: inputCID, language: inputLang, title: inputTitle }, { where: { userID: inputUID } });
 		}
 		return await Thread.create({ userID: inputUID, channelID: inputCID, language: inputLang, title: inputTitle });
 	},
