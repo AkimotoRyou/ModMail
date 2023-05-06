@@ -144,7 +144,7 @@ module.exports = {
 			// Target user doesn't have an active thread, create new thread.
 			const title = interaction.options.getString(locale.title.name) || locale.misc.bindTitle;
 			output = await create.thread(param, locale, user, channel, title);
-			const channelName = `${locale.name}-${user.tag.replace(/[^0-9a-z]/gi, "")}`;
+			const channelName = `${locale.name}-${user.username.replace(/[^0-9a-z]/gi, "")}`;
 			await channel.setName(channelName);
 			if (output == "dmDisabled") output = cmdData.dmDisabled(userID, channel.id);
 			else output = cmdData.bindSuccess(userID, channel.id);
@@ -155,7 +155,7 @@ module.exports = {
 			const setLang = param.locale[language] ? language : config.language ;
 			await DB.thread.set(userID, channel.id, setLang, title);
 			thread.channelID = channel.id;
-			const channelName = `${language}-${user.tag.replace(/[^0-9a-z]/gi, "")}`;
+			const channelName = `${language}-${user.username.replace(/[^0-9a-z]/gi, "")}`;
 			await channel.setName(channelName);
 			const userLocale = param.locale[thread.language];
 			const userData = [

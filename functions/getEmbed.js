@@ -19,7 +19,7 @@ module.exports = {
 		// author is a guild instance
 		if (author?.name) embed.setAuthor(author.name, author.iconURL());
 		// author is a guild member instance
-		else if (author?.user) embed.setAuthor(author.user.tag, author.user.displayAvatarURL());
+		else if (author?.user) embed.setAuthor(author.user.username, author.user.displayAvatarURL());
 		// author is a user instance
 		else if (author?.tag) embed.setAuthor(author.tag, author.displayAvatarURL());
 		// author is possibly a String
@@ -28,7 +28,7 @@ module.exports = {
 		// footer is guild object
 		if (footer?.name) embed.setFooter(`${footer.name}`, footer.iconURL());
 		// footer is member object
-		else if (footer?.user) embed.setFooter(`${footer.user.tag} • ${footer.user.id}`, footer.user.displayAvatarURL());
+		else if (footer?.user) embed.setFooter(`${footer.user.username} • ${footer.user.id}`, footer.user.displayAvatarURL());
 		// footer is user object
 		else if (footer?.tag) embed.setFooter(`${footer.tag} • ${footer.id}`, footer.displayAvatarURL());
 		// footer is possibly a String

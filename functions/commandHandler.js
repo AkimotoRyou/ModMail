@@ -82,7 +82,7 @@ module.exports = {
 			});
 		}
 
-		console.log(`> ${user.tag}[${user.id}] calling "${cmdData.name}" command.`);
+		console.log(`> ${user.username}[${user.id}] calling "${cmdData.name}" command.`);
 		try {
 			param.timestamp = Date.now();
 			if (!operation) operation = "execute";

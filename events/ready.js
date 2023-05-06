@@ -5,7 +5,7 @@ module.exports = {
 	disabled: false,
 	once: true,
 	async execute(param, client) {
-		console.log(`[Ready] Logged in as ${client.user.tag}.`);
+		console.log(`[Ready] Logged in as ${client.user.username}.`);
 
 		// Delete database data ~["For Debugging Purpose"]~.
 		// await param.DB.empty();
