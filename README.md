@@ -41,15 +41,17 @@ This is a complete rewrite of previous version. This version of the bot use Repl
 
 > Setting ownerID is recommend since it'll limit who can use critical *[commands](https://github.com/AkimotoRyou/ModMail#message-commands)*.
 
-#### III. A. Replit
+#### III. A. ~~Replit~~
 
-1. Create *[Replit](https://replit.com/signup)* account and login.
-2. Click `+ Create Repl` button.
-3. Choose `Nix (beta)` as template, and then click `+ Create Repl`.
-4. Go to your source code folder and select all the files.
-5. Drag and drop them to `Files` pane on Replit and click `replace`.
-6. Go to Replit shell (`ctrl`+`shift`+`s`) and run `npm install` command.
-7. If the installation finished without any error, click `Run` button at the top of Replit page and your bot should be online.
+> We can't host on Replit for free now, read https://blog.replit.com/hosting-changes for more information.
+
+1. ~~Create *[Replit](https://replit.com/signup)* account and login.~~
+2. ~~Click `+ Create Repl` button.~~
+3. ~~Choose `Nix (beta)` as template, and then click `+ Create Repl`.~~
+4. ~~Go to your source code folder and select all the files.~~
+5. ~~Drag and drop them to `Files` pane on Replit and click `replace`.~~
+6. ~~Go to Replit shell (`ctrl`+`shift`+`s`) and run `npm install` command.~~
+7. ~~If the installation finished without any error, click `Run` button at the top of Replit page and your bot should be online.~~
 
 #### III. B. Non Replit User
 
